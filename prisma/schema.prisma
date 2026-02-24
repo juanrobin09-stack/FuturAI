@@ -1,0 +1,498 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── USERS ──────────────────────────────────────────────
+model User {
+  id         String   @id @default(cuid())
+  clerkId    String   @unique
+  username   String
+  email      String   @unique
+  avatarUrl  String?
+  country    String?
+  bio        String?
+  points       Int      @default(0)
+  role           String   @default("USER")  // USER, EXPERT_VOLUNTEER, EXPERT_INSTITUTION, ADMIN
+  organizationId String?                     // hidden: future org accounts
+  verified       Boolean  @default(false)    // hidden: verified badge
+  consentGiven Boolean  @default(false)
+  consentAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ideas          Idea[]
+  votes          Vote[]
+  badges         UserBadge[]
+  projects       ProjectMember[]
+  comments       Comment[]
+  notifications  Notification[]
+  contributions  Contribution[]
+  challengeEntries ChallengeEntry[]
+  apiKeys        UserApiKey[]
+  challengePanels ChallengePanel[]
+
+  // V4: Sandbox sessions & activity
+  sandboxSessions       SandboxSession[]      @relation("SandboxCreator")
+  sandboxParticipations SandboxParticipant[]
+  sandboxVersions       SandboxVersion[]
+  sandboxComments       SandboxComment[]
+  activities            Activity[]
+
+  // V7: Governance
+  auditLogs             AuditLog[]
+  conflictDeclarations  ConflictDeclaration[]
+
+  @@index([role])
+  @@index([country])
+}
+
+// ─── IDEAS ──────────────────────────────────────────────
+model Idea {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  imageUrl    String?
+  country     String?
+  latitude    Float?
+  longitude   Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  votes    Vote[]
+  sandbox  SandboxResult[]
+  project  Project?
+
+  @@index([category])
+  @@index([authorId])
+}
+
+// ─── PROJECTS (collaborative) ───────────────────────────
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  status      String   @default("open") // open, in_progress, completed, archived
+  imageUrl    String?
+  repoUrl     String?
+  country     String?
+  latitude    Float?
+  longitude   Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Link to original idea (optional)
+  ideaId String? @unique
+  idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+
+  // V6.3: Problem + challenge link
+  problemAddressed String?
+  challengeId      String?
+  challenge        Challenge? @relation("ChallengeProjects", fields: [challengeId], references: [id], onDelete: SetNull)
+
+  // V7: Impact Assessment
+  problemSeverity        Int?      // 1-10
+  populationAffected     String?   // text estimate e.g. "50,000 farmers in Sub-Saharan Africa"
+  geographicScope        String?   // local, regional, national, continental, global
+  implementationReadiness Int?     // IRL 1-9
+  scalabilityPotential   Int?      // 1-5
+  verificationMethod     String?   // how impact is measured
+
+  members       ProjectMember[]
+  comments      Comment[]
+  contributions Contribution[]
+  sandbox       SandboxResult[]  @relation("ProjectSandbox")
+  versions      ProjectVersion[]
+  challengeEntries ChallengeEntry[]
+
+  // V4: Sandbox sessions
+  sandboxSessions SandboxSession[] @relation("ProjectSandboxSessions")
+
+  @@index([category])
+  @@index([status])
+  @@index([challengeId])
+}
+
+model ProjectMember {
+  id     String @id @default(cuid())
+  role   String @default("contributor") // creator, contributor, tester
+  joinedAt DateTime @default(now())
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@index([projectId])
+}
+
+model ProjectVersion {
+  id          String   @id @default(cuid())
+  version     String   // "0.1", "0.2", "1.0" etc.
+  changelog   String
+  createdAt   DateTime @default(now())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Contribution {
+  id          String   @id @default(cuid())
+  type        String   // "code", "design", "research", "testing", "feedback"
+  description String
+  pointsEarned Int     @default(0)
+  createdAt   DateTime @default(now())
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([userId])
+}
+
+// ─── CHALLENGES / HACKATHONS ────────────────────────────
+model Challenge {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String?
+  type        String   @default("weekly") // weekly, monthly, special
+  status      String   @default("open")   // open, voting, closed
+  imageUrl    String?
+  prize       String?
+  startDate   DateTime @default(now())
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+
+  // V6.3: Structured challenge fields
+  measurableGoal     String?
+  evaluationCriteria String?
+  impactArea         String?
+  sdgAlignment       String?  // comma-separated SDG numbers
+  context            String?
+  institutionalPartnerId String?  // hidden: official partner challenges
+
+  // V7: Enhanced challenge fields
+  measurableOutcome          String?
+  geographicScope            String?   // local, regional, national, continental, global
+  estimatedBudget            String?
+  implementationPartnerNeeded Boolean  @default(false)
+  verificationMethod         String?
+
+  entries ChallengeEntry[]
+  panels  ChallengePanel[]
+  linkedProjects Project[] @relation("ChallengeProjects")
+  conflictDeclarations ConflictDeclaration[]
+
+  @@index([status])
+  @@index([impactArea])
+}
+
+model ChallengeEntry {
+  id          String   @id @default(cuid())
+  description String
+  demoUrl     String?
+  score       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  evaluations ExpertEvaluation[]
+
+  @@unique([userId, challengeId])
+  @@index([challengeId])
+  @@index([userId])
+}
+
+// ─── COMMENTS ───────────────────────────────────────────
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Self-referencing for replies
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([projectId])
+  @@index([parentId])
+}
+
+// ─── NOTIFICATIONS ──────────────────────────────────────
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // "vote", "comment", "contribution", "badge", "challenge", "project_invite"
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
+
+// ─── VOTES ──────────────────────────────────────────────
+model Vote {
+  id    String @id @default(cuid())
+  value Int
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ideaId String
+  idea   Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, ideaId])
+  @@index([ideaId])
+}
+
+// ─── BADGES ─────────────────────────────────────────────
+model Badge {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  icon        String
+  category    String @default("general") // general, challenge, contribution, engagement
+
+  users UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  awardedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+}
+
+// ─── SANDBOX AI ─────────────────────────────────────────
+model SandboxResult {
+  id         String   @id @default(cuid())
+  type       String   // "text-to-image", "text-to-code", "text-to-video"
+  prompt     String
+  resultUrl  String?
+  resultText String?
+  version    Int      @default(1)
+  isPublic   Boolean  @default(false)
+  shareSlug  String?  @unique
+  createdAt  DateTime @default(now())
+
+  // Can belong to an idea OR a project
+  ideaId    String?
+  idea      Idea?    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  projectId String?
+  project   Project? @relation("ProjectSandbox", fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([ideaId])
+  @@index([projectId])
+  @@index([shareSlug])
+}
+
+// ─── V4: SANDBOX SESSIONS (multi-user, UI: "Arena") ────
+model SandboxSession {
+  id               String   @id @default(cuid())
+  name             String
+  description      String?
+  type             String   // "text-to-image", "text-to-code", "text-to-video"
+  problemStatement String?
+  proposedImpact   String?
+  documentation    String?  // V6.3: Arena documentation
+  isPublic         Boolean  @default(false)
+  shareSlug        String?  @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  creatorId String
+  creator   User   @relation("SandboxCreator", fields: [creatorId], references: [id])
+  projectId String?
+  project   Project? @relation("ProjectSandboxSessions", fields: [projectId], references: [id])
+
+  participants SandboxParticipant[]
+  versions     SandboxVersion[]
+  comments     SandboxComment[]
+
+  @@index([creatorId])
+  @@index([projectId])
+  @@index([shareSlug])
+  @@index([updatedAt])
+}
+
+model SandboxParticipant {
+  id       String   @id @default(cuid())
+  role     String   @default("editor") // "editor", "viewer"
+  joinedAt DateTime @default(now())
+
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  sessionId String
+  session   SandboxSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sessionId])
+  @@index([sessionId])
+}
+
+model SandboxVersion {
+  id         String   @id @default(cuid())
+  version    Int      @default(1)
+  prompt     String
+  resultUrl  String?
+  resultText String?
+  changelog  String?
+  createdAt  DateTime @default(now())
+
+  authorId  String
+  author    User           @relation(fields: [authorId], references: [id])
+  sessionId String
+  session   SandboxSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model SandboxComment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  sessionId String
+  session   SandboxSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+// ─── V4: ACTIVITY FEED ─────────────────────────────────
+model Activity {
+  id        String   @id @default(cuid())
+  type      String   // "contribution", "vote", "challenge_entry", "badge", "project_join", "sandbox", "comment", "version"
+  message   String
+  metadata  String?  // JSON string for extra data
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([type])
+}
+
+// ─── V6.1: USER API KEYS (encrypted) ──────────────────
+model UserApiKey {
+  id           String   @id @default(cuid())
+  provider     String   // "openai", "anthropic", "custom"
+  encryptedKey String
+  iv           String   // AES-256-GCM initialization vector
+  label        String?
+  endpoint     String?  // for custom providers
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([userId])
+}
+
+// ─── V6.3: EXPERT PANEL ───────────────────────────────
+model ChallengePanel {
+  id          String   @id @default(cuid())
+  role        String   // EXPERT_VOLUNTEER or EXPERT_INSTITUTION
+  status      String   @default("invited") // invited, accepted, declined
+  assignedAt  DateTime @default(now())
+
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  evaluations ExpertEvaluation[]
+
+  @@unique([userId, challengeId])
+  @@index([challengeId])
+}
+
+model ExpertEvaluation {
+  id               String   @id @default(cuid())
+  technicalQuality Int      // 1-10
+  relevance        Int      // 1-10
+  feasibility      Int      // 1-10
+  impactPotential  Int      // 1-10
+  documentation    Int      // 1-10
+  comments         String?
+  conflictDeclared Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  panelId String
+  panel   ChallengePanel @relation(fields: [panelId], references: [id], onDelete: Cascade)
+  entryId String
+  entry   ChallengeEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([panelId, entryId])
+  @@index([entryId])
+}
+
+// ─── V7: AUDIT LOG ──────────────────────────────────────
+model AuditLog {
+  id            String   @id @default(cuid())
+  action        String   // "role_change", "challenge_created", "evaluation_submitted", "user_verified", "user_deleted"
+  targetType    String   // "user", "challenge", "evaluation", "project"
+  targetId      String
+  metadata      String?  // JSON string
+  createdAt     DateTime @default(now())
+
+  performedById String
+  performedBy   User @relation(fields: [performedById], references: [id])
+
+  @@index([createdAt])
+  @@index([targetType])
+}
+
+// ─── V7: CONFLICT OF INTEREST DECLARATIONS ──────────────
+model ConflictDeclaration {
+  id          String   @id @default(cuid())
+  description String
+  createdAt   DateTime @default(now())
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+  @@index([challengeId])
+}

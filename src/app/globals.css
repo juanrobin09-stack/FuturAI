@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gradient-start: #0d9488;
+    --gradient-end: #f97316;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-950 text-white antialiased;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Ensure interactive elements have proper touch targets */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    @apply bg-primary-500/30;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    @apply relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    @apply absolute inset-0 rounded-xl p-[1px];
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl
+           hover:from-primary-400 hover:to-primary-500 transition-all duration-300
+           shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40
+           active:scale-[0.98];
+  }
+
+  .btn-accent {
+    @apply px-6 py-3 bg-gradient-to-r from-accent-500 to-accent-600 text-white font-semibold rounded-xl
+           hover:from-accent-400 hover:to-accent-500 transition-all duration-300
+           shadow-lg shadow-accent-500/25 hover:shadow-accent-500/40
+           active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply px-6 py-3 bg-white/5 text-white font-semibold rounded-xl border border-white/10
+           hover:bg-white/10 transition-all duration-300
+           active:scale-[0.98];
+  }
+
+  .card {
+    @apply bg-gray-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-6
+           hover:border-white/10 transition-all duration-300;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white
+           placeholder:text-gray-500 focus:outline-none focus:border-primary-500/50
+           focus:ring-2 focus:ring-primary-500/20 transition-all duration-300;
+    min-height: 44px;
+  }
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  @apply bg-gray-900 rounded-2xl;
+  height: 100%;
+  width: 100%;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply bg-gray-800 text-white rounded-xl border border-white/10 shadow-2xl;
+}
+
+.leaflet-popup-tip {
+  @apply bg-gray-800;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #374151 #111827;
+}
+
+/* Badge shine sweep animation */
+.badge-shine {
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 70%
+  );
+  animation: badge-shine-sweep 1.5s ease-in-out infinite;
+}
+
+@keyframes badge-shine-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Progress bar shimmer effect */
+.progress-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  animation: progress-shimmer-move 2s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer-move {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* Badge glow pulse for newly earned badges */
+@keyframes badge-glow {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(249, 115, 22, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.4), 0 0 32px rgba(249, 115, 22, 0.1);
+  }
+}
+
+.badge-glow {
+  animation: badge-glow 2s ease-in-out infinite;
+}
+
+/* Sparkle rotate for badge unlock toast */
+@keyframes sparkle-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
