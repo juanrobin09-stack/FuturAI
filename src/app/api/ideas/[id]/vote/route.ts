@@ -1,17 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
-
-// Helper: try to get Clerk userId, fallback to demo
-async function getAuthUserId(): Promise<string> {
-  try {
-    const { auth } = await import("@clerk/nextjs/server");
-    const { userId } = await auth();
-    return userId || "demo_clerk_id";
-  } catch {
-    return "demo_clerk_id";
-  }
-}
 
 // POST /api/ideas/:id/vote
 export async function POST(
@@ -19,25 +9,13 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const clerkId = await getAuthUserId();
+    const user = await getCurrentUser();
 
     const body = await req.json();
     const value = body.value; // 1, -1, or 0 (remove vote)
 
     if (![1, -1, 0].includes(value)) {
       return NextResponse.json({ error: "Valeur de vote invalide" }, { status: 400 });
-    }
-
-    // Find user in our DB
-    let user = await prisma.user.findUnique({ where: { clerkId } });
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          clerkId,
-          username: "User_" + clerkId.slice(-6),
-          email: clerkId + "@placeholder.dev",
-        },
-      });
     }
 
     // Check if idea exists

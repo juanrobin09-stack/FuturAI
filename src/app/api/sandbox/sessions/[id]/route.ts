@@ -8,6 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require authentication to view session details
+    const user = await getCurrentUser();
+
     const session = await prisma.sandboxSession.findUnique({
       where: { id: params.id },
       include: {
@@ -35,6 +38,15 @@ export async function GET(
 
     if (!session) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    }
+
+    // Only allow access if public, or user is creator/participant
+    if (!session.isPublic) {
+      const isCreator = session.creator.id === user.id;
+      const isParticipant = session.participants.some((p) => p.user.id === user.id);
+      if (!isCreator && !isParticipant && user.role !== "ADMIN") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
 
     return NextResponse.json({

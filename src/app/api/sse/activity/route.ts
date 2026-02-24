@@ -1,9 +1,13 @@
 import prisma from "@/lib/prisma";
 import { createSSEResponse } from "@/lib/sse";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  // Require authentication to access activity feed
+  await getCurrentUser();
+
   let lastCheck = new Date();
 
   return createSSEResponse(async () => {

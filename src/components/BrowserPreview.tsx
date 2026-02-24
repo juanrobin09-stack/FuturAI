@@ -231,7 +231,7 @@ export default function BrowserPreview({
                     ? "500px"
                     : "480px",
                 }}
-                sandbox="allow-scripts"
+                sandbox="allow-scripts allow-forms allow-modals"
                 title="Live Preview"
               />
             </div>

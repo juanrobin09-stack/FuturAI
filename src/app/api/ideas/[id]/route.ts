@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 // GET /api/ideas/:id
 export async function GET(
@@ -40,7 +41,19 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await getCurrentUser();
     const body = await req.json();
+
+    // Verify idea exists and user is author
+    const existing = await prisma.idea.findUnique({
+      where: { id: params.id },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
+    }
+    if (existing.authorId !== user.id && user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     // Handle sandbox result save
     if (body.sandboxResult) {
@@ -56,10 +69,16 @@ export async function PATCH(
       return NextResponse.json(result);
     }
 
-    // Update idea fields
+    // Update idea fields — validate lengths
     const updateData: Record<string, unknown> = {};
-    if (body.title) updateData.title = body.title;
-    if (body.description) updateData.description = body.description;
+    if (body.title) {
+      if (body.title.length > 200) return NextResponse.json({ error: "Title too long" }, { status: 400 });
+      updateData.title = body.title.trim();
+    }
+    if (body.description) {
+      if (body.description.length > 5000) return NextResponse.json({ error: "Description too long" }, { status: 400 });
+      updateData.description = body.description.trim();
+    }
     if (body.category) updateData.category = body.category;
     if (body.country !== undefined) updateData.country = body.country;
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
@@ -82,6 +101,19 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await getCurrentUser();
+
+    // Verify idea exists and user is author or admin
+    const existing = await prisma.idea.findUnique({
+      where: { id: params.id },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
+    }
+    if (existing.authorId !== user.id && user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await prisma.idea.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
   } catch (error) {

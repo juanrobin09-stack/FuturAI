@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    await getCurrentUser();
+    const user = await getCurrentUser();
 
     const challenge = await prisma.challenge.findUnique({
       where: { id: params.id },
@@ -38,6 +38,12 @@ export async function GET(
 
     if (!challenge) {
       return NextResponse.json({ error: "Challenge not found" }, { status: 404 });
+    }
+
+    // Only admins or panel members can export challenge data
+    const isPanelMember = challenge.panels.some((p) => p.user.id === user.id);
+    if (user.role !== "ADMIN" && !isPanelMember) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Build structured export

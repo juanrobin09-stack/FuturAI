@@ -55,7 +55,11 @@ export async function POST(
       return NextResponse.json({ error: "Challenge not found" }, { status: 404 });
     }
 
-    // Only ADMIN or challenge creator can invite (simplified: any user for now)
+    // Only ADMIN can invite experts to panel
+    if (user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden: only admins can invite panel members" }, { status: 403 });
+    }
+
     const panel = await prisma.challengePanel.create({
       data: {
         role,

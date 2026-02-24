@@ -40,6 +40,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (description.length > 2000) {
+      return NextResponse.json(
+        { error: "Description too long (max 2000 characters)" },
+        { status: 400 }
+      );
+    }
+
     // Verify challenge exists
     const challenge = await prisma.challenge.findUnique({
       where: { id: challengeId },

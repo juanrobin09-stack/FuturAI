@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 // GET /api/projects/:id - Fetch single project with all relations
 export async function GET(
@@ -124,17 +125,31 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await getCurrentUser();
     const body = await req.json();
 
     // Verify the project exists
     const existing = await prisma.project.findUnique({
       where: { id: params.id },
+      include: { members: { where: { userId: user.id } } },
     });
     if (!existing) {
       return NextResponse.json(
         { error: "Projet non trouve" },
         { status: 404 }
       );
+    }
+    // Only project members or admins can update
+    if (existing.members.length === 0 && user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Validate text lengths
+    if (body.title !== undefined && body.title.length > 200) {
+      return NextResponse.json({ error: "Title too long (max 200)" }, { status: 400 });
+    }
+    if (body.description !== undefined && body.description.length > 10000) {
+      return NextResponse.json({ error: "Description too long (max 10000)" }, { status: 400 });
     }
 
     const updateData: Record<string, unknown> = {};
@@ -145,8 +160,20 @@ export async function PATCH(
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl || null;
     if (body.repoUrl !== undefined) updateData.repoUrl = body.repoUrl || null;
     if (body.country !== undefined) updateData.country = body.country || null;
-    if (body.latitude !== undefined) updateData.latitude = body.latitude ? parseFloat(body.latitude) : null;
-    if (body.longitude !== undefined) updateData.longitude = body.longitude ? parseFloat(body.longitude) : null;
+    if (body.latitude !== undefined) {
+      const lat = body.latitude ? parseFloat(body.latitude) : null;
+      if (lat !== null && (isNaN(lat) || lat < -90 || lat > 90)) {
+        return NextResponse.json({ error: "Invalid latitude" }, { status: 400 });
+      }
+      updateData.latitude = lat;
+    }
+    if (body.longitude !== undefined) {
+      const lng = body.longitude ? parseFloat(body.longitude) : null;
+      if (lng !== null && (isNaN(lng) || lng < -180 || lng > 180)) {
+        return NextResponse.json({ error: "Invalid longitude" }, { status: 400 });
+      }
+      updateData.longitude = lng;
+    }
 
     const project = await prisma.project.update({
       where: { id: params.id },
@@ -187,15 +214,22 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await getCurrentUser();
+
     // Verify the project exists
     const existing = await prisma.project.findUnique({
       where: { id: params.id },
+      include: { members: { where: { userId: user.id, role: "OWNER" } } },
     });
     if (!existing) {
       return NextResponse.json(
         { error: "Projet non trouve" },
         { status: 404 }
       );
+    }
+    // Only project owner or admin can delete
+    if (existing.members.length === 0 && user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     await prisma.project.delete({ where: { id: params.id } });
