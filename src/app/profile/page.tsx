@@ -6,9 +6,10 @@ import BadgeDisplay from "@/components/BadgeDisplay";
 import {
   User, Lightbulb, Loader2, FolderKanban, GitBranch,
   Award, TrendingUp, Globe, MapPin, FlaskConical, Settings,
-  Calendar,
+  Calendar, Pencil, Check, X,
 } from "lucide-react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
 
@@ -70,6 +71,61 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"projects" | "ideas" | "contributions" | "achievements">("projects");
 
+  // Edit username/country state
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [editUsername, setEditUsername] = useState("");
+  const [editingCountry, setEditingCountry] = useState(false);
+  const [editCountry, setEditCountry] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const saveUsername = async () => {
+    if (!editUsername.trim() || savingProfile) return;
+    setSavingProfile(true);
+    try {
+      const res = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: editUsername.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfile((p) => p ? { ...p, username: data.user.username } : p);
+        setEditingUsername(false);
+        toast.success(t.profile.usernameSaved || "Username updated!");
+      } else {
+        toast.error(data.error || t.common.error);
+      }
+    } catch {
+      toast.error(t.common.error);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const saveCountry = async () => {
+    if (savingProfile) return;
+    setSavingProfile(true);
+    try {
+      const res = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country: editCountry.trim() || null }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfile((p) => p ? { ...p, country: data.user.country } : p);
+        setEditingCountry(false);
+        toast.success(t.profile.countrySaved || "Country updated!");
+      } else {
+        toast.error(data.error || t.common.error);
+      }
+    } catch {
+      toast.error(t.common.error);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   useEffect(() => {
     // Step 1: Get the current user's identity via /api/users/me
     // Step 2: Fetch full profile from /api/users?clerkId=...
@@ -130,13 +186,93 @@ export default function ProfilePage() {
               {profile.username.charAt(0).toUpperCase()}
             </div>
             <div className="text-center sm:text-left flex-1">
-              <h1 className="text-2xl font-bold">{profile.username}</h1>
-              {profile.country && (
-                <p className="text-gray-400 text-sm flex items-center gap-1 justify-center sm:justify-start mt-1">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {profile.country}
-                </p>
+              {/* Editable Username */}
+              {editingUsername ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    value={editUsername}
+                    onChange={(e) => setEditUsername(e.target.value)}
+                    className="input-field text-lg font-bold px-2 py-1 w-48"
+                    placeholder={t.profile.usernamePlaceholder || "Username"}
+                    maxLength={30}
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveUsername();
+                      if (e.key === "Escape") setEditingUsername(false);
+                    }}
+                  />
+                  <button
+                    onClick={saveUsername}
+                    disabled={savingProfile || !editUsername.trim()}
+                    className="p-1.5 rounded-lg bg-primary-500/20 text-primary-400 hover:bg-primary-500/30 transition-colors"
+                  >
+                    {savingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={() => setEditingUsername(false)}
+                    className="p-1.5 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 justify-center sm:justify-start">
+                  <h1 className="text-2xl font-bold">{profile.username}</h1>
+                  <button
+                    onClick={() => { setEditUsername(profile.username); setEditingUsername(true); }}
+                    className="p-1 rounded text-gray-500 hover:text-primary-400 transition-colors"
+                    title={t.profile.editUsername || "Edit username"}
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               )}
+
+              {/* Editable Country */}
+              {editingCountry ? (
+                <div className="flex items-center gap-2 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <input
+                    value={editCountry}
+                    onChange={(e) => setEditCountry(e.target.value)}
+                    className="input-field text-sm px-2 py-0.5 w-40"
+                    placeholder={t.profile.countryPlaceholder || "Country"}
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveCountry();
+                      if (e.key === "Escape") setEditingCountry(false);
+                    }}
+                  />
+                  <button
+                    onClick={saveCountry}
+                    disabled={savingProfile}
+                    className="p-1 rounded-lg bg-primary-500/20 text-primary-400 hover:bg-primary-500/30 transition-colors"
+                  >
+                    {savingProfile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={() => setEditingCountry(false)}
+                    className="p-1 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 justify-center sm:justify-start mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-gray-400 text-sm">
+                    {profile.country || (t.profile.noCountry || "No country set")}
+                  </span>
+                  <button
+                    onClick={() => { setEditCountry(profile.country || ""); setEditingCountry(true); }}
+                    className="p-0.5 rounded text-gray-500 hover:text-primary-400 transition-colors"
+                    title={t.profile.editCountry || "Edit country"}
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
               <p className="text-gray-500 text-xs flex items-center gap-1 justify-center sm:justify-start mt-1">
                 <Calendar className="w-3 h-3" />
                 {t.profile.memberSince} {memberSince}

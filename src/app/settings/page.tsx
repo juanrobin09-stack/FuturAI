@@ -19,6 +19,7 @@ interface ApiKeyData {
 const PROVIDERS = [
   { value: "openai", label: "OpenAI" },
   { value: "anthropic", label: "Anthropic" },
+  { value: "mistral", label: "Mistral AI" },
   { value: "custom", label: "Custom" },
 ];
 
@@ -101,6 +102,7 @@ export default function SettingsPage() {
   const getProviderLabel = (provider: string) => {
     if (provider === "openai") return t.settings.openai;
     if (provider === "anthropic") return t.settings.anthropic;
+    if (provider === "mistral") return t.settings.mistral || "Mistral AI";
     return t.settings.custom;
   };
 

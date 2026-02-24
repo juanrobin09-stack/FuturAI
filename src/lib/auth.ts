@@ -60,12 +60,12 @@ export async function getCurrentUser() {
       (firstName ? firstName : null) ||
       "User_" + userId.slice(-6);
 
-    // Upsert: create if new, update if returning (sync latest Clerk data)
+    // Upsert: create if new, update if returning (sync email/avatar/role but NOT username)
+    // Username is user-editable via /api/users/me PATCH — don't overwrite on login
     const user = await prisma.user.upsert({
       where: { clerkId: userId },
       update: {
         ...(email ? { email } : {}),
-        ...(username ? { username: displayName } : {}),
         ...(imageUrl ? { avatarUrl: imageUrl } : {}),
         ...(role ? { role } : {}),
       },

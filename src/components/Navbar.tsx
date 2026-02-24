@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import {
   Map,
@@ -47,68 +48,16 @@ function SignInLinks() {
   );
 }
 
-// Auth section — client-only Clerk detection, SSR-safe
+// Load auth section client-only (ssr:false) to avoid Clerk SSR build errors
+const ClerkAuthSection = dynamic(() => import("./ClerkAuthSection"), {
+  ssr: false,
+  loading: () => <SignInLinks />,
+});
+
+// Auth section — uses ClerkAuthSection when configured, otherwise static links
 function AuthSection() {
-  const { t } = useLanguage();
-  const [mounted, setMounted] = useState(false);
-  const [authState, setAuthState] = useState<{ signed: boolean; UB: any }>({ signed: false, UB: null });
-
-  useEffect(() => {
-    setMounted(true);
-    if (!isClerkConfigured) return;
-
-    // Dynamically import and use Clerk hooks via the loaded instance
-    import("@clerk/nextjs").then((clerk) => {
-      const checkAuth = () => {
-        const clerkInstance = (window as any).Clerk;
-        if (clerkInstance?.user) {
-          setAuthState({ signed: true, UB: clerk.UserButton });
-        } else if (clerkInstance?.loaded) {
-          setAuthState({ signed: false, UB: null });
-        }
-      };
-      // Check immediately
-      checkAuth();
-      // Re-check after Clerk finishes loading
-      const interval = setInterval(() => {
-        const clerkInstance = (window as any).Clerk;
-        if (clerkInstance?.loaded) {
-          checkAuth();
-          clearInterval(interval);
-        }
-      }, 200);
-      setTimeout(() => clearInterval(interval), 5000);
-    }).catch(() => {});
-  }, []);
-
-  // SSR & first client render: show sign-in links
-  if (!mounted) return <SignInLinks />;
-
-  if (authState.signed && authState.UB) {
-    const UB = authState.UB;
-    return (
-      <>
-        <Link
-          href="/ideas/submit"
-          className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-400 hover:to-accent-500 transition-all"
-        >
-          {t.nav.submitIdea}
-        </Link>
-        <Link
-          href="/profile"
-          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
-        >
-          {t.nav.profile || "Profil"}
-        </Link>
-        <UB
-          afterSignOutUrl="/"
-          appearance={{ elements: { avatarBox: "w-8 h-8 rounded-lg" } }}
-        />
-      </>
-    );
-  }
-
-  return <SignInLinks />;
+  if (!isClerkConfigured) return <SignInLinks />;
+  return <ClerkAuthSection />;
 }
 
 export default function Navbar() {
