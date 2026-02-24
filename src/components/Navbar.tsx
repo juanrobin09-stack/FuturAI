@@ -27,18 +27,33 @@ const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
 const isClerkAvailable =
   clerkKey.startsWith("pk_") && !clerkKey.includes("placeholder");
 
-// Clerk components (conditionally loaded)
+// Clerk components (conditionally loaded with robust fallback)
 function ClerkAuth() {
   const { t } = useLanguage();
+  const [clerkState, setClerkState] = useState<"loading" | "ready" | "failed">("loading");
   const [components, setComponents] = useState<any>(null);
 
   useEffect(() => {
-    if (isClerkAvailable) {
-      import("@clerk/nextjs").then((mod) => setComponents(mod));
+    if (!isClerkAvailable) {
+      setClerkState("failed");
+      return;
     }
+    const timeout = setTimeout(() => setClerkState("failed"), 4000);
+    import("@clerk/nextjs")
+      .then((mod) => {
+        clearTimeout(timeout);
+        setComponents(mod);
+        setClerkState("ready");
+      })
+      .catch(() => {
+        clearTimeout(timeout);
+        setClerkState("failed");
+      });
+    return () => clearTimeout(timeout);
   }, []);
 
-  if (!components) return <FallbackAuth />;
+  // Always show link-based fallback until Clerk is confirmed ready
+  if (clerkState !== "ready" || !components) return <FallbackAuth />;
 
   const { SignedIn, SignedOut, SignInButton, UserButton } = components;
 
@@ -54,9 +69,10 @@ function ClerkAuth() {
         />
       </SignedIn>
       <SignedOut>
-        <SignInButton mode="modal">
-          <button className="btn-primary text-sm py-2 px-4">{t.nav.signIn}</button>
-        </SignInButton>
+        <Link href="/sign-in" className="btn-primary text-sm py-2 px-4 flex items-center gap-2">
+          <LogIn className="w-4 h-4" />
+          {t.nav.signIn}
+        </Link>
       </SignedOut>
     </>
   );
