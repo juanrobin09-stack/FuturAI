@@ -27,19 +27,22 @@ export default function MapPage() {
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap justify-center gap-4 mb-6 text-sm">
+        <div className="flex flex-wrap justify-center gap-3 mb-8 text-sm">
           {CATEGORIES.map((cat) => (
-            <div key={cat.value} className="flex items-center gap-2">
+            <div key={cat.value} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5">
               <div
-                className="w-3 h-3 rounded-full"
+                className="w-2.5 h-2.5 rounded-full"
                 style={{ backgroundColor: cat.color }}
               />
-              <span className="text-gray-400">{getCategoryLabel(cat.value, t.categories)}</span>
+              <span className="text-gray-400 text-xs">{getCategoryLabel(cat.value, t.categories)}</span>
             </div>
           ))}
         </div>
 
-        <WorldMap />
+        {/* Map container */}
+        <div className="card p-0 overflow-hidden">
+          <WorldMap />
+        </div>
       </div>
     </PageTransition>
   );

@@ -60,24 +60,16 @@ export default function WorldMap({ ideas: propIdeas }: WorldMapProps) {
     }
   }, [propIdeas]);
 
-  if (!mounted) {
+  if (!mounted || loading) {
     return (
-      <div className="w-full h-[350px] sm:h-[450px] lg:h-[550px] rounded-2xl bg-gray-800/50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="w-full h-[350px] sm:h-[450px] lg:h-[550px] rounded-2xl bg-gray-800/50 flex items-center justify-center">
+      <div className="w-full h-[400px] sm:h-[500px] lg:h-[600px] bg-gray-800/50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[350px] sm:h-[450px] lg:h-[550px] rounded-2xl overflow-hidden border border-white/10">
+    <div className="w-full h-[400px] sm:h-[500px] lg:h-[600px] overflow-hidden">
       <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
