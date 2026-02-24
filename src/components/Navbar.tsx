@@ -22,44 +22,40 @@ import { useLanguage } from "@/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "./NotificationBell";
 
-// Check if Clerk is available at runtime
-const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
-const isClerkAvailable =
-  clerkKey.startsWith("pk_") && !clerkKey.includes("placeholder");
-
-// Clerk components (conditionally loaded with robust fallback)
-function ClerkAuth() {
+// Auth section — always shows sign-in link, replaces with UserButton when logged in
+function AuthSection() {
   const { t } = useLanguage();
-  const [clerkState, setClerkState] = useState<"loading" | "ready" | "failed">("loading");
-  const [components, setComponents] = useState<any>(null);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [UserButton, setUserButton] = useState<any>(null);
 
   useEffect(() => {
-    if (!isClerkAvailable) {
-      setClerkState("failed");
-      return;
-    }
-    const timeout = setTimeout(() => setClerkState("failed"), 4000);
+    // Try to detect auth state via Clerk
     import("@clerk/nextjs")
       .then((mod) => {
-        clearTimeout(timeout);
-        setComponents(mod);
-        setClerkState("ready");
+        // Check if there's an active session by looking at the window.__clerk
+        const clerk = (window as any).__clerk;
+        if (clerk?.user) {
+          setIsSignedIn(true);
+          setUserButton(() => mod.UserButton);
+        }
+        // Also listen for Clerk load
+        if (clerk) {
+          clerk.addListener?.((state: any) => {
+            if (state?.user) {
+              setIsSignedIn(true);
+              setUserButton(() => mod.UserButton);
+            }
+          });
+        }
       })
       .catch(() => {
-        clearTimeout(timeout);
-        setClerkState("failed");
+        // Clerk failed to load — sign-in link is already shown
       });
-    return () => clearTimeout(timeout);
   }, []);
 
-  // Always show link-based fallback until Clerk is confirmed ready
-  if (clerkState !== "ready" || !components) return <FallbackAuth />;
-
-  const { SignedIn, SignedOut, SignInButton, UserButton } = components;
-
-  return (
-    <>
-      <SignedIn>
+  if (isSignedIn && UserButton) {
+    return (
+      <>
         <Link href="/ideas/submit" className="btn-accent text-sm py-2 px-4 hidden sm:block">
           {t.nav.submitIdea}
         </Link>
@@ -67,13 +63,23 @@ function ClerkAuth() {
           afterSignOutUrl="/"
           appearance={{ elements: { avatarBox: "w-9 h-9 rounded-lg" } }}
         />
-      </SignedIn>
-      <SignedOut>
-        <Link href="/sign-in" className="btn-primary text-sm py-2 px-4 flex items-center gap-2">
-          <LogIn className="w-4 h-4" />
-          {t.nav.signIn}
-        </Link>
-      </SignedOut>
+      </>
+    );
+  }
+
+  // Default: always show sign-in link
+  return (
+    <>
+      <Link href="/ideas/submit" className="btn-accent text-sm py-2 px-4 hidden sm:block">
+        {t.nav.submitIdea}
+      </Link>
+      <Link
+        href="/sign-in"
+        className="btn-primary text-sm py-2 px-4 flex items-center gap-2"
+      >
+        <LogIn className="w-4 h-4" />
+        {t.nav.signIn}
+      </Link>
     </>
   );
 }
@@ -165,7 +171,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <NotificationBell />
             <LanguageSwitcher />
-            {isClerkAvailable ? <ClerkAuth /> : <FallbackAuth />}
+            <AuthSection />
 
             {/* Mobile toggle */}
             <button
