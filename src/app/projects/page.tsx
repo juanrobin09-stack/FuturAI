@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import ProjectCard from "@/components/ProjectCard";
 import CategoryFilter from "@/components/CategoryFilter";
-import { Search, Loader2, FolderKanban, Plus } from "lucide-react";
+import { Search, Loader2, FolderKanban, Plus, FlaskConical, ArrowRight } from "lucide-react";
 import { PROJECT_STATUSES, getStatusLabel } from "@/lib/utils";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
@@ -78,10 +78,17 @@ export default function ProjectsPage() {
               {t.projects.count.replace("{count}", String(projects.length))}
             </p>
           </div>
-          <Link href="/projects/create" className="btn-accent flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            {t.projects.createProject}
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/arena" className="btn-ghost flex items-center gap-2 text-accent-400 border border-accent-500/20 hover:bg-accent-500/10">
+              <FlaskConical className="w-4 h-4" />
+              Arena IA
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+            <Link href="/projects/create" className="btn-accent flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              {t.projects.createProject}
+            </Link>
+          </div>
         </div>
 
         <div className="relative mb-6">

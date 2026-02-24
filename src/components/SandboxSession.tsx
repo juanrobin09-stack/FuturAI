@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FlaskConical, Plus, Code, Image, Wand2, Loader2, Share2, Copy, Users, Globe, Lock, ArrowLeft, Download, FileText, GitCompare, Clock } from "lucide-react";
+import { FlaskConical, Plus, Code, Image, Wand2, Loader2, Share2, Copy, Users, Globe, Lock, ArrowLeft, Download, FileText, GitCompare, Clock, Eye, Code2, ExternalLink } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/i18n";
 import toast from "react-hot-toast";
@@ -49,6 +49,58 @@ interface SessionData {
   _count?: { versions: number; comments: number };
 }
 
+/**
+ * Generate a full HTML page for the sandboxed preview iframe.
+ * Handles raw HTML, code snippets (wraps in <pre>), and text results.
+ */
+function generatePreviewHtml(code: string, sessionType: string): string {
+  const isHtml = /<\s*(html|body|div|h[1-6]|p|form|table|canvas|svg|section|header|main|footer|nav|button|input)\b/i.test(code);
+  const hasScript = /<script[\s>]/i.test(code);
+
+  if (isHtml || hasScript) {
+    // If it's a full HTML page, use it directly
+    if (/<html/i.test(code)) return code;
+    // Otherwise wrap in a basic HTML shell
+    return `<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; background: #fff; color: #111; }
+  pre { background: #f5f5f5; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+  code { font-family: 'Fira Code', monospace; }
+  .error { color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px; margin: 12px 0; }
+</style>
+</head><body>
+${code}
+</body></html>`;
+  }
+
+  // For code/text that isn't HTML, show it formatted with syntax highlighting
+  const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Fira Code', 'Courier New', monospace; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+  pre { white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; }
+  .line-num { color: #666; user-select: none; display: inline-block; width: 3em; text-align: right; margin-right: 1em; }
+  .keyword { color: #c792ea; }
+  .string { color: #c3e88d; }
+  .comment { color: #676e95; font-style: italic; }
+  .function { color: #82aaff; }
+  .number { color: #f78c6c; }
+  h2 { color: #fff; margin-bottom: 16px; font-family: system-ui, sans-serif; font-size: 14px; }
+  .badge { display: inline-block; background: #2d2b55; color: #a599e9; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 12px; }
+</style>
+</head><body>
+<span class="badge">${sessionType.replace("text-to-", "").toUpperCase()}</span>
+<pre>${escaped}</pre>
+</body></html>`;
+}
+
 export default function SandboxSession() {
   const { t } = useLanguage();
   const [sessions, setSessions] = useState<SessionData[]>([]);
@@ -77,6 +129,7 @@ export default function SandboxSession() {
   const [savingDocs, setSavingDocs] = useState(false);
   const [diffVersionA, setDiffVersionA] = useState("");
   const [diffVersionB, setDiffVersionB] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   // V7: Real execution
   const [providers, setProviders] = useState<Array<{ name: string; connected: boolean; status: string }>>([]);
@@ -572,27 +625,64 @@ export default function SandboxSession() {
             />
           </div>
 
-          {/* Result display */}
+          {/* Result: Code + Visual Preview side by side */}
           {viewingResult && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gray-800/80 rounded-xl p-4 border border-white/5"
+              className="rounded-xl border border-white/5 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-400 font-medium">
+              {/* Header bar */}
+              <div className="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-gray-900/50">
+                <span className="text-xs text-gray-400 font-medium flex items-center gap-2">
                   {activeVersionId && activeSession.versions?.find((v) => v.id === activeVersionId)
                     ? `v${activeSession.versions.find((v) => v.id === activeVersionId)?.version}`
                     : "Result"}
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-gray-500">
+                    <Code2 className="w-3 h-3 inline mr-1" />Code + <Eye className="w-3 h-3 inline mr-1" />Preview
+                  </span>
                 </span>
                 <button className="btn-ghost text-xs flex items-center gap-1">
                   <Download className="w-3 h-3" />
                   {t.export.exportResult}
                 </button>
               </div>
-              <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono overflow-x-auto max-h-96">
-                {viewingResult}
-              </pre>
+
+              {/* Split view: Code left + Preview right */}
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                {/* Code panel */}
+                <div className="bg-gray-800/80 border-r border-white/5 relative">
+                  <div className="sticky top-0 px-3 py-1.5 bg-gray-900/80 border-b border-white/5 flex items-center gap-1.5">
+                    <Code2 className="w-3 h-3 text-primary-400" />
+                    <span className="text-[10px] font-medium text-primary-400 uppercase tracking-wide">Code</span>
+                  </div>
+                  <div className="p-3 overflow-auto" style={{ maxHeight: "500px" }}>
+                    <pre className="text-xs text-gray-300 whitespace-pre-wrap font-mono leading-relaxed">
+                      {viewingResult}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Visual preview panel */}
+                <div className="bg-white relative">
+                  <div className="sticky top-0 px-3 py-1.5 bg-gray-100 border-b border-gray-200 flex items-center gap-1.5">
+                    <Eye className="w-3 h-3 text-accent-500" />
+                    <span className="text-[10px] font-medium text-accent-500 uppercase tracking-wide">Preview</span>
+                    <span className="ml-auto text-[9px] text-gray-400 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+                      Live
+                    </span>
+                  </div>
+                  <iframe
+                    key={viewingResult}
+                    srcDoc={generatePreviewHtml(viewingResult, activeSession.type)}
+                    className="w-full border-0"
+                    style={{ minHeight: "460px", maxHeight: "600px" }}
+                    sandbox="allow-scripts"
+                    title="Visual Preview"
+                  />
+                </div>
+              </div>
             </motion.div>
           )}
 

@@ -21,6 +21,7 @@ import {
 import { timeAgo, formatDate } from "@/lib/utils";
 import { getContributionPoints } from "@/lib/points";
 import ProjectDetailClient from "./ProjectDetailClient";
+import ProjectPreview from "./ProjectPreview";
 
 interface Props {
   params: { id: string };
@@ -240,15 +241,13 @@ export default async function ProjectDetailPage({ params }: Props) {
             comments={serializedComments}
           />
 
-          {/* Sandbox AI */}
-          <div className="mt-6">
-            {/* SandboxAI expects ideaId/ideaTitle; we pass project info as idea-like props */}
-            <ProjectSandboxSection
-              projectId={project.id}
-              projectTitle={project.title}
-              sandboxResults={project.sandbox}
-            />
-          </div>
+          {/* Sandbox AI — Visual Preview */}
+          <ProjectPreview
+            results={project.sandbox.map((s) => ({
+              ...s,
+              createdAt: s.createdAt.toISOString(),
+            }))}
+          />
         </div>
 
         {/* ─── Sidebar ─── */}
@@ -373,52 +372,3 @@ export default async function ProjectDetailPage({ params }: Props) {
   );
 }
 
-/* ─── Server sub-component for Sandbox results ─── */
-function ProjectSandboxSection({
-  projectId,
-  projectTitle,
-  sandboxResults,
-}: {
-  projectId: string;
-  projectTitle: string;
-  sandboxResults: Array<{
-    id: string;
-    type: string;
-    prompt: string;
-    resultText: string | null;
-    createdAt: Date;
-  }>;
-}) {
-  const { t } = getServerTranslations();
-  return (
-    <>
-      {/* Previous sandbox results */}
-      {sandboxResults.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <FlaskConical className="w-5 h-5 text-accent-400" />
-            {t.ideas.generatedPrototypes}
-          </h3>
-          <div className="space-y-3">
-            {sandboxResults.map((s) => (
-              <div key={s.id} className="card">
-                <div className="flex items-center gap-2 mb-2 text-sm text-gray-400">
-                  <span className="px-2 py-0.5 bg-accent-500/10 text-accent-400 rounded text-xs">
-                    {s.type}
-                  </span>
-                  <span>{timeAgo(s.createdAt, t.time)}</span>
-                </div>
-                <p className="text-xs text-gray-500 mb-2">Prompt: {s.prompt}</p>
-                {s.resultText && (
-                  <pre className="text-sm text-gray-300 bg-gray-800/50 rounded-lg p-3 overflow-x-auto font-mono">
-                    {s.resultText}
-                  </pre>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
