@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { FlaskConical, Code2, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { FlaskConical, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/i18n";
+import BrowserPreview from "@/components/BrowserPreview";
 
 interface SandboxResult {
   id: string;
@@ -78,11 +79,11 @@ export default function ProjectPreview({
 
       <div className="space-y-3">
         {results.map((s) => (
-          <div key={s.id} className="card p-0 overflow-hidden">
+          <div key={s.id} className="space-y-0">
             {/* Clickable header */}
             <button
               onClick={() => setExpanded(expanded === s.id ? null : s.id)}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.02] transition-colors"
+              className="w-full card flex items-center justify-between px-4 py-3 hover:border-accent-500/20 transition-colors"
             >
               <div className="flex items-center gap-2 text-sm">
                 <span className="px-2 py-0.5 bg-accent-500/10 text-accent-400 rounded text-xs">
@@ -99,49 +100,14 @@ export default function ProjectPreview({
               )}
             </button>
 
-            {/* Expanded: Code + Preview side by side */}
+            {/* Expanded: Bolt-style Browser Preview */}
             {expanded === s.id && s.resultText && (
-              <div className="border-t border-white/5">
-                <div className="grid grid-cols-1 lg:grid-cols-2">
-                  {/* Code panel */}
-                  <div className="bg-gray-800/80 border-r border-white/5">
-                    <div className="px-3 py-1.5 bg-gray-900/80 border-b border-white/5 flex items-center gap-1.5">
-                      <Code2 className="w-3 h-3 text-primary-400" />
-                      <span className="text-[10px] font-medium text-primary-400 uppercase tracking-wide">
-                        Code
-                      </span>
-                    </div>
-                    <div
-                      className="p-3 overflow-auto"
-                      style={{ maxHeight: "400px" }}
-                    >
-                      <pre className="text-xs text-gray-300 whitespace-pre-wrap font-mono leading-relaxed">
-                        {s.resultText}
-                      </pre>
-                    </div>
-                  </div>
-
-                  {/* Visual preview */}
-                  <div className="bg-white">
-                    <div className="px-3 py-1.5 bg-gray-100 border-b border-gray-200 flex items-center gap-1.5">
-                      <Eye className="w-3 h-3 text-accent-500" />
-                      <span className="text-[10px] font-medium text-accent-500 uppercase tracking-wide">
-                        Preview
-                      </span>
-                      <span className="ml-auto text-[9px] text-gray-400 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-                        Live
-                      </span>
-                    </div>
-                    <iframe
-                      srcDoc={generatePreviewHtml(s.resultText, s.type)}
-                      className="w-full border-0"
-                      style={{ minHeight: "360px", maxHeight: "500px" }}
-                      sandbox="allow-scripts"
-                      title={`Preview - ${s.prompt}`}
-                    />
-                  </div>
-                </div>
+              <div className="mt-2">
+                <BrowserPreview
+                  code={s.resultText}
+                  previewHtml={generatePreviewHtml(s.resultText, s.type)}
+                  title={s.prompt}
+                />
               </div>
             )}
           </div>
