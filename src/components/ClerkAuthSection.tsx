@@ -7,38 +7,53 @@ import { useLanguage } from "@/i18n";
 
 /**
  * Client-only auth section (loaded via dynamic import with ssr:false).
- * Uses Clerk hooks safely — never runs during SSR / static generation.
+ * Checks both window.Clerk AND /api/users/me to detect auth state.
  */
 export default function ClerkAuthSection() {
   const { t } = useLanguage();
-  const [authState, setAuthState] = useState<{
-    loaded: boolean;
-    signed: boolean;
-    UserButton: React.ComponentType<any> | null;
-  }>({ loaded: false, signed: false, UserButton: null });
 
-  // User avatar & username for navbar display
-  const [userInfo, setUserInfo] = useState<{ avatarUrl: string | null; username: string }>({
-    avatarUrl: null,
-    username: "",
-  });
+  const [clerkReady, setClerkReady] = useState(false);
+  const [ClerkUserButton, setClerkUserButton] = useState<React.ComponentType<any> | null>(null);
 
+  // API-based auth check (reliable, server-side)
+  const [apiUser, setApiUser] = useState<{ username: string; avatarUrl: string | null } | null>(null);
+  const [apiChecked, setApiChecked] = useState(false);
+
+  // 1) Check /api/users/me immediately — this is the reliable auth source
+  useEffect(() => {
+    async function checkApi() {
+      try {
+        const res = await fetch("/api/users/me");
+        const data = await res.json();
+        if (data?.user?.username) {
+          setApiUser({
+            username: data.user.username,
+            avatarUrl: data.user.avatarUrl || null,
+          });
+        }
+      } catch {
+        // not signed in
+      } finally {
+        setApiChecked(true);
+      }
+    }
+    checkApi();
+  }, []);
+
+  // 2) Try to load Clerk UserButton (for the dropdown menu)
   useEffect(() => {
     let cancelled = false;
 
-    async function init() {
+    async function initClerk() {
       try {
         const clerk = await import("@clerk/nextjs");
+
         const check = () => {
-          const clerkInstance = (window as any).Clerk;
-          if (!clerkInstance) return false;
-          if (clerkInstance.loaded) {
+          const inst = (window as any).Clerk;
+          if (inst?.loaded && inst?.user) {
             if (!cancelled) {
-              setAuthState({
-                loaded: true,
-                signed: !!clerkInstance.user,
-                UserButton: clerkInstance.user ? clerk.UserButton : null,
-              });
+              setClerkReady(true);
+              setClerkUserButton(() => clerk.UserButton);
             }
             return true;
           }
@@ -47,93 +62,45 @@ export default function ClerkAuthSection() {
 
         if (check()) return;
 
+        // Poll for up to 15 seconds
+        let tries = 0;
         const interval = setInterval(() => {
-          if (check()) clearInterval(interval);
+          tries++;
+          if (check() || tries > 100) clearInterval(interval);
         }, 150);
 
-        setTimeout(() => {
-          clearInterval(interval);
-          if (!cancelled) {
-            setAuthState({ loaded: true, signed: false, UserButton: null });
-          }
-        }, 10000);
+        return () => clearInterval(interval);
       } catch {
-        if (!cancelled) {
-          setAuthState({ loaded: true, signed: false, UserButton: null });
-        }
+        // Clerk not available
       }
     }
 
-    init();
+    initClerk();
     return () => { cancelled = true; };
   }, []);
 
-  // Re-check auth on focus / periodic check
+  // Re-check Clerk on window focus
   useEffect(() => {
     const handleFocus = async () => {
-      const clerkInstance = (window as any).Clerk;
-      if (clerkInstance?.loaded) {
+      const inst = (window as any).Clerk;
+      if (inst?.loaded && inst?.user) {
         try {
           const clerk = await import("@clerk/nextjs");
-          setAuthState({
-            loaded: true,
-            signed: !!clerkInstance.user,
-            UserButton: clerkInstance.user ? clerk.UserButton : null,
-          });
+          setClerkReady(true);
+          setClerkUserButton(() => clerk.UserButton);
         } catch {}
       }
     };
-
     window.addEventListener("focus", handleFocus);
-
-    let checks = 0;
-    const interval = setInterval(async () => {
-      checks++;
-      const clerkInstance = (window as any).Clerk;
-      if (clerkInstance?.loaded && clerkInstance?.user) {
-        try {
-          const clerk = await import("@clerk/nextjs");
-          setAuthState({
-            loaded: true,
-            signed: true,
-            UserButton: clerk.UserButton,
-          });
-          clearInterval(interval);
-        } catch {}
-      }
-      if (checks > 30) clearInterval(interval);
-    }, 500);
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-      clearInterval(interval);
-    };
+    return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
-  // Fetch user info for avatar display when signed in
-  useEffect(() => {
-    if (!authState.signed) return;
+  // Determine auth state: API is the reliable source
+  const isSignedIn = !!apiUser;
+  const isLoading = !apiChecked;
 
-    async function fetchUserInfo() {
-      try {
-        const res = await fetch("/api/users/me");
-        const data = await res.json();
-        if (data?.user) {
-          setUserInfo({
-            avatarUrl: data.user.avatarUrl || null,
-            username: data.user.username || "",
-          });
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    fetchUserInfo();
-  }, [authState.signed]);
-
-  // Not loaded yet — show sign-in links as placeholder
-  if (!authState.loaded) {
+  // Loading — show sign-in placeholders briefly
+  if (isLoading) {
     return (
       <>
         <Link
@@ -154,10 +121,9 @@ export default function ClerkAuthSection() {
     );
   }
 
-  // Signed in — show avatar link + submit idea + user button
-  if (authState.signed && authState.UserButton) {
-    const UB = authState.UserButton;
-    const initial = userInfo.username ? userInfo.username.charAt(0).toUpperCase() : "?";
+  // Signed in — show profile link (+ Clerk UserButton if available)
+  if (isSignedIn) {
+    const initial = apiUser.username.charAt(0).toUpperCase();
     return (
       <>
         <Link
@@ -178,15 +144,17 @@ export default function ClerkAuthSection() {
             {t.nav.profile || "Profil"}
           </span>
         </Link>
-        <UB
-          afterSignOutUrl="/"
-          appearance={{ elements: { avatarBox: "w-8 h-8 rounded-lg" } }}
-        />
+        {clerkReady && ClerkUserButton && (
+          <ClerkUserButton
+            afterSignOutUrl="/"
+            appearance={{ elements: { avatarBox: "w-8 h-8 rounded-lg" } }}
+          />
+        )}
       </>
     );
   }
 
-  // Not signed in — show sign-in / sign-up
+  // Not signed in
   return (
     <>
       <Link
