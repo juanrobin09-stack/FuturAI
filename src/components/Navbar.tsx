@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   LogIn,
+  UserPlus,
   Shield,
   BarChart3,
 } from "lucide-react";
@@ -21,38 +22,33 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "./NotificationBell";
+import { isClerkConfigured } from "./AuthProvider";
 
-// Auth section — always shows sign-in/sign-up, replaces with UserButton when logged in
-function AuthSection() {
+// Clerk auth section — uses real hooks when ClerkProvider is in the tree
+function ClerkAuthSection() {
   const { t } = useLanguage();
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [UserButton, setUserButton] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { useAuth, UserButton } = require("@clerk/nextjs");
+  const { isSignedIn, isLoaded } = useAuth();
 
-  useEffect(() => {
-    import("@clerk/nextjs")
-      .then((mod) => {
-        const clerk = (window as any).__clerk;
-        if (clerk?.user) {
-          setIsSignedIn(true);
-          setUserButton(() => mod.UserButton);
-        }
-        if (clerk) {
-          clerk.addListener?.((state: any) => {
-            if (state?.user) {
-              setIsSignedIn(true);
-              setUserButton(() => mod.UserButton);
-            }
-          });
-        }
-      })
-      .catch(() => {});
-  }, []);
+  if (!isLoaded) {
+    return <SignInLinks />;
+  }
 
-  if (isSignedIn && UserButton) {
+  if (isSignedIn) {
     return (
       <>
-        <Link href="/ideas/submit" className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-400 hover:to-accent-500 transition-all">
+        <Link
+          href="/ideas/submit"
+          className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-400 hover:to-accent-500 transition-all"
+        >
           {t.nav.submitIdea}
+        </Link>
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+        >
+          {t.nav.profile || "Profil"}
         </Link>
         <UserButton
           afterSignOutUrl="/"
@@ -62,6 +58,12 @@ function AuthSection() {
     );
   }
 
+  return <SignInLinks />;
+}
+
+// Sign in / Sign up links — always works, no Clerk dependency
+function SignInLinks() {
+  const { t } = useLanguage();
   return (
     <>
       <Link
@@ -75,39 +77,20 @@ function AuthSection() {
         href="/sign-up"
         className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-400 hover:to-primary-500 transition-all shadow-sm"
       >
+        <UserPlus className="w-3.5 h-3.5" />
         {t.nav.signUp}
       </Link>
     </>
   );
 }
 
-function FallbackAuth() {
-  const { t } = useLanguage();
-
-  return (
-    <>
-      <Link href="/ideas/submit" className="btn-accent text-sm py-2 px-4 hidden sm:block">
-        {t.nav.submitIdea}
-      </Link>
-      <Link
-        href="/sign-in"
-        className="btn-primary text-sm py-2 px-4 flex items-center gap-2"
-      >
-        <LogIn className="w-4 h-4" />
-        {t.nav.signIn}
-      </Link>
-    </>
-  );
+// Main auth section — picks the right component
+function AuthSection() {
+  if (isClerkConfigured) {
+    return <ClerkAuthSection />;
+  }
+  return <SignInLinks />;
 }
-
-const navIcons = {
-  "/projects": FolderKanban,
-  "/challenges": Award,
-  "/ideas": Lightbulb,
-  "/leaderboard": Trophy,
-  "/map": Map,
-  "/manifesto": Heart,
-};
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -164,7 +147,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Auth + CTA + Notifications + Language */}
+          {/* Auth + Notifications + Language */}
           <div className="flex items-center gap-2">
             <NotificationBell />
             <LanguageSwitcher />
