@@ -17,14 +17,18 @@ export default function ClerkAuthSection() {
     UserButton: React.ComponentType<any> | null;
   }>({ loaded: false, signed: false, UserButton: null });
 
+  // User avatar & username for navbar display
+  const [userInfo, setUserInfo] = useState<{ avatarUrl: string | null; username: string }>({
+    avatarUrl: null,
+    username: "",
+  });
+
   useEffect(() => {
     let cancelled = false;
 
     async function init() {
       try {
         const clerk = await import("@clerk/nextjs");
-        // Now try to use the clerk module — useUser/useAuth can't be called outside a component,
-        // so we rely on window.Clerk instance (already loaded by ClerkProvider)
         const check = () => {
           const clerkInstance = (window as any).Clerk;
           if (!clerkInstance) return false;
@@ -41,10 +45,8 @@ export default function ClerkAuthSection() {
           return false;
         };
 
-        // Check immediately
         if (check()) return;
 
-        // Poll until Clerk loads (max 10s)
         const interval = setInterval(() => {
           if (check()) clearInterval(interval);
         }, 150);
@@ -52,7 +54,6 @@ export default function ClerkAuthSection() {
         setTimeout(() => {
           clearInterval(interval);
           if (!cancelled) {
-            // Clerk didn't load in time — show sign-in links
             setAuthState({ loaded: true, signed: false, UserButton: null });
           }
         }, 10000);
@@ -67,7 +68,7 @@ export default function ClerkAuthSection() {
     return () => { cancelled = true; };
   }, []);
 
-  // Also listen for auth state changes (sign-in / sign-out)
+  // Re-check auth on focus / periodic check
   useEffect(() => {
     const handleFocus = async () => {
       const clerkInstance = (window as any).Clerk;
@@ -83,11 +84,8 @@ export default function ClerkAuthSection() {
       }
     };
 
-    // Re-check auth when window regains focus (after redirect from Clerk)
     window.addEventListener("focus", handleFocus);
 
-    // Also re-check periodically for the first 15 seconds after mount
-    // This catches the case where user just completed sign-up and was redirected
     let checks = 0;
     const interval = setInterval(async () => {
       checks++;
@@ -103,7 +101,7 @@ export default function ClerkAuthSection() {
           clearInterval(interval);
         } catch {}
       }
-      if (checks > 30) clearInterval(interval); // Stop after 15s
+      if (checks > 30) clearInterval(interval);
     }, 500);
 
     return () => {
@@ -111,6 +109,28 @@ export default function ClerkAuthSection() {
       clearInterval(interval);
     };
   }, []);
+
+  // Fetch user info for avatar display when signed in
+  useEffect(() => {
+    if (!authState.signed) return;
+
+    async function fetchUserInfo() {
+      try {
+        const res = await fetch("/api/users/me");
+        const data = await res.json();
+        if (data?.user) {
+          setUserInfo({
+            avatarUrl: data.user.avatarUrl || null,
+            username: data.user.username || "",
+          });
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    fetchUserInfo();
+  }, [authState.signed]);
 
   // Not loaded yet — show sign-in links as placeholder
   if (!authState.loaded) {
@@ -134,7 +154,7 @@ export default function ClerkAuthSection() {
     );
   }
 
-  // Signed in — show profile + user button
+  // Signed in — show avatar link + submit idea + user button
   if (authState.signed && authState.UserButton) {
     const UB = authState.UserButton;
     return (
@@ -147,9 +167,25 @@ export default function ClerkAuthSection() {
         </Link>
         <Link
           href="/profile"
-          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+          className="inline-flex items-center rounded-lg hover:ring-2 hover:ring-primary-500/50 transition-all"
+          title={t.nav.profile || "Profil"}
         >
-          {t.nav.profile || "Profil"}
+          {userInfo.avatarUrl ? (
+            <img
+              src={userInfo.avatarUrl}
+              alt={userInfo.username}
+              className="w-8 h-8 rounded-lg object-cover"
+              onError={(e) => {
+                // Fallback to initial if image fails
+                const el = e.target as HTMLImageElement;
+                el.style.display = "none";
+                el.parentElement?.querySelector(".avatar-fallback")?.classList.remove("hidden");
+              }}
+            />
+          ) : null}
+          <div className={`w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-xs font-bold avatar-fallback ${userInfo.avatarUrl ? "hidden" : ""}`}>
+            {userInfo.username ? userInfo.username.charAt(0).toUpperCase() : "?"}
+          </div>
         </Link>
         <UB
           afterSignOutUrl="/"
