@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validProviders = ["openai", "anthropic", "mistral", "custom"];
+    const validProviders = ["openai", "anthropic", "mistral", "google", "stability", "leonardo", "replicate", "kling", "custom"];
     if (!validProviders.includes(provider)) {
       return NextResponse.json(
         { error: "Invalid provider" },

@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
           version: (latestVersion?.version || 0) + 1,
           prompt: prompt.trim(),
           resultText: result.result || "",
+          resultUrl: result.resultUrl || null,
           changelog: changelog?.trim() || null,
           authorId: user.id,
           sessionId,
@@ -91,6 +92,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       version: newVersion,
+      resultUrl: result.resultUrl || null,
       provider: result.provider,
       durationMs: result.durationMs,
     });

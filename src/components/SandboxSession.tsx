@@ -123,6 +123,7 @@ export default function SandboxSession() {
   const [changelog, setChangelog] = useState("");
   const [activeVersionId, setActiveVersionId] = useState<string | undefined>();
   const [viewingResult, setViewingResult] = useState("");
+  const [viewingResultUrl, setViewingResultUrl] = useState<string | null>(null);
 
   // V6.3: Arena enhancements
   const [activeTab, setActiveTab] = useState<"editor" | "docs" | "diff" | "timeline">("editor");
@@ -185,6 +186,7 @@ export default function SandboxSession() {
           const latest = data.versions[0];
           setActiveVersionId(latest.id);
           setViewingResult(latest.resultText || "");
+          setViewingResultUrl(latest.resultUrl || null);
           setPrompt(latest.prompt || "");
         }
       }
@@ -276,6 +278,7 @@ export default function SandboxSession() {
 
       if (res.ok && data.success) {
         setViewingResult(data.version?.resultText || "");
+        setViewingResultUrl(data.resultUrl || data.version?.resultUrl || null);
         setChangelog("");
         toast.success(`${t.arena.generationComplete} (${data.provider}, ${data.durationMs}ms)`);
         await openSession(activeSession.id);
@@ -626,22 +629,42 @@ export default function SandboxSession() {
             />
           </div>
 
-          {/* Result: Bolt-style Code + Browser Preview */}
+          {/* Result: Image/Video or Code + Browser Preview */}
           {viewingResult && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <BrowserPreview
-                code={viewingResult}
-                previewHtml={generatePreviewHtml(viewingResult, activeSession.type)}
-                title={activeSession.name}
-                version={
-                  activeVersionId && activeSession.versions?.find((v) => v.id === activeVersionId)
-                    ? `v${activeSession.versions.find((v) => v.id === activeVersionId)?.version}`
-                    : undefined
-                }
-              />
+              {viewingResultUrl && activeSession.type === "text-to-image" ? (
+                <div className="card space-y-3">
+                  <img
+                    src={viewingResultUrl}
+                    alt="Generated image"
+                    className="w-full rounded-lg max-h-[600px] object-contain"
+                  />
+                  <pre className="text-xs text-gray-500 whitespace-pre-wrap">{viewingResult}</pre>
+                </div>
+              ) : viewingResultUrl && activeSession.type === "text-to-video" ? (
+                <div className="card space-y-3">
+                  <video
+                    src={viewingResultUrl}
+                    controls
+                    className="w-full rounded-lg max-h-[600px]"
+                  />
+                  <pre className="text-xs text-gray-500 whitespace-pre-wrap">{viewingResult}</pre>
+                </div>
+              ) : (
+                <BrowserPreview
+                  code={viewingResult}
+                  previewHtml={generatePreviewHtml(viewingResult, activeSession.type)}
+                  title={activeSession.name}
+                  version={
+                    activeVersionId && activeSession.versions?.find((v) => v.id === activeVersionId)
+                      ? `v${activeSession.versions.find((v) => v.id === activeVersionId)?.version}`
+                      : undefined
+                  }
+                />
+              )}
             </motion.div>
           )}
 
@@ -740,6 +763,7 @@ export default function SandboxSession() {
               onSelectVersion={(v) => {
                 setActiveVersionId(v.id);
                 setViewingResult(v.resultText || "");
+                setViewingResultUrl(v.resultUrl || null);
                 setPrompt(v.prompt);
               }}
             />

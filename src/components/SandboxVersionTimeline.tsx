@@ -10,6 +10,7 @@ interface Version {
   version: number;
   prompt: string;
   resultText?: string | null;
+  resultUrl?: string | null;
   changelog?: string | null;
   createdAt: string;
   author: { id: string; username: string; avatarUrl?: string | null };

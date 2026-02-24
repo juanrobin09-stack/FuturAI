@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Key, Shield, Loader2, Trash2, Plus, Check, X } from "lucide-react";
+import { Settings, Key, Shield, Loader2, Trash2, Plus, Check, X, Code, Image, Film } from "lucide-react";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
 import FadeIn from "@/components/animations/FadeIn";
@@ -17,11 +17,23 @@ interface ApiKeyData {
 }
 
 const PROVIDERS = [
-  { value: "openai", label: "OpenAI" },
-  { value: "anthropic", label: "Anthropic" },
-  { value: "mistral", label: "Mistral AI" },
-  { value: "custom", label: "Custom" },
+  { value: "openai", label: "OpenAI", desc: "GPT-4o, DALL-E 3", capabilities: ["code", "image"] },
+  { value: "anthropic", label: "Anthropic", desc: "Claude Sonnet", capabilities: ["code"] },
+  { value: "mistral", label: "Mistral AI", desc: "Mistral Small", capabilities: ["code"] },
+  { value: "google", label: "Google Gemini", desc: "Gemini 2.0 Flash", capabilities: ["code"] },
+  { value: "stability", label: "Stability AI", desc: "Stable Diffusion 3.5", capabilities: ["image"] },
+  { value: "leonardo", label: "Leonardo AI", desc: "Leonardo Phoenix", capabilities: ["image"] },
+  { value: "replicate", label: "Replicate", desc: "Flux, Video models", capabilities: ["image", "video"] },
+  { value: "kling", label: "Kling AI", desc: "Kling Video", capabilities: ["video"] },
+  { value: "midjourney", label: "Midjourney", desc: "Coming soon", capabilities: ["image"], disabled: true },
+  { value: "custom", label: "Custom", desc: "OpenAI-compatible", capabilities: ["code", "image"] },
 ];
+
+const CAPABILITY_STYLES: Record<string, { icon: typeof Code; color: string }> = {
+  code: { icon: Code, color: "text-blue-400 bg-blue-400/10" },
+  image: { icon: Image, color: "text-purple-400 bg-purple-400/10" },
+  video: { icon: Film, color: "text-amber-400 bg-amber-400/10" },
+};
 
 export default function SettingsPage() {
   const { t } = useLanguage();
@@ -99,12 +111,8 @@ export default function SettingsPage() {
     }
   };
 
-  const getProviderLabel = (provider: string) => {
-    if (provider === "openai") return t.settings.openai;
-    if (provider === "anthropic") return t.settings.anthropic;
-    if (provider === "mistral") return t.settings.mistral || "Mistral AI";
-    return t.settings.custom;
-  };
+  // Only show connectable providers in the form dropdown
+  const connectableProviders = PROVIDERS.filter((p) => !p.disabled);
 
   return (
     <PageTransition>
@@ -151,8 +159,10 @@ export default function SettingsPage() {
                     onChange={(e) => setFormProvider(e.target.value)}
                     className="input-field w-full"
                   >
-                    {PROVIDERS.map((p) => (
-                      <option key={p.value} value={p.value}>{p.label}</option>
+                    {connectableProviders.map((p) => (
+                      <option key={p.value} value={p.value}>
+                        {p.label} — {p.desc}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -211,22 +221,52 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 {PROVIDERS.map((p) => {
                   const existing = keys.find((k) => k.provider === p.value);
+                  const isDisabled = p.disabled;
                   return (
-                    <div key={p.value} className="flex items-center justify-between p-3 rounded-lg bg-gray-800/30 border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${existing ? "bg-green-400" : "bg-gray-600"}`} />
-                        <div>
-                          <span className="text-sm font-medium">{p.label}</span>
+                    <div
+                      key={p.value}
+                      className={`flex items-center justify-between p-3 rounded-lg border ${
+                        isDisabled
+                          ? "bg-gray-800/10 border-white/3 opacity-50"
+                          : "bg-gray-800/30 border-white/5"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${
+                          isDisabled ? "bg-gray-700" : existing ? "bg-green-400" : "bg-gray-600"
+                        }`} />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium">{p.label}</span>
+                            {p.capabilities.map((cap) => {
+                              const style = CAPABILITY_STYLES[cap];
+                              if (!style) return null;
+                              const Icon = style.icon;
+                              return (
+                                <span key={cap} className={`inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full ${style.color}`}>
+                                  <Icon className="w-2.5 h-2.5" />
+                                  {cap === "code" ? "Code" : cap === "image" ? "Image" : "Video"}
+                                </span>
+                              );
+                            })}
+                          </div>
+                          <span className="text-xs text-gray-500">{p.desc}</span>
                           {existing?.label && (
-                            <span className="text-xs text-gray-500 ml-2">({existing.label})</span>
+                            <span className="text-xs text-gray-500 ml-1">• {existing.label}</span>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs ${existing ? "text-green-400" : "text-gray-500"}`}>
-                          {existing ? t.settings.connected : t.settings.notConnected}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-xs ${
+                          isDisabled ? "text-gray-600 italic" : existing ? "text-green-400" : "text-gray-500"
+                        }`}>
+                          {isDisabled
+                            ? (t.settings.comingSoon || "Coming soon")
+                            : existing
+                            ? t.settings.connected
+                            : t.settings.notConnected}
                         </span>
-                        {existing && (
+                        {existing && !isDisabled && (
                           <button
                             onClick={() => deleteKey(p.value)}
                             className="p-1 text-gray-500 hover:text-red-400 transition-colors"

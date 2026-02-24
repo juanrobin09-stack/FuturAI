@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
-const SUPPORTED_PROVIDERS = ["openai", "anthropic", "mistral", "custom"];
+const SUPPORTED_PROVIDERS = ["openai", "anthropic", "mistral", "google", "stability", "leonardo", "replicate", "kling", "custom"];
 
 export async function GET() {
   try {

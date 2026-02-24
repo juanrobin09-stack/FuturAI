@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { FlaskConical, Wand2, Code, Image, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { FlaskConical, Wand2, Code, Image, Loader2, Settings } from "lucide-react";
 import { useLanguage } from "@/i18n";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 type SandboxMode = "text-to-image" | "text-to-code" | "text-to-video";
 
@@ -12,20 +13,47 @@ interface SandboxAIProps {
   ideaTitle?: string;
 }
 
+interface ProviderInfo {
+  name: string;
+  connected: boolean;
+}
+
 export default function SandboxAI({ ideaId, ideaTitle }: SandboxAIProps) {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<SandboxMode>("text-to-code");
   const [prompt, setPrompt] = useState(
     ideaTitle ? t.arena.generatePrototype.replace("{title}", ideaTitle) : ""
   );
   const [result, setResult] = useState("");
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Provider state
+  const [providers, setProviders] = useState<ProviderInfo[]>([]);
+  const [selectedProvider, setSelectedProvider] = useState("");
+  const [providersLoaded, setProvidersLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/arena/providers")
+      .then((r) => r.json())
+      .then((data) => {
+        const list: ProviderInfo[] = data.providers || [];
+        setProviders(list);
+        const connected = list.find((p) => p.connected);
+        if (connected) setSelectedProvider(connected.name);
+      })
+      .catch(() => {})
+      .finally(() => setProvidersLoaded(true));
+  }, []);
 
   const modes = [
     { key: "text-to-code" as const, label: t.arena.codeAI, icon: Code },
     { key: "text-to-image" as const, label: t.arena.textToImage, icon: Image },
     { key: "text-to-video" as const, label: t.arena.textToVideo, icon: Wand2 },
   ];
+
+  const connectedProviders = providers.filter((p) => p.connected);
+  const hasProvider = connectedProviders.length > 0;
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -35,81 +63,56 @@ export default function SandboxAI({ ideaId, ideaTitle }: SandboxAIProps) {
 
     setLoading(true);
     setResult("");
+    setResultUrl(null);
 
     try {
-      await new Promise((r) => setTimeout(r, 2000));
-
-      if (mode === "text-to-code") {
-        setResult(`// AI Prototype generated for: "${prompt}"
-// ------------------------------------------
-
-import { pipeline } from '@huggingface/transformers';
-
-class AIPrototype {
-  private model: any;
-
-  async initialize() {
-    console.log('Initializing AI model...');
-    this.model = await pipeline('text-generation', 'gpt2');
-    console.log('Model ready!');
-  }
-
-  async generate(input: string): Promise<string> {
-    const result = await this.model(input, {
-      max_length: 200,
-      temperature: 0.7,
-      top_p: 0.9,
-    });
-    return result[0].generated_text;
-  }
-
-  async evaluate(testCases: string[]): Promise<void> {
-    console.log('Evaluating on', testCases.length, 'test cases...');
-    for (const testCase of testCases) {
-      const output = await this.generate(testCase);
-      console.log('Input:', testCase);
-      console.log('Output:', output);
-      console.log('---');
-    }
-  }
-}
-
-async function main() {
-  const proto = new AIPrototype();
-  await proto.initialize();
-
-  const result = await proto.generate("${prompt}");
-  console.log('Result:', result);
-}
-
-main().catch(console.error);`);
-      } else if (mode === "text-to-image") {
+      if (!hasProvider || !selectedProvider) {
+        // No provider connected — show helpful message
+        await new Promise((r) => setTimeout(r, 500));
         setResult(
-          `[Image Generation Preview]\n\nPrompt: "${prompt}"\n` +
-          (locale === "fr"
-            ? `Modele: Stable Diffusion XL\nResolution: 1024x1024\nSteps: 30\nCFG Scale: 7.5\n\nPour generer de vraies images, connectez votre cle API dans Parametres > Integrations.`
-            : `Model: Stable Diffusion XL\nResolution: 1024x1024\nSteps: 30\nCFG Scale: 7.5\n\nTo generate real images, connect your API key in Settings > Integrations.`)
+          t.arena.connectApiPrompt ||
+          "Connect your API key in Settings > Integrations to use real AI generation."
         );
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch("/api/arena/execute-quick", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          provider: selectedProvider,
+          mode,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setResult(data.result || "");
+        setResultUrl(data.resultUrl || null);
+        toast.success(`${t.arena.generationComplete} (${data.provider})`);
+
+        // Save to idea if linked
+        if (ideaId) {
+          await fetch("/api/ideas/" + ideaId, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sandboxResult: { type: mode, prompt, resultText: data.result, resultUrl: data.resultUrl },
+            }),
+          }).catch(() => {});
+        }
       } else {
-        setResult(
-          `[Video Generation Preview]\n\nPrompt: "${prompt}"\n` +
-          (locale === "fr"
-            ? `Modele: Runway Gen-2 / Pika Labs\nDuree: 4 secondes\nResolution: 720p\n\nPour generer de vraies videos, connectez votre cle API dans Parametres > Integrations.`
-            : `Model: Runway Gen-2 / Pika Labs\nDuration: 4 seconds\nResolution: 720p\n\nTo generate real videos, connect your API key in Settings > Integrations.`)
-        );
+        if (data.error === "no_api_key") {
+          setResult(
+            t.arena.connectApiPrompt ||
+            "Connect your API key in Settings > Integrations."
+          );
+        } else {
+          toast.error(data.error || t.arena.generationError);
+        }
       }
-
-      if (ideaId) {
-        await fetch("/api/ideas/" + ideaId, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sandboxResult: { type: mode, prompt, resultText: result },
-          }),
-        }).catch(() => {});
-      }
-
-      toast.success(t.arena.generationComplete);
     } catch {
       toast.error(t.arena.generationError);
     } finally {
@@ -125,7 +128,7 @@ main().catch(console.error);`);
       </div>
 
       {/* Mode selector */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {modes.map((m) => (
           <button
             key={m.key}
@@ -142,6 +145,39 @@ main().catch(console.error);`);
         ))}
       </div>
 
+      {/* Provider selector */}
+      {providersLoaded && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {hasProvider ? (
+            <>
+              <span className="text-xs text-gray-500">{t.settings.provider}:</span>
+              {connectedProviders.map((p) => (
+                <button
+                  key={p.name}
+                  onClick={() => setSelectedProvider(p.name)}
+                  className={`text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-all ${
+                    selectedProvider === p.name
+                      ? "bg-primary-500/15 text-primary-400 border border-primary-500/30"
+                      : "bg-gray-800 text-gray-300 border border-white/5 hover:border-white/10"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                  {p.name}
+                </button>
+              ))}
+            </>
+          ) : (
+            <Link
+              href="/settings"
+              className="flex items-center gap-1.5 text-xs text-accent-400 hover:text-accent-300 transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              {t.arena.connectApiPrompt || "Connect an API key in Settings"}
+            </Link>
+          )}
+        </div>
+      )}
+
       {/* Prompt input */}
       <div className="flex gap-2">
         <input
@@ -149,7 +185,7 @@ main().catch(console.error);`);
           onChange={(e) => setPrompt(e.target.value)}
           placeholder={t.arena.promptPlaceholder}
           className="input-field flex-1"
-          onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+          onKeyDown={(e) => e.key === "Enter" && !loading && handleGenerate()}
         />
         <button
           onClick={handleGenerate}
@@ -166,11 +202,31 @@ main().catch(console.error);`);
       </div>
 
       {/* Result */}
-      {result && (
+      {(result || resultUrl) && (
         <div className="bg-gray-800/80 rounded-xl p-4 border border-white/5">
-          <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono overflow-x-auto">
-            {result}
-          </pre>
+          {resultUrl && mode === "text-to-image" ? (
+            <div className="space-y-3">
+              <img
+                src={resultUrl}
+                alt={`Generated: ${prompt}`}
+                className="w-full rounded-lg max-h-[512px] object-contain"
+              />
+              <p className="text-xs text-gray-500">{result}</p>
+            </div>
+          ) : resultUrl && mode === "text-to-video" ? (
+            <div className="space-y-3">
+              <video
+                src={resultUrl}
+                controls
+                className="w-full rounded-lg max-h-[512px]"
+              />
+              <p className="text-xs text-gray-500">{result}</p>
+            </div>
+          ) : (
+            <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono overflow-x-auto">
+              {result}
+            </pre>
+          )}
         </div>
       )}
     </div>
