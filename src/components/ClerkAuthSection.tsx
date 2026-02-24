@@ -157,6 +157,7 @@ export default function ClerkAuthSection() {
   // Signed in — show avatar link + submit idea + user button
   if (authState.signed && authState.UserButton) {
     const UB = authState.UserButton;
+    const initial = userInfo.username ? userInfo.username.charAt(0).toUpperCase() : "?";
     return (
       <>
         <Link
@@ -167,25 +168,15 @@ export default function ClerkAuthSection() {
         </Link>
         <Link
           href="/profile"
-          className="inline-flex items-center rounded-lg hover:ring-2 hover:ring-primary-500/50 transition-all"
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-white/10 border border-white/10 transition-all"
           title={t.nav.profile || "Profil"}
         >
-          {userInfo.avatarUrl ? (
-            <img
-              src={userInfo.avatarUrl}
-              alt={userInfo.username}
-              className="w-8 h-8 rounded-lg object-cover"
-              onError={(e) => {
-                // Fallback to initial if image fails
-                const el = e.target as HTMLImageElement;
-                el.style.display = "none";
-                el.parentElement?.querySelector(".avatar-fallback")?.classList.remove("hidden");
-              }}
-            />
-          ) : null}
-          <div className={`w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-xs font-bold avatar-fallback ${userInfo.avatarUrl ? "hidden" : ""}`}>
-            {userInfo.username ? userInfo.username.charAt(0).toUpperCase() : "?"}
+          <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+            {initial}
           </div>
+          <span className="hidden sm:inline text-xs font-medium text-gray-300">
+            {t.nav.profile || "Profil"}
+          </span>
         </Link>
         <UB
           afterSignOutUrl="/"
