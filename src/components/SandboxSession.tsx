@@ -287,7 +287,8 @@ export default function SandboxSession() {
         const errMsg = data.error === "no_api_key"
           ? "No API key configured for this provider. Go to Settings to add one."
           : data.error || "Execution failed";
-        setExecutionError(errMsg);
+        const detail = data.rawError && data.rawError !== data.error ? ` (${data.rawError})` : "";
+        setExecutionError(errMsg + detail);
         toast.error(errMsg);
       }
     } catch {

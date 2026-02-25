@@ -497,6 +497,7 @@ export async function executeAI(
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Unknown error";
       lastError = message;
+      console.error(`[AI] ${provider} attempt ${attempt + 1} failed:`, message);
 
       if (message.includes("abort") || message.includes("AbortError")) {
         return { success: false, error: "Request timed out.", provider, durationMs: Date.now() - start };
@@ -524,9 +525,12 @@ export async function executeAI(
     friendlyError = "Accès refusé. Vérifiez que la facturation est activée sur votre compte provider.";
   }
 
+  console.error(`[AI] ${provider} all attempts failed. Raw error: ${lastError}`);
+
   return {
     success: false,
     error: friendlyError,
+    rawError: lastError,
     provider,
     durationMs: Date.now() - start,
   };

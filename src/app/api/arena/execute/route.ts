@@ -45,8 +45,10 @@ export async function POST(req: NextRequest) {
     const result = await executeAI(user.id, provider, prompt.trim(), session.type);
 
     if (!result.success) {
+      console.error(`[Arena] AI failed for ${provider}:`, result.error, result.rawError);
       return NextResponse.json({
         error: result.error,
+        rawError: result.rawError,
         provider: result.provider,
         durationMs: result.durationMs,
       }, { status: result.error === "no_api_key" ? 400 : 502 });
