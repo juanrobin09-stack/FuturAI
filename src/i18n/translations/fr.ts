@@ -50,7 +50,7 @@ export const fr = {
     submitIdea: "Soumettre une id\u00e9e",
     activeProjects: "Projets actifs",
     innovators: "Innovateurs",
-    countries: "Pays",
+    ideasCount: "Id\u00e9es",
     challengesCount: "Challenges",
     activeChallenges: "Challenges en cours",
     participateWinBadges: "Participez et gagnez en reconnaissance",

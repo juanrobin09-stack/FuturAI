@@ -9,7 +9,7 @@ import { getServerTranslations } from "@/i18n/server";
 
 async function getHomeData() {
   try {
-    const [projects, challenges, ideaCount, userCount, topProject, topContributor] = await Promise.all([
+    const [projects, challenges, ideaCount, userCount, projectCount, challengeCount, topProject, topContributor] = await Promise.all([
       prisma.project.findMany({
         include: {
           members: { include: { user: { select: { username: true } } }, take: 4 },
@@ -26,6 +26,8 @@ async function getHomeData() {
       }),
       prisma.idea.count(),
       prisma.user.count(),
+      prisma.project.count(),
+      prisma.challenge.count(),
       prisma.project.findFirst({
         include: { _count: { select: { contributions: true, members: true } } },
         orderBy: { contributions: { _count: "desc" } },
@@ -44,6 +46,8 @@ async function getHomeData() {
       })),
       ideaCount,
       userCount,
+      projectCount,
+      challengeCount,
       spotlight: {
         topProject: topProject ? { title: topProject.title, contributions: topProject._count.contributions } : null,
         topContributor: topContributor ? { username: topContributor.username, points: topContributor.points } : null,
@@ -51,12 +55,12 @@ async function getHomeData() {
       },
     };
   } catch {
-    return { projects: [], challenges: [], ideaCount: 0, userCount: 0, spotlight: { topProject: null, topContributor: null, fastestGrowing: null } };
+    return { projects: [], challenges: [], ideaCount: 0, userCount: 0, projectCount: 0, challengeCount: 0, spotlight: { topProject: null, topContributor: null, fastestGrowing: null } };
   }
 }
 
 export default async function HomePage() {
-  const { projects, challenges, ideaCount, userCount, spotlight } = await getHomeData();
+  const { projects, challenges, ideaCount, userCount, projectCount, challengeCount, spotlight } = await getHomeData();
   const { t } = getServerTranslations();
 
   return (
@@ -100,10 +104,10 @@ export default async function HomePage() {
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-20 max-w-3xl mx-auto">
             {[
-              { icon: FolderKanban, label: t.home.activeProjects, value: `${projects.length}+` },
-              { icon: Users, label: t.home.innovators, value: `${Math.max(userCount, 100)}+` },
-              { icon: Globe, label: t.home.countries, value: "30+" },
-              { icon: Award, label: t.home.challengesCount, value: `${challenges.length}+` },
+              { icon: FolderKanban, label: t.home.activeProjects, value: String(projectCount) },
+              { icon: Users, label: t.home.innovators, value: String(userCount) },
+              { icon: Lightbulb, label: t.home.ideasCount || "Id\u00e9es", value: String(ideaCount) },
+              { icon: Award, label: t.home.challengesCount, value: String(challengeCount) },
             ].map((stat) => (
               <div key={stat.label} className="card text-center py-6">
                 <stat.icon className="w-6 h-6 text-primary-400 mx-auto mb-2" />

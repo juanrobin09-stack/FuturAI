@@ -25,7 +25,7 @@ const nextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.futurai.space https://*.clerk.accounts.dev; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://clerk.futurai.space https://*.clerk.accounts.dev https://api.clerk.com wss:; font-src 'self' https:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.futurai.space https://*.clerk.accounts.dev; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://clerk.futurai.space https://*.clerk.accounts.dev https://api.clerk.com https://*.basemaps.cartocdn.com wss:; font-src 'self' https:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
       },

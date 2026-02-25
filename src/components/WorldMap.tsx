@@ -1,27 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import { getCategoryColor, getCategoryLabel } from "@/lib/utils";
 import { useLanguage } from "@/i18n";
 import { Loader2 } from "lucide-react";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-const CircleMarker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.CircleMarker),
-  { ssr: false }
-);
-const Popup = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Popup),
-  { ssr: false }
-);
+/* Force Leaflet to recalculate tiles after the container is visible */
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => map.invalidateSize(), 200);
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    if (map.getContainer()) ro.observe(map.getContainer());
+    return () => {
+      clearTimeout(timer);
+      ro.disconnect();
+    };
+  }, [map]);
+  return null;
+}
 
 interface MapIdea {
   id: string;
@@ -69,18 +68,15 @@ export default function WorldMap({ ideas: propIdeas }: WorldMapProps) {
   }
 
   return (
-    <div className="w-full h-[400px] sm:h-[500px] lg:h-[600px] overflow-hidden">
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      />
+    <div className="w-full h-[400px] sm:h-[500px] lg:h-[600px] overflow-hidden rounded-2xl">
       <MapContainer
         center={[20, 0]}
         zoom={2}
         scrollWheelZoom={true}
         className="h-full w-full"
-        style={{ background: "#111827" }}
+        style={{ background: "#111827", height: "100%", width: "100%" }}
       >
+        <MapResizer />
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"

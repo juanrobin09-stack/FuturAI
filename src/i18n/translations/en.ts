@@ -52,7 +52,7 @@ export const en: TranslationKeys = {
     submitIdea: "Submit an idea",
     activeProjects: "Active projects",
     innovators: "Innovators",
-    countries: "Countries",
+    ideasCount: "Ideas",
     challengesCount: "Challenges",
     activeChallenges: "Active challenges",
     participateWinBadges: "Participate and earn recognition",
