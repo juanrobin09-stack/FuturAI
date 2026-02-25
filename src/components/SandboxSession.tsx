@@ -10,6 +10,7 @@ import SandboxComments from "./SandboxComments";
 import VersionDiffView from "./VersionDiffView";
 import ContributorTimeline from "./ContributorTimeline";
 import BrowserPreview from "./BrowserPreview";
+import SessionChat from "./SessionChat";
 
 type SandboxMode = "text-to-image" | "text-to-code" | "text-to-video";
 
@@ -786,6 +787,12 @@ export default function SandboxSession() {
           </div>
         </div>
       </div>
+
+      {/* Floating team chat */}
+      <SessionChat
+        sessionId={activeSession.id}
+        participants={activeSession.participants || []}
+      />
     </div>
   );
 }

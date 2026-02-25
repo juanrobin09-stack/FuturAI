@@ -313,7 +313,7 @@ export const fr = {
     generationError: "Erreur lors de la generation",
     tips: "Astuces",
     tip1: "Soyez precis dans vos prompts pour de meilleurs resultats",
-    tip2: "Le mode \"Code IA\" genere du code TypeScript/Python pret a executer",
+    tip2: "Le mode \"Code IA\" genere des pages HTML/CSS/JS avec preview live comme Bolt.new",
     tip3: "Liez la session Arena a un projet pour sauvegarder vos prototypes",
     tip4: "Connectez vos cles API dans Parametres > Integrations",
   },

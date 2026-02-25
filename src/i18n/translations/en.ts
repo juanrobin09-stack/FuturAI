@@ -315,7 +315,7 @@ export const en: TranslationKeys = {
     generationError: "Error during generation",
     tips: "Tips",
     tip1: "Be precise in your prompts for better results",
-    tip2: "\"AI Code\" mode generates ready-to-run TypeScript/Python code",
+    tip2: "\"AI Code\" mode generates HTML/CSS/JS pages with live preview like Bolt.new",
     tip3: "Link the Arena session to a project to save your prototypes",
     tip4: "Connect your API keys in Settings > Integrations",
   },
