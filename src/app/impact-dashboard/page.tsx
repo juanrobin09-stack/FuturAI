@@ -81,7 +81,7 @@ export default function ImpactDashboardPage() {
         </div>
         <p className="text-gray-400 max-w-2xl mx-auto">
           {locale === "fr"
-            ? "Mesure transparente de l'impact des projets sur les defis mondiaux"
+            ? "Mesure transparente de l\u2019impact des projets sur les d\u00e9fis mondiaux"
             : "Transparent measurement of project impact on global challenges"}
         </p>
       </div>
@@ -110,7 +110,7 @@ export default function ImpactDashboardPage() {
           onChange={(e) => setFilterScope(e.target.value)}
           className="input-field w-auto text-sm"
         >
-          <option value="">{locale === "fr" ? "Toutes les portees" : "All scopes"}</option>
+          <option value="">{locale === "fr" ? "Toutes les port\u00e9es" : "All scopes"}</option>
           {scopes.map((s) => (
             <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
           ))}
@@ -161,11 +161,11 @@ export default function ImpactDashboardPage() {
               {/* Breakdown */}
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                 <div className="flex justify-between text-gray-400">
-                  <span>{locale === "fr" ? "Severite" : "Severity"}</span>
+                  <span>{locale === "fr" ? "S\u00e9v\u00e9rit\u00e9" : "Severity"}</span>
                   <span className="text-white">{project.impact.breakdown.severityScore}/25</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
-                  <span>{locale === "fr" ? "Portee" : "Reach"}</span>
+                  <span>{locale === "fr" ? "Port\u00e9e" : "Reach"}</span>
                   <span className="text-white">{project.impact.breakdown.reachScore}/25</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
@@ -173,7 +173,7 @@ export default function ImpactDashboardPage() {
                   <span className="text-white">{project.impact.breakdown.readinessScore}/25</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
-                  <span>{locale === "fr" ? "Scalabilite" : "Scalability"}</span>
+                  <span>{locale === "fr" ? "Scalabilit\u00e9" : "Scalability"}</span>
                   <span className="text-white">{project.impact.breakdown.scalabilityScore}/25</span>
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function ImpactDashboardPage() {
           <BarChart3 className="w-10 h-10 text-gray-600 mx-auto mb-3" />
           <p className="text-gray-400">
             {locale === "fr"
-              ? "Aucun projet avec des donnees d'impact pour le moment."
+              ? "Aucun projet avec des donn\u00e9es d\u2019impact pour le moment."
               : "No projects with impact data yet."}
           </p>
         </div>
@@ -210,57 +210,57 @@ export default function ImpactDashboardPage() {
       <div className="card space-y-4">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Target className="w-5 h-5 text-primary-400" />
-          {locale === "fr" ? "Methodologie" : "Methodology"}
+          {locale === "fr" ? "M\u00e9thodologie" : "Methodology"}
         </h2>
         <p className="text-sm text-gray-400">
           {locale === "fr"
-            ? "L'Index d'Impact est calcule sur 4 dimensions de poids egal (25% chacune) :"
+            ? "L\u2019Index d\u2019Impact est calcul\u00e9 sur 4 dimensions de poids \u00e9gal (25% chacune) :"
             : "The Impact Index is computed across 4 equally weighted dimensions (25% each):"}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="font-medium text-primary-400">
-              {locale === "fr" ? "Severite du Probleme" : "Problem Severity"} (1-10)
+              {locale === "fr" ? "S\u00e9v\u00e9rit\u00e9 du Probl\u00e8me" : "Problem Severity"} (1-10)
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {locale === "fr"
-                ? "Gravite du probleme adresse, evaluee sur une echelle de 1 a 10."
+                ? "Gravit\u00e9 du probl\u00e8me adress\u00e9, \u00e9valu\u00e9e sur une \u00e9chelle de 1 \u00e0 10."
                 : "How severe the problem being addressed is, rated 1 to 10."}
             </p>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="font-medium text-accent-400">
-              {locale === "fr" ? "Portee Geographique" : "Geographic Reach"}
+              {locale === "fr" ? "Port\u00e9e G\u00e9ographique" : "Geographic Reach"}
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {locale === "fr"
-                ? "Local (20%), Regional (40%), National (60%), Continental (80%), Global (100%)."
+                ? "Local (20%), R\u00e9gional (40%), National (60%), Continental (80%), Global (100%)."
                 : "Local (20%), Regional (40%), National (60%), Continental (80%), Global (100%)."}
             </p>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="font-medium text-blue-400">
-              {locale === "fr" ? "Niveau de Maturite" : "Readiness Level"} (IRL 1-9)
+              {locale === "fr" ? "Niveau de Maturit\u00e9" : "Readiness Level"} (IRL 1-9)
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {locale === "fr"
-                ? "Niveau de preparation a l'implementation, inspire des TRL de la NASA."
+                ? "Niveau de pr\u00e9paration \u00e0 l\u2019impl\u00e9mentation, inspir\u00e9 des TRL de la NASA."
                 : "Implementation Readiness Level, inspired by NASA's TRL scale."}
             </p>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="font-medium text-green-400">
-              {locale === "fr" ? "Potentiel de Scalabilite" : "Scalability Potential"} (1-5)
+              {locale === "fr" ? "Potentiel de Scalabilit\u00e9" : "Scalability Potential"} (1-5)
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {locale === "fr"
-                ? "Capacite de la solution a etre deployee a grande echelle."
+                ? "Capacit\u00e9 de la solution \u00e0 \u00eatre d\u00e9ploy\u00e9e \u00e0 grande \u00e9chelle."
                 : "How well the solution can scale to larger populations and regions."}
             </p>
           </div>
         </div>
         <a href="/public-methodology" className="text-sm text-primary-400 hover:text-primary-300 transition-colors">
-          {locale === "fr" ? "Voir la methodologie complete →" : "View full methodology →"}
+          {locale === "fr" ? "Voir la m\u00e9thodologie compl\u00e8te \u2192" : "View full methodology \u2192"}
         </a>
       </div>
     </div>

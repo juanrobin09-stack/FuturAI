@@ -232,12 +232,12 @@ export default function CreateChallengePage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  {locale === "fr" ? "Resultat mesurable" : "Measurable Outcome"}
+                  {locale === "fr" ? "R\u00e9sultat mesurable" : "Measurable Outcome"}
                 </label>
                 <textarea
                   value={form.measurableOutcome}
                   onChange={(e) => setForm({ ...form, measurableOutcome: e.target.value })}
-                  placeholder={locale === "fr" ? "Quel resultat concret et mesurable est attendu ?" : "What concrete, measurable outcome is expected?"}
+                  placeholder={locale === "fr" ? "Quel r\u00e9sultat concret et mesurable est attendu ?" : "What concrete, measurable outcome is expected?"}
                   rows={2}
                   className="input-field resize-none"
                 />
@@ -246,7 +246,7 @@ export default function CreateChallengePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                    {locale === "fr" ? "Portee geographique" : "Geographic Scope"}
+                    {locale === "fr" ? "Port\u00e9e g\u00e9ographique" : "Geographic Scope"}
                   </label>
                   <select
                     value={form.geographicScope}
@@ -255,7 +255,7 @@ export default function CreateChallengePage() {
                   >
                     <option value="">--</option>
                     <option value="local">Local</option>
-                    <option value="regional">{locale === "fr" ? "Regional" : "Regional"}</option>
+                    <option value="regional">{locale === "fr" ? "R\u00e9gional" : "Regional"}</option>
                     <option value="national">National</option>
                     <option value="continental">Continental</option>
                     <option value="global">Global</option>
@@ -264,7 +264,7 @@ export default function CreateChallengePage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                    {locale === "fr" ? "Budget estime" : "Estimated Budget"}
+                    {locale === "fr" ? "Budget estim\u00e9" : "Estimated Budget"}
                   </label>
                   <input
                     value={form.estimatedBudget}
@@ -277,12 +277,12 @@ export default function CreateChallengePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  {locale === "fr" ? "Methode de verification" : "Verification Method"}
+                  {locale === "fr" ? "M\u00e9thode de v\u00e9rification" : "Verification Method"}
                 </label>
                 <input
                   value={form.verificationMethod}
                   onChange={(e) => setForm({ ...form, verificationMethod: e.target.value })}
-                  placeholder={locale === "fr" ? "Comment les resultats seront-ils verifies ?" : "How will results be verified?"}
+                  placeholder={locale === "fr" ? "Comment les r\u00e9sultats seront-ils v\u00e9rifi\u00e9s ?" : "How will results be verified?"}
                   className="input-field"
                 />
               </div>
@@ -294,7 +294,7 @@ export default function CreateChallengePage() {
                   onChange={(e) => setForm({ ...form, implementationPartnerNeeded: e.target.checked })}
                   className="rounded border-white/20 bg-gray-800 text-primary-500 focus:ring-primary-500/20"
                 />
-                {locale === "fr" ? "Partenaire d'implementation necessaire" : "Implementation partner needed"}
+                {locale === "fr" ? "Partenaire d\u2019impl\u00e9mentation n\u00e9cessaire" : "Implementation partner needed"}
               </label>
             </div>
           </div>

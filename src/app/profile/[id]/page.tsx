@@ -127,7 +127,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       <PageTransition>
         <div className="max-w-2xl mx-auto px-4 py-20 text-center">
           <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-400">{locale === "fr" ? "Utilisateur non trouve" : "User not found"}</h2>
+          <h2 className="text-xl font-bold text-gray-400">{locale === "fr" ? "Utilisateur non trouv\u00e9" : "User not found"}</h2>
         </div>
       </PageTransition>
     );

@@ -213,13 +213,13 @@ export default function CreateProjectPage() {
             {/* V7: Impact Assessment */}
             <div className="border-t border-white/5 pt-6">
               <h3 className="text-sm font-semibold text-gray-300 mb-4 flex items-center gap-2">
-                📊 {locale === "fr" ? "Evaluation d'Impact (optionnel)" : "Impact Assessment (optional)"}
+                📊 {locale === "fr" ? "\u00c9valuation d\u2019Impact (optionnel)" : "Impact Assessment (optional)"}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1">
-                    {locale === "fr" ? "Severite du probleme (1-10)" : "Problem Severity (1-10)"}
+                    {locale === "fr" ? "S\u00e9v\u00e9rit\u00e9 du probl\u00e8me (1-10)" : "Problem Severity (1-10)"}
                   </label>
                   <select name="problemSeverity" value={form.problemSeverity} onChange={handleChange} className="input-field text-sm">
                     <option value="">--</option>
@@ -228,12 +228,12 @@ export default function CreateProjectPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1">
-                    {locale === "fr" ? "Portee geographique" : "Geographic Scope"}
+                    {locale === "fr" ? "Port\u00e9e g\u00e9ographique" : "Geographic Scope"}
                   </label>
                   <select name="geographicScope" value={form.geographicScope} onChange={handleChange} className="input-field text-sm">
                     <option value="">--</option>
                     <option value="local">{locale === "fr" ? "Local" : "Local"}</option>
-                    <option value="regional">{locale === "fr" ? "Regional" : "Regional"}</option>
+                    <option value="regional">{locale === "fr" ? "R\u00e9gional" : "Regional"}</option>
                     <option value="national">{locale === "fr" ? "National" : "National"}</option>
                     <option value="continental">{locale === "fr" ? "Continental" : "Continental"}</option>
                     <option value="global">{locale === "fr" ? "Global" : "Global"}</option>
@@ -250,7 +250,7 @@ export default function CreateProjectPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1">
-                    {locale === "fr" ? "Scalabilite (1-5)" : "Scalability (1-5)"}
+                    {locale === "fr" ? "Scalabilit\u00e9 (1-5)" : "Scalability (1-5)"}
                   </label>
                   <select name="scalabilityPotential" value={form.scalabilityPotential} onChange={handleChange} className="input-field text-sm">
                     <option value="">--</option>
@@ -261,7 +261,7 @@ export default function CreateProjectPage() {
 
               <div className="mt-3">
                 <label className="block text-xs font-medium text-gray-400 mb-1">
-                  {locale === "fr" ? "Population affectee (estimation)" : "Population Affected (estimate)"}
+                  {locale === "fr" ? "Population affect\u00e9e (estimation)" : "Population Affected (estimate)"}
                 </label>
                 <input
                   name="populationAffected"
@@ -274,7 +274,7 @@ export default function CreateProjectPage() {
 
               <div className="mt-3">
                 <label className="block text-xs font-medium text-gray-400 mb-1">
-                  {locale === "fr" ? "Methode de verification" : "Verification Method"}
+                  {locale === "fr" ? "M\u00e9thode de v\u00e9rification" : "Verification Method"}
                 </label>
                 <input
                   name="verificationMethod"
