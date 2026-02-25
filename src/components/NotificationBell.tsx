@@ -144,6 +144,9 @@ export default function NotificationBell() {
     badge: "\u{1F3C6}",
     challenge: "\u26A1",
     project_invite: "\u{1F91D}",
+    connection_request: "\u{1F91D}",
+    connection_accepted: "\u2705",
+    endorsement: "\u2B50",
   };
 
   return (

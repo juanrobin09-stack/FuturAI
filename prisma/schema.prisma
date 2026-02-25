@@ -16,7 +16,10 @@ model User {
   email      String   @unique
   avatarUrl  String?
   country    String?
-  bio        String?
+  bio          String?
+  githubUrl    String?
+  linkedinUrl  String?
+  websiteUrl   String?
   points       Int      @default(0)
   role           String   @default("USER")  // USER, EXPERT_VOLUNTEER, EXPERT_INSTITUTION, ADMIN
   organizationId String?                     // hidden: future org accounts
@@ -47,6 +50,12 @@ model User {
   // V7: Governance
   auditLogs             AuditLog[]
   conflictDeclarations  ConflictDeclaration[]
+
+  // V8: Network / Connections
+  connectionsSent       Connection[]          @relation("ConnectionRequester")
+  connectionsReceived   Connection[]          @relation("ConnectionReceiver")
+  endorsementsGiven     ProfileEndorsement[]  @relation("EndorsementGiven")
+  endorsementsReceived  ProfileEndorsement[]  @relation("EndorsementReceived")
 
   @@index([role])
   @@index([country])
@@ -464,6 +473,37 @@ model ExpertEvaluation {
 
   @@unique([panelId, entryId])
   @@index([entryId])
+}
+
+// ─── V8: NETWORK / CONNECTIONS ──────────────────────────
+model Connection {
+  id          String   @id @default(cuid())
+  requesterId String
+  receiverId  String
+  status      String   @default("pending") // pending, accepted, declined
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester User @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  receiver  User @relation("ConnectionReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, receiverId])
+  @@index([receiverId])
+  @@index([status])
+}
+
+model ProfileEndorsement {
+  id         String   @id @default(cuid())
+  endorserId String
+  endorseeId String
+  skill      String   // "ai", "code", "design", "research", "leadership"
+  createdAt  DateTime @default(now())
+
+  endorser User @relation("EndorsementGiven", fields: [endorserId], references: [id], onDelete: Cascade)
+  endorsee User @relation("EndorsementReceived", fields: [endorseeId], references: [id], onDelete: Cascade)
+
+  @@unique([endorserId, endorseeId, skill])
+  @@index([endorseeId])
 }
 
 // ─── V7: AUDIT LOG ──────────────────────────────────────

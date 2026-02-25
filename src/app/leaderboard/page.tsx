@@ -5,6 +5,7 @@ import { Trophy, Loader2, Flame, Users, Award, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getLevelFromPoints } from "@/lib/points";
 import { useLanguage } from "@/i18n";
+import Link from "next/link";
 import PageTransition from "@/components/animations/PageTransition";
 import FadeIn from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/StaggerList";
@@ -208,7 +209,7 @@ export default function LeaderboardPage() {
                               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xl font-bold text-white mx-auto mt-3">
                                 {user.username.charAt(0).toUpperCase()}
                               </div>
-                              <h3 className="font-semibold mt-2">{user.username}</h3>
+                              <Link href={`/profile/${user.id}`} className="hover:underline"><h3 className="font-semibold mt-2">{user.username}</h3></Link>
                               {user.country && <p className="text-xs text-gray-500">{user.country}</p>}
                               <div className="flex items-center justify-center gap-1 mt-2">
                                 <Flame className="w-4 h-4 text-accent-400" />
@@ -249,7 +250,7 @@ export default function LeaderboardPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{user.username}</span>
+                              <Link href={`/profile/${user.id}`} className="font-medium hover:underline">{user.username}</Link>
                               <span className="text-xs px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-400">
                                 {t.common.level} {level}
                               </span>

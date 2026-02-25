@@ -19,7 +19,11 @@ const protectedPaths = [
 // Routes that should redirect authenticated users away
 const authRoutes = ["/sign-in", "/sign-up"];
 
+// Public profile pages /profile/[id] are NOT protected
+const publicProfilePattern = /^\/profile\/[a-zA-Z0-9_-]+$/;
+
 function isProtectedRoute(pathname: string): boolean {
+  if (publicProfilePattern.test(pathname)) return false;
   return protectedPaths.some(
     (p) => pathname === p || pathname.startsWith(p + "/")
   );

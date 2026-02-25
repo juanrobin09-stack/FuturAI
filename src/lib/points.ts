@@ -15,6 +15,10 @@ export const POINTS = {
   WIN_CHALLENGE: 100,
   SANDBOX_GENERATE: 5,
   SHARE_SANDBOX: 3,
+  SEND_CONNECTION: 2,
+  ACCEPT_CONNECTION: 3,
+  ENDORSE_USER: 1,
+  RECEIVE_ENDORSEMENT: 2,
 } as const;
 
 export function getContributionPoints(type: string): number {

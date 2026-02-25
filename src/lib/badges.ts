@@ -99,6 +99,31 @@ const BADGE_DEFINITIONS: {
     category: "contribution",
     check: (s) => s.projectsJoined >= 5,
   },
+  // V8: Network badges
+  {
+    name: "Networker",
+    description: "A 5 connexions ou plus",
+    descriptionEn: "Has 5 or more connections",
+    icon: "users",
+    category: "engagement",
+    check: (s) => s.connectionsCount >= 5,
+  },
+  {
+    name: "Mentor",
+    description: "A recommande 10 competences ou plus",
+    descriptionEn: "Endorsed 10 or more skills",
+    icon: "heart-handshake",
+    category: "engagement",
+    check: (s) => s.endorsementsGiven >= 10,
+  },
+  {
+    name: "Reconnu",
+    description: "A recu 10 recommandations ou plus",
+    descriptionEn: "Received 10 or more endorsements",
+    icon: "star",
+    category: "engagement",
+    check: (s) => s.endorsementsReceived >= 10,
+  },
 ];
 
 interface UserStats {
@@ -108,6 +133,9 @@ interface UserStats {
   votesCount: number;
   challengeEntriesCount: number;
   totalPoints: number;
+  connectionsCount: number;
+  endorsementsGiven: number;
+  endorsementsReceived: number;
 }
 
 /**
@@ -124,6 +152,10 @@ export async function checkAndAwardBadges(userId: string): Promise<string[]> {
       votesCount,
       challengeEntriesCount,
       user,
+      connectionsSent,
+      connectionsReceived,
+      endorsementsGiven,
+      endorsementsReceived,
     ] = await Promise.all([
       prisma.idea.count({ where: { authorId: userId } }),
       prisma.projectMember.count({ where: { userId } }),
@@ -131,6 +163,10 @@ export async function checkAndAwardBadges(userId: string): Promise<string[]> {
       prisma.vote.count({ where: { userId } }),
       prisma.challengeEntry.count({ where: { userId } }),
       prisma.user.findUnique({ where: { id: userId }, select: { points: true } }),
+      prisma.connection.count({ where: { requesterId: userId, status: "accepted" } }),
+      prisma.connection.count({ where: { receiverId: userId, status: "accepted" } }),
+      prisma.profileEndorsement.count({ where: { endorserId: userId } }),
+      prisma.profileEndorsement.count({ where: { endorseeId: userId } }),
     ]);
 
     if (!user) return [];
@@ -142,6 +178,9 @@ export async function checkAndAwardBadges(userId: string): Promise<string[]> {
       votesCount,
       challengeEntriesCount,
       totalPoints: user.points,
+      connectionsCount: connectionsSent + connectionsReceived,
+      endorsementsGiven,
+      endorsementsReceived,
     };
 
     // Get user's existing badges
