@@ -512,12 +512,16 @@ export async function executeAI(
 
   // Friendly error messages
   let friendlyError = lastError || "Execution failed after retries.";
-  if (lastError.includes("overloaded") || lastError.includes("529")) {
+  if (lastError.includes("quota") || lastError.includes("Quota") || lastError.includes("limit: 0")) {
+    friendlyError = "Quota API épuisé. Activez la facturation sur votre compte provider ou utilisez un autre provider.";
+  } else if (lastError.includes("overloaded") || lastError.includes("529")) {
     friendlyError = "Le serveur IA est temporairement surchargé. Réessayez dans quelques instants.";
   } else if (lastError.includes("429")) {
     friendlyError = "Trop de requêtes. Attendez un moment avant de réessayer.";
-  } else if (lastError.includes("401") || lastError.includes("authentication")) {
+  } else if (lastError.includes("401") || lastError.includes("authentication") || lastError.includes("API key not valid")) {
     friendlyError = "Clé API invalide. Vérifiez vos clés dans Paramètres > Intégrations.";
+  } else if (lastError.includes("403") || lastError.includes("permission") || lastError.includes("billing")) {
+    friendlyError = "Accès refusé. Vérifiez que la facturation est activée sur votre compte provider.";
   }
 
   return {
