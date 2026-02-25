@@ -69,7 +69,7 @@ async function callOpenAI(
   // text-to-code / text-to-video (use chat completions)
   const systemPrompt =
     mode === "text-to-code"
-      ? "You are an expert AI code generator like Bolt.new. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS (flexbox, grid, variables), vanilla JavaScript, and make it visually polished and interactive. Do NOT use markdown fences — output raw HTML only."
+      ? "You are an expert AI code generator. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS (flexbox, grid, variables), vanilla JavaScript, and make it visually polished and interactive. Do NOT use markdown fences — output raw HTML only."
       : "You are an AI video generation assistant. Describe in detail how the requested video would be generated, including storyboard, technical parameters, and implementation steps.";
 
   const res = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
@@ -97,7 +97,7 @@ async function callAnthropic(
 ): Promise<CallResult> {
   const systemPrompt =
     mode === "text-to-code"
-      ? "You are an expert AI code generator like Bolt.new. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS (flexbox, grid, variables), vanilla JavaScript, and make it visually polished and interactive. Do NOT use markdown fences — output raw HTML only."
+      ? "You are an expert AI code generator. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS (flexbox, grid, variables), vanilla JavaScript, and make it visually polished and interactive. Do NOT use markdown fences — output raw HTML only."
       : mode === "text-to-image"
       ? "You are an AI image generation assistant. Describe in detail how the requested image would be generated, including composition, style, technical parameters."
       : "You are an AI video generation assistant. Describe in detail how the requested video would be generated.";
@@ -129,7 +129,7 @@ async function callMistral(
 ): Promise<CallResult> {
   const systemPrompt =
     mode === "text-to-code"
-      ? "You are an expert AI code generator like Bolt.new. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS, vanilla JavaScript, and make it visually polished. Do NOT use markdown fences — output raw HTML only."
+      ? "You are an expert AI code generator. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS, vanilla JavaScript, and make it visually polished. Do NOT use markdown fences — output raw HTML only."
       : "You are an AI assistant. Respond helpfully to the user request.";
 
   const res = await fetchWithTimeout("https://api.mistral.ai/v1/chat/completions", {
@@ -157,7 +157,7 @@ async function callGoogle(
 ): Promise<CallResult> {
   const systemPrompt =
     mode === "text-to-code"
-      ? "You are an expert AI code generator like Bolt.new. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS, vanilla JavaScript, and make it visually polished. Do NOT use markdown fences — output raw HTML only."
+      ? "You are an expert AI code generator. Generate a COMPLETE, self-contained HTML page with embedded CSS and JavaScript that can be rendered directly in a browser iframe. The output must be a full HTML document starting with <!DOCTYPE html>. Use modern CSS, vanilla JavaScript, and make it visually polished. Do NOT use markdown fences — output raw HTML only."
       : "You are an AI assistant. Respond helpfully to the user request.";
 
   const res = await fetchWithTimeout(

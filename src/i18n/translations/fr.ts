@@ -314,7 +314,7 @@ export const fr = {
     generationError: "Erreur lors de la g\u00e9n\u00e9ration",
     tips: "Astuces",
     tip1: "Soyez pr\u00e9cis dans vos prompts pour de meilleurs r\u00e9sultats",
-    tip2: "Le mode \"Code IA\" g\u00e9n\u00e8re des pages HTML/CSS/JS avec preview live comme Bolt.new",
+    tip2: "Le mode \"Code IA\" g\u00e9n\u00e8re des pages HTML/CSS/JS avec preview live",
     tip3: "Liez la session Arena \u00e0 un projet pour sauvegarder vos prototypes",
     tip4: "Connectez vos cl\u00e9s API dans Param\u00e8tres > Int\u00e9grations",
   },

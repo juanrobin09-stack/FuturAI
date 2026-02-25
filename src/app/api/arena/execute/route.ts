@@ -23,7 +23,10 @@ export async function POST(req: NextRequest) {
     // Verify session exists and user is participant
     const session = await prisma.sandboxSession.findUnique({
       where: { id: sessionId },
-      include: { participants: true },
+      include: {
+        participants: true,
+        creator: { select: { id: true, clerkId: true } },
+      },
     });
 
     if (!session) {
@@ -31,7 +34,8 @@ export async function POST(req: NextRequest) {
     }
 
     const isParticipant = session.participants.some((p) => p.userId === user.id);
-    if (!isParticipant && session.creatorId !== user.id) {
+    const isCreator = session.creatorId === user.id || session.creator.clerkId === user.clerkId;
+    if (!isParticipant && !isCreator) {
       return NextResponse.json({ error: "Not a participant" }, { status: 403 });
     }
 
