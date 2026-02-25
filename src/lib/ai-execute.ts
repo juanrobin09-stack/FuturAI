@@ -21,7 +21,7 @@ interface ProviderStatus {
   lastChecked: string;
 }
 
-const TIMEOUT_MS = 30_000;
+const TIMEOUT_MS = 60_000;
 const LONG_TIMEOUT_MS = 90_000; // For Replicate/Leonardo/Kling (polling)
 const MAX_RETRIES = 1;
 
