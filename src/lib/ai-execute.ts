@@ -21,9 +21,9 @@ interface ProviderStatus {
   lastChecked: string;
 }
 
-const TIMEOUT_MS = 300_000; // 5 min — no timeout limit for AI generation
-const LONG_TIMEOUT_MS = 600_000; // 10 min — For Replicate/Leonardo/Kling (polling)
-const MAX_RETRIES = 3;
+const TIMEOUT_MS = 50_000; // 50s — fits within Vercel Hobby 60s limit
+const LONG_TIMEOUT_MS = 50_000; // 50s — same for polling providers
+const MAX_RETRIES = 1; // 1 retry = 2 attempts total, fits in 60s Vercel limit
 
 // ─── In-memory rate limiter (per-process) ──────────────
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -504,7 +504,7 @@ export async function executeAI(
 
       const isRetryable = message.includes("429") || message.includes("overloaded") || message.includes("529") || message.includes("503") || message.includes("500") || message.includes("502");
       if (attempt < MAX_RETRIES && isRetryable) {
-        await new Promise((r) => setTimeout(r, 2000 * Math.pow(2, attempt))); // 2s, 4s, 8s
+        await new Promise((r) => setTimeout(r, 1500)); // 1.5s wait before retry
         continue;
       }
     }

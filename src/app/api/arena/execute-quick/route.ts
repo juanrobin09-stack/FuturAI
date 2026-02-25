@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { executeAI } from "@/lib/ai-execute";
 
-export const maxDuration = 300; // 5 min max for AI generation
+export const maxDuration = 60; // Vercel Hobby plan max
 
 export async function POST(req: NextRequest) {
   try {
