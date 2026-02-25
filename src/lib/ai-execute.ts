@@ -5,6 +5,7 @@ export interface ExecutionResult {
   result?: string;
   resultUrl?: string;
   error?: string;
+  rawError?: string;
   provider?: string;
   durationMs?: number;
 }
