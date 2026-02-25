@@ -41,15 +41,29 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Check if Clerk has an active session cookie — if no session cookie exists,
+  // the user has never signed in via Clerk, so we're likely in demo mode.
+  // Only redirect to sign-in if a Clerk session existed (user was previously signed in).
+  const hasClerkSession = req.cookies.has("__session") || req.cookies.has("__client_uat");
+
   try {
     const { clerkMiddleware } = await import("@clerk/nextjs/server");
 
     const handler = clerkMiddleware(async (auth, request) => {
-      const { userId } = await auth();
+      let userId: string | null = null;
+      try {
+        const authResult = await auth();
+        userId = authResult.userId;
+      } catch {
+        // Clerk auth failed (API down, invalid key, etc.) — allow through
+        return NextResponse.next();
+      }
+
       const { pathname } = request.nextUrl;
 
       // Redirect unauthenticated users from protected pages to sign-in
-      if (!userId && isProtectedRoute(pathname)) {
+      // Only redirect if user had a Clerk session (not first-time/demo visitors)
+      if (!userId && isProtectedRoute(pathname) && hasClerkSession) {
         const signInUrl = new URL("/sign-in", request.url);
         signInUrl.searchParams.set("redirect_url", request.url);
         return NextResponse.redirect(signInUrl);

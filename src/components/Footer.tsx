@@ -22,15 +22,15 @@ export default function Footer() {
               {t.footer.description}
             </p>
             <div className="flex gap-4 mt-4">
-              <a href="#" className="text-gray-500 hover:text-primary-400 transition-colors">
+              <span className="text-gray-600 cursor-default" title={locale === "fr" ? "Bientot disponible" : "Coming soon"}>
                 <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-500 hover:text-primary-400 transition-colors">
+              </span>
+              <span className="text-gray-600 cursor-default" title={locale === "fr" ? "Bientot disponible" : "Coming soon"}>
                 <Github className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-500 hover:text-primary-400 transition-colors">
+              </span>
+              <span className="text-gray-600 cursor-default" title={locale === "fr" ? "Bientot disponible" : "Coming soon"}>
                 <Globe className="w-5 h-5" />
-              </a>
+              </span>
             </div>
           </div>
 
@@ -49,10 +49,10 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4">{t.footer.community}</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/manifesto" className="text-gray-400 hover:text-white transition-colors">{t.footer.manifesto}</Link></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">{t.footer.about}</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">{t.footer.blog}</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">{t.footer.newsletter}</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">{t.footer.contact}</a></li>
+              <li><Link href="/manifesto" className="text-gray-400 hover:text-white transition-colors">{t.footer.about}</Link></li>
+              <li><span className="text-gray-600 cursor-default">{t.footer.blog}</span></li>
+              <li><span className="text-gray-600 cursor-default">{t.footer.newsletter}</span></li>
+              <li><span className="text-gray-600 cursor-default">{t.footer.contact}</span></li>
               <li><Link href="/public-methodology" className="text-gray-400 hover:text-white transition-colors">{t.methodology.title}</Link></li>
               <li><Link href="/governance" className="text-gray-400 hover:text-white transition-colors">{locale === "fr" ? "Gouvernance" : "Governance"}</Link></li>
               <li><Link href="/impact-dashboard" className="text-gray-400 hover:text-white transition-colors">{locale === "fr" ? "Tableau d'impact" : "Impact Dashboard"}</Link></li>

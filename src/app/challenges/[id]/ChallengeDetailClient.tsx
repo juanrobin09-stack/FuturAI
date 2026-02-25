@@ -1,7 +1,6 @@
 "use client";
 
 import ChallengeEntryForm from "@/components/ChallengeEntryForm";
-import ChallengeEntryVote from "@/components/ChallengeEntryVote";
 
 interface UserProject {
   id: string;
@@ -18,19 +17,14 @@ interface ChallengeDetailClientProps {
 export default function ChallengeDetailClient({
   challengeId,
   isOpen,
-  isVoting,
   userProjects,
 }: ChallengeDetailClientProps) {
-  if (!isOpen && !isVoting) return null;
+  if (!isOpen) return null;
 
   return (
-    <>
-      {isOpen && (
-        <ChallengeEntryForm
-          challengeId={challengeId}
-          userProjects={userProjects}
-        />
-      )}
-    </>
+    <ChallengeEntryForm
+      challengeId={challengeId}
+      userProjects={userProjects}
+    />
   );
 }
