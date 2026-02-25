@@ -5,8 +5,51 @@ import { FlaskConical, Wand2, Code, Image, Loader2, Settings } from "lucide-reac
 import { useLanguage } from "@/i18n";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import BrowserPreview from "./BrowserPreview";
 
 type SandboxMode = "text-to-image" | "text-to-code" | "text-to-video";
+
+/**
+ * Generate a full HTML page for the sandboxed preview iframe.
+ */
+function generatePreviewHtml(code: string): string {
+  const isHtml = /<\s*(html|body|div|h[1-6]|p|form|table|canvas|svg|section|header|main|footer|nav|button|input)\b/i.test(code);
+  const hasScript = /<script[\s>]/i.test(code);
+
+  if (isHtml || hasScript) {
+    if (/<html/i.test(code)) return code;
+    return `<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; background: #fff; color: #111; }
+</style>
+</head><body>
+${code}
+</body></html>`;
+  }
+
+  // Extract code from markdown fences if present
+  const fenceMatch = code.match(/```(?:html|htm)?\s*\n([\s\S]*?)```/);
+  if (fenceMatch) {
+    return generatePreviewHtml(fenceMatch[1]);
+  }
+
+  const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Fira Code', 'Courier New', monospace; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+  pre { white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; }
+</style>
+</head><body>
+<pre>${escaped}</pre>
+</body></html>`;
+}
 
 interface SandboxAIProps {
   ideaId?: string;
@@ -203,9 +246,9 @@ export default function SandboxAI({ ideaId, ideaTitle }: SandboxAIProps) {
 
       {/* Result */}
       {(result || resultUrl) && (
-        <div className="bg-gray-800/80 rounded-xl p-4 border border-white/5">
+        <>
           {resultUrl && mode === "text-to-image" ? (
-            <div className="space-y-3">
+            <div className="bg-gray-800/80 rounded-xl p-4 border border-white/5 space-y-3">
               <img
                 src={resultUrl}
                 alt={`Generated: ${prompt}`}
@@ -214,7 +257,7 @@ export default function SandboxAI({ ideaId, ideaTitle }: SandboxAIProps) {
               <p className="text-xs text-gray-500">{result}</p>
             </div>
           ) : resultUrl && mode === "text-to-video" ? (
-            <div className="space-y-3">
+            <div className="bg-gray-800/80 rounded-xl p-4 border border-white/5 space-y-3">
               <video
                 src={resultUrl}
                 controls
@@ -222,12 +265,20 @@ export default function SandboxAI({ ideaId, ideaTitle }: SandboxAIProps) {
               />
               <p className="text-xs text-gray-500">{result}</p>
             </div>
+          ) : result && mode === "text-to-code" ? (
+            <BrowserPreview
+              code={result}
+              previewHtml={generatePreviewHtml(result)}
+              title="Quick Generate"
+            />
           ) : (
-            <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono overflow-x-auto">
-              {result}
-            </pre>
+            <div className="bg-gray-800/80 rounded-xl p-4 border border-white/5">
+              <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono overflow-x-auto">
+                {result}
+              </pre>
+            </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );
