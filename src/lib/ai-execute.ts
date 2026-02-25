@@ -501,9 +501,19 @@ export async function executeAI(
     }
   }
 
+  // Friendly error messages
+  let friendlyError = lastError || "Execution failed after retries.";
+  if (lastError.includes("overloaded") || lastError.includes("529")) {
+    friendlyError = "Le serveur IA est temporairement surchargé. Réessayez dans quelques instants.";
+  } else if (lastError.includes("429")) {
+    friendlyError = "Trop de requêtes. Attendez un moment avant de réessayer.";
+  } else if (lastError.includes("401") || lastError.includes("authentication")) {
+    friendlyError = "Clé API invalide. Vérifiez vos clés dans Paramètres > Intégrations.";
+  }
+
   return {
     success: false,
-    error: lastError || "Execution failed after retries.",
+    error: friendlyError,
     provider,
     durationMs: Date.now() - start,
   };
