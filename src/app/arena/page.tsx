@@ -1,7 +1,7 @@
 "use client";
 
 import SandboxSession from "@/components/SandboxSession";
-import { FlaskConical, Sparkles, Code, Image, Video } from "lucide-react";
+import { FlaskConical, Sparkles, Code, Image, Video, AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
 import FadeIn from "@/components/animations/FadeIn";
@@ -61,8 +61,17 @@ export default function ArenaPage() {
         {/* Arena Sessions */}
         <SandboxSession />
 
+        {/* AI Notice */}
+        <div className="mt-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-200/80">
+            <p className="font-medium text-amber-300 mb-1">{t.arena.aiNoticeTitle}</p>
+            <p>{t.arena.aiNoticeDesc}</p>
+          </div>
+        </div>
+
         {/* Tips */}
-        <div className="card mt-8">
+        <div className="card mt-4">
           <h3 className="font-semibold flex items-center gap-2 mb-3">
             <Sparkles className="w-5 h-5 text-accent-400" />
             {t.arena.tips}

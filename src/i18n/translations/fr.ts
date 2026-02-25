@@ -317,6 +317,8 @@ export const fr = {
     tip2: "Le mode \"Code IA\" g\u00e9n\u00e8re des pages HTML/CSS/JS avec preview live",
     tip3: "Liez la session Arena \u00e0 un projet pour sauvegarder vos prototypes",
     tip4: "Connectez vos cl\u00e9s API dans Param\u00e8tres > Int\u00e9grations",
+    aiNoticeTitle: "Serveurs IA externes",
+    aiNoticeDesc: "L'Arena utilise des API tierces (OpenAI, Anthropic, Mistral, Google). Ces serveurs peuvent \u00eatre temporairement surcharg\u00e9s ou indisponibles. Si la g\u00e9n\u00e9ration \u00e9choue, attendez quelques instants et r\u00e9essayez, ou changez de provider.",
   },
   arenaSession: {
     mySessions: "Mes sessions",

@@ -319,6 +319,8 @@ export const en: TranslationKeys = {
     tip2: "\"AI Code\" mode generates HTML/CSS/JS pages with live preview",
     tip3: "Link the Arena session to a project to save your prototypes",
     tip4: "Connect your API keys in Settings > Integrations",
+    aiNoticeTitle: "External AI servers",
+    aiNoticeDesc: "The Arena uses third-party APIs (OpenAI, Anthropic, Mistral, Google). These servers may be temporarily overloaded or unavailable. If generation fails, wait a moment and try again, or switch providers.",
   },
   arenaSession: {
     mySessions: "My sessions",
