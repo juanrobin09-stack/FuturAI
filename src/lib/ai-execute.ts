@@ -22,9 +22,9 @@ interface ProviderStatus {
   lastChecked: string;
 }
 
-const TIMEOUT_MS = 50_000; // 50s — fits within Vercel Hobby 60s limit
-const LONG_TIMEOUT_MS = 50_000; // 50s — same for polling providers
-const MAX_RETRIES = 1; // 1 retry = 2 attempts total, fits in 60s Vercel limit
+const TIMEOUT_MS = 120_000; // 120s — Fluid Compute allows up to 300s on Hobby
+const LONG_TIMEOUT_MS = 120_000; // 120s — same for polling providers
+const MAX_RETRIES = 2; // 2 retries = 3 attempts total, fits within 300s Fluid Compute
 
 // ─── In-memory rate limiter (per-process) ──────────────
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
