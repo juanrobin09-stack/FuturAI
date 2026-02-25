@@ -86,11 +86,14 @@ async function callOpenAI(
       temperature: 0.7,
     }),
   });
-  if (res.status === 429 || res.status === 503 || res.status === 502) {
-    throw new Error(`overloaded_${res.status}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.error?.message || `OpenAI error ${res.status}`;
+    if (res.status === 429 || res.status === 503 || res.status === 502) {
+      throw new Error(`${msg} [${res.status}]`);
+    }
+    throw new Error(msg);
   }
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `OpenAI error ${res.status}`);
   return { text: data.choices?.[0]?.message?.content || "No response generated" };
 }
 
@@ -120,11 +123,14 @@ async function callAnthropic(
       messages: [{ role: "user", content: prompt }],
     }),
   });
-  if (res.status === 529 || res.status === 503) {
-    throw new Error(`overloaded_${res.status}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.error?.message || `Anthropic error ${res.status}`;
+    if (res.status === 429 || res.status === 503 || res.status === 529) {
+      throw new Error(`${msg} [${res.status}]`);
+    }
+    throw new Error(msg);
   }
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `Anthropic error ${res.status}`);
   const textBlock = data.content?.find((b: { type: string }) => b.type === "text");
   return { text: textBlock?.text || "No response generated" };
 }
@@ -152,11 +158,14 @@ async function callMistral(
       temperature: 0.7,
     }),
   });
-  if (res.status === 429 || res.status === 503 || res.status === 502) {
-    throw new Error(`overloaded_${res.status}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.error?.message || `Mistral error ${res.status}`;
+    if (res.status === 429 || res.status === 503 || res.status === 502) {
+      throw new Error(`${msg} [${res.status}]`);
+    }
+    throw new Error(msg);
   }
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `Mistral error ${res.status}`);
   return { text: data.choices?.[0]?.message?.content || "No response generated" };
 }
 
@@ -182,11 +191,14 @@ async function callGoogle(
       }),
     }
   );
-  if (res.status === 429 || res.status === 503 || res.status === 502) {
-    throw new Error(`overloaded_${res.status}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.error?.message || `Google error ${res.status}`;
+    if (res.status === 429 || res.status === 503 || res.status === 502) {
+      throw new Error(`${msg} [${res.status}]`);
+    }
+    throw new Error(msg);
   }
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `Google error ${res.status}`);
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated";
   return { text };
 }
