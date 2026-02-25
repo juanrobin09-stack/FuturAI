@@ -81,10 +81,13 @@ async function callOpenAI(
         { role: "system", content: systemPrompt },
         { role: "user", content: prompt },
       ],
-      max_tokens: 2048,
+      max_tokens: 4096,
       temperature: 0.7,
     }),
   });
+  if (res.status === 429 || res.status === 503 || res.status === 502) {
+    throw new Error(`overloaded_${res.status}`);
+  }
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || `OpenAI error ${res.status}`);
   return { text: data.choices?.[0]?.message?.content || "No response generated" };
@@ -144,10 +147,13 @@ async function callMistral(
         { role: "system", content: systemPrompt },
         { role: "user", content: prompt },
       ],
-      max_tokens: 2048,
+      max_tokens: 4096,
       temperature: 0.7,
     }),
   });
+  if (res.status === 429 || res.status === 503 || res.status === 502) {
+    throw new Error(`overloaded_${res.status}`);
+  }
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || `Mistral error ${res.status}`);
   return { text: data.choices?.[0]?.message?.content || "No response generated" };
@@ -171,10 +177,13 @@ async function callGoogle(
       body: JSON.stringify({
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
+        generationConfig: { maxOutputTokens: 4096, temperature: 0.7 },
       }),
     }
   );
+  if (res.status === 429 || res.status === 503 || res.status === 502) {
+    throw new Error(`overloaded_${res.status}`);
+  }
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || `Google error ${res.status}`);
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated";
