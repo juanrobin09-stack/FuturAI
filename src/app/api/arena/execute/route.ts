@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { executeAI } from "@/lib/ai-execute";
 import prisma from "@/lib/prisma";
 
+export const maxDuration = 300; // 5 min max for AI generation
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();

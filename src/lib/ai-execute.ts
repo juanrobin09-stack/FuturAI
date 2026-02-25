@@ -21,8 +21,8 @@ interface ProviderStatus {
   lastChecked: string;
 }
 
-const TIMEOUT_MS = 60_000;
-const LONG_TIMEOUT_MS = 90_000; // For Replicate/Leonardo/Kling (polling)
+const TIMEOUT_MS = 300_000; // 5 min — no timeout limit for AI generation
+const LONG_TIMEOUT_MS = 600_000; // 10 min — For Replicate/Leonardo/Kling (polling)
 const MAX_RETRIES = 1;
 
 // ─── In-memory rate limiter (per-process) ──────────────
