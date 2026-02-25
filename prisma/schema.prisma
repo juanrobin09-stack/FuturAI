@@ -57,6 +57,10 @@ model User {
   endorsementsGiven     ProfileEndorsement[]  @relation("EndorsementGiven")
   endorsementsReceived  ProfileEndorsement[]  @relation("EndorsementReceived")
 
+  // V9: Forum
+  forumThreads          ForumThread[]
+  forumPosts            ForumPost[]
+
   @@index([role])
   @@index([country])
 }
@@ -535,4 +539,49 @@ model ConflictDeclaration {
 
   @@unique([userId, challengeId])
   @@index([challengeId])
+}
+
+// ─── V9: FORUM ──────────────────────────────────────────
+model ForumThread {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  category  String
+  isPinned  Boolean  @default(false)
+  isLocked  Boolean  @default(false)
+  viewCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId String
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  posts ForumPost[]
+
+  @@index([category])
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId String
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  threadId String
+  thread   ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent   ForumPost?  @relation("ForumPostReplies", fields: [parentId], references: [id])
+  replies  ForumPost[] @relation("ForumPostReplies")
+
+  @@index([threadId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt])
 }

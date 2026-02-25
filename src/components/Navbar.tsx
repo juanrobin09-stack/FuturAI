@@ -18,6 +18,7 @@ import {
   Shield,
   BarChart3,
   Users,
+  MessageCircle,
 } from "lucide-react";
 import FutureAILogo from "./FutureAILogo";
 import { AnimatePresence, motion } from "framer-motion";
@@ -82,6 +83,7 @@ export default function Navbar() {
     { href: "/ideas", label: t.nav.ideas, icon: Lightbulb },
     { href: "/leaderboard", label: t.nav.leaderboard, icon: Trophy },
     { href: "/reseau", label: t.nav.network || (locale === "fr" ? "Reseau" : "Network"), icon: Users },
+    { href: "/forum", label: t.nav.forum || "Forum", icon: MessageCircle },
     { href: "/arena", label: t.nav.arena, icon: FlaskConical },
     { href: "/impact-dashboard", label: locale === "fr" ? "Impact" : "Impact", icon: BarChart3 },
     { href: "/manifesto", label: t.nav.manifesto, icon: Heart },

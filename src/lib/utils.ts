@@ -119,3 +119,22 @@ export function getChallengeCategoryColor(category: string): string {
   const cat = CHALLENGE_CATEGORIES.find((c) => c.value === category);
   return cat?.color ?? "#6b7280";
 }
+
+// V9: Forum categories
+export const FORUM_CATEGORIES = [
+  { value: "general", color: "#6366f1" },
+  { value: "ml", color: "#f97316" },
+  { value: "nlp", color: "#0d9488" },
+  { value: "vision", color: "#8b5cf6" },
+  { value: "ethics", color: "#ec4899" },
+  { value: "community", color: "#22c55e" },
+  { value: "help", color: "#eab308" },
+  { value: "news", color: "#3b82f6" },
+] as const;
+
+export type ForumCategory = (typeof FORUM_CATEGORIES)[number]["value"];
+
+export function getForumCategoryColor(category: string): string {
+  const cat = FORUM_CATEGORIES.find((c) => c.value === category);
+  return cat?.color ?? "#6b7280";
+}

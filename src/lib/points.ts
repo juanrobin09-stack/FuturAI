@@ -19,6 +19,8 @@ export const POINTS = {
   ACCEPT_CONNECTION: 3,
   ENDORSE_USER: 1,
   RECEIVE_ENDORSEMENT: 2,
+  CREATE_FORUM_THREAD: 8,
+  FORUM_POST: 3,
 } as const;
 
 export function getContributionPoints(type: string): number {
