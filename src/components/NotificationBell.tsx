@@ -186,7 +186,7 @@ export default function NotificationBell() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-gray-900 border border-white/10 rounded-xl shadow-2xl z-50"
+              className="fixed left-4 right-4 top-[4.5rem] max-h-[70vh] lg:absolute lg:left-auto lg:right-0 lg:top-full lg:mt-2 lg:w-80 lg:max-h-96 overflow-y-auto bg-gray-900 border border-white/10 rounded-xl shadow-2xl z-50"
             >
               <div className="sticky top-0 bg-gray-900 border-b border-white/5 p-3 flex items-center justify-between">
                 <span className="text-sm font-semibold">{t.notifications.title}</span>
