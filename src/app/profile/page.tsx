@@ -525,11 +525,6 @@ export default function ProfilePage() {
                   {t.userRoles?.[profile.role as keyof typeof t.userRoles] || profile.role}
                 </span>
               )}
-              {!isClerkAvailable && (
-                <span className="inline-block mt-2 ml-2 px-2 py-0.5 bg-accent-500/10 text-accent-400 text-xs rounded-full">
-                  {t.common.demoMode}
-                </span>
-              )}
             </div>
             <Link
               href="/settings"

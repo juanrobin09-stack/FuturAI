@@ -6,6 +6,10 @@ import prisma from "@/lib/prisma";
 export async function GET() {
   try {
     const user = await getCurrentUser();
+    // Don't expose demo user to the client — treat as unauthenticated
+    if (!user || user.clerkId === "demo_clerk_id") {
+      return NextResponse.json({ user: null }, { status: 200 });
+    }
     return NextResponse.json({
       user: {
         id: user.id,
