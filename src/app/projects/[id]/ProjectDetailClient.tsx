@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserPlus, Loader2, FlaskConical, Code, Eye, ArrowRight, Trash2 } from "lucide-react";
+import { UserPlus, Loader2, FlaskConical, Code, Eye, ArrowRight, Trash2, X, AlertTriangle } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import ContributionForm from "@/components/ContributionForm";
 import CommentThread from "@/components/CommentThread";
 import SandboxAI from "@/components/SandboxAI";
@@ -38,6 +39,7 @@ export default function ProjectDetailClient({
   const [joining, setJoining] = useState(false);
   const [joinRole, setJoinRole] = useState<"contributor" | "tester">("contributor");
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleJoin = async () => {
     setJoining(true);
@@ -64,11 +66,6 @@ export default function ProjectDetailClient({
   };
 
   const handleDelete = async () => {
-    const msg = locale === "fr"
-      ? "Supprimer ce projet ? Cette action est irreversible."
-      : "Delete this project? This action cannot be undone.";
-    if (!confirm(msg)) return;
-
     setDeleting(true);
     try {
       const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
@@ -81,6 +78,7 @@ export default function ProjectDetailClient({
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : t.common.error;
       toast.error(message);
+      setShowDeleteConfirm(false);
     } finally {
       setDeleting(false);
     }
@@ -188,18 +186,64 @@ export default function ProjectDetailClient({
       {/* Delete project (creator only) */}
       {isCreator && (
         <div className="mt-8 pt-6 border-t border-white/5">
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
-          >
-            {deleting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
+          {!showDeleteConfirm && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all"
+            >
               <Trash2 className="w-4 h-4" />
+              {locale === "fr" ? "Supprimer ce projet" : "Delete this project"}
+            </button>
+          )}
+
+          <AnimatePresence>
+            {showDeleteConfirm && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="rounded-xl bg-red-500/5 border border-red-500/20 p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-white mb-1">
+                      {locale === "fr" ? "Supprimer ce projet ?" : "Delete this project?"}
+                    </p>
+                    <p className="text-xs text-gray-400 mb-4">
+                      {locale === "fr"
+                        ? "Cette action est irreversible. Toutes les contributions, commentaires et versions seront perdus."
+                        : "This action cannot be undone. All contributions, comments and versions will be lost."}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-all disabled:opacity-50"
+                      >
+                        {deleting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                        {locale === "fr" ? "Supprimer" : "Delete"}
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        disabled={deleting}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                      >
+                        <X className="w-4 h-4" />
+                        {locale === "fr" ? "Annuler" : "Cancel"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             )}
-            {locale === "fr" ? "Supprimer ce projet" : "Delete this project"}
-          </button>
+          </AnimatePresence>
         </div>
       )}
     </div>

@@ -21,7 +21,6 @@ import {
   MessageCircle,
   ChevronDown,
   MoreHorizontal,
-  Radio,
 } from "lucide-react";
 import FutureAILogo from "./FutureAILogo";
 import { AnimatePresence, motion } from "framer-motion";
@@ -101,7 +100,6 @@ export default function Navbar() {
     { href: "/challenges", label: t.nav.challenges, icon: Award },
     { href: "/arena", label: t.nav.arena, icon: FlaskConical },
     { href: "/forum", label: t.nav.forum || "Forum", icon: MessageCircle },
-    { href: "/events", label: t.nav.events || "Sessions", icon: Radio },
     { href: "/leaderboard", label: t.nav.leaderboard, icon: Trophy },
   ];
 
