@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, Code, Image, Wand2, Globe, Users, Clock } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { getServerTranslations } from "@/i18n/server";
+import { getAuthUserId, getCurrentUser } from "@/lib/auth";
+import DeleteSessionButton from "@/components/DeleteSessionButton";
 
 interface Props {
   params: { slug: string };
@@ -42,6 +44,16 @@ export default async function SharedArenaPage({ params }: Props) {
   const session = await getSession(params.slug);
 
   if (!session) return notFound();
+
+  // Check if current user is the session creator
+  let isCreator = false;
+  try {
+    const authId = await getAuthUserId();
+    if (authId) {
+      const user = await getCurrentUser();
+      isCreator = session.creator.id === user.id;
+    }
+  } catch {}
 
   const latestVersion = session.versions[0];
   const typeIcon = session.type === "text-to-code" ? Code : session.type === "text-to-image" ? Image : Wand2;
@@ -150,6 +162,13 @@ export default async function SharedArenaPage({ params }: Props) {
           <Link href={`/projects/${session.project.id}`} className="btn-primary inline-flex items-center gap-2">
             {session.project.title}
           </Link>
+        </div>
+      )}
+
+      {/* Delete session (creator only) */}
+      {isCreator && (
+        <div className="mt-8 pt-6 border-t border-white/5">
+          <DeleteSessionButton sessionId={session.id} />
         </div>
       )}
     </div>

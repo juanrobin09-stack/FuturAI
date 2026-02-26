@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 
 // GET /api/sandbox/sessions/:id - Get session with all data
 export async function GET(
@@ -123,6 +123,40 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("PATCH /api/sandbox/sessions/:id error:", error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}
+
+// DELETE /api/sandbox/sessions/:id - Delete session (creator only)
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const authId = await getAuthUserId();
+    if (!authId) {
+      return NextResponse.json({ error: "Non autorise" }, { status: 401 });
+    }
+
+    const user = await getCurrentUser();
+
+    const session = await prisma.sandboxSession.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!session) {
+      return NextResponse.json({ error: "Session non trouvee" }, { status: 404 });
+    }
+
+    // Only creator or admin can delete
+    if (session.creatorId !== user.id && user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Interdit" }, { status: 403 });
+    }
+
+    await prisma.sandboxSession.delete({ where: { id: params.id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("DELETE /api/sandbox/sessions/:id error:", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

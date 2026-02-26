@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserPlus, Loader2, FlaskConical, Code, Eye, ArrowRight } from "lucide-react";
+import { UserPlus, Loader2, FlaskConical, Code, Eye, ArrowRight, Trash2 } from "lucide-react";
 import ContributionForm from "@/components/ContributionForm";
 import CommentThread from "@/components/CommentThread";
 import SandboxAI from "@/components/SandboxAI";
@@ -23,18 +23,21 @@ interface ProjectDetailClientProps {
   projectId: string;
   projectTitle: string;
   comments: CommentData[];
+  isCreator?: boolean;
 }
 
 export default function ProjectDetailClient({
   projectId,
   projectTitle,
   comments,
+  isCreator = false,
 }: ProjectDetailClientProps) {
   const { t, locale } = useLanguage();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [joining, setJoining] = useState(false);
   const [joinRole, setJoinRole] = useState<"contributor" | "tester">("contributor");
+  const [deleting, setDeleting] = useState(false);
 
   const handleJoin = async () => {
     setJoining(true);
@@ -57,6 +60,29 @@ export default function ProjectDetailClient({
       toast.error(message);
     } finally {
       setJoining(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const msg = locale === "fr"
+      ? "Supprimer ce projet ? Cette action est irreversible."
+      : "Delete this project? This action cannot be undone.";
+    if (!confirm(msg)) return;
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || t.common.error);
+      }
+      toast.success(locale === "fr" ? "Projet supprime" : "Project deleted");
+      router.push("/projects");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t.common.error;
+      toast.error(message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -158,6 +184,24 @@ export default function ProjectDetailClient({
 
       {/* Sandbox AI (inline quick generate) */}
       <SandboxAI ideaId={projectId} ideaTitle={projectTitle} />
+
+      {/* Delete project (creator only) */}
+      {isCreator && (
+        <div className="mt-8 pt-6 border-t border-white/5">
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
+          >
+            {deleting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+            {locale === "fr" ? "Supprimer ce projet" : "Delete this project"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

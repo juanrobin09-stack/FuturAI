@@ -4,6 +4,7 @@ import Link from "next/link";
 import CategoryBadge from "@/components/CategoryBadge";
 import StatusBadge from "@/components/StatusBadge";
 import { getServerTranslations } from "@/i18n/server";
+import { getAuthUserId, getCurrentUser } from "@/lib/auth";
 import {
   ArrowLeft,
   MapPin,
@@ -92,6 +93,16 @@ export default async function ProjectDetailPage({ params }: Props) {
   if (!project) return notFound();
 
   const creator = project.members.find((m) => m.role === "creator");
+
+  // Check if current user is the project creator
+  let isCreator = false;
+  try {
+    const authId = await getAuthUserId();
+    if (authId) {
+      const user = await getCurrentUser();
+      isCreator = creator?.user.id === user.id;
+    }
+  } catch {}
 
   // Serialize dates for client components
   const serializedComments = project.comments.map((c) => ({
@@ -239,6 +250,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             projectId={project.id}
             projectTitle={project.title}
             comments={serializedComments}
+            isCreator={isCreator}
           />
 
           {/* Sandbox AI — Visual Preview */}
