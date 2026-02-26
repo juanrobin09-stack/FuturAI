@@ -14,6 +14,10 @@ export async function GET() {
         email: user.email,
         avatarUrl: user.avatarUrl,
         country: user.country,
+        bio: user.bio,
+        githubUrl: user.githubUrl,
+        linkedinUrl: user.linkedinUrl,
+        websiteUrl: user.websiteUrl,
         role: user.role,
         verified: user.verified,
         points: user.points,
@@ -26,7 +30,7 @@ export async function GET() {
   }
 }
 
-// PATCH /api/users/me — Update current user's username / country
+// PATCH /api/users/me — Update current user's profile
 export async function PATCH(req: NextRequest) {
   try {
     const user = await getCurrentUser();
@@ -35,7 +39,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { username, country } = body;
+    const { username, country, bio, avatarUrl, githubUrl, linkedinUrl, websiteUrl } = body;
 
     // Validate username
     if (username !== undefined) {
@@ -46,7 +50,6 @@ export async function PATCH(req: NextRequest) {
           { status: 400 }
         );
       }
-      // Only allow letters, numbers, underscores, hyphens
       if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
         return NextResponse.json(
           { error: "Username can only contain letters, numbers, _ and -" },
@@ -68,6 +71,72 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    // Validate bio
+    if (bio !== undefined && bio !== null) {
+      if (typeof bio === "string" && bio.trim().length > 500) {
+        return NextResponse.json(
+          { error: "Bio must be 500 characters or less" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate avatarUrl
+    if (avatarUrl !== undefined && avatarUrl !== null && avatarUrl !== "") {
+      if (typeof avatarUrl === "string" && !avatarUrl.startsWith("https://")) {
+        return NextResponse.json(
+          { error: "Avatar URL must start with https://" },
+          { status: 400 }
+        );
+      }
+      if (typeof avatarUrl === "string" && avatarUrl.length > 500) {
+        return NextResponse.json(
+          { error: "Avatar URL too long" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate GitHub URL
+    if (githubUrl !== undefined && githubUrl !== null && githubUrl !== "") {
+      if (typeof githubUrl === "string" && !githubUrl.startsWith("https://github.com/")) {
+        return NextResponse.json(
+          { error: "GitHub URL must start with https://github.com/" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate LinkedIn URL
+    if (linkedinUrl !== undefined && linkedinUrl !== null && linkedinUrl !== "") {
+      if (
+        typeof linkedinUrl === "string" &&
+        !linkedinUrl.startsWith("https://linkedin.com/") &&
+        !linkedinUrl.startsWith("https://www.linkedin.com/")
+      ) {
+        return NextResponse.json(
+          { error: "LinkedIn URL must start with https://linkedin.com/ or https://www.linkedin.com/" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate website URL
+    if (websiteUrl !== undefined && websiteUrl !== null && websiteUrl !== "") {
+      if (typeof websiteUrl === "string" && !websiteUrl.startsWith("https://")) {
+        return NextResponse.json(
+          { error: "Website URL must start with https://" },
+          { status: 400 }
+        );
+      }
+      if (typeof websiteUrl === "string" && websiteUrl.length > 500) {
+        return NextResponse.json(
+          { error: "Website URL too long" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Build update data
     const updateData: Record<string, string | null> = {};
     if (username !== undefined) {
@@ -75,6 +144,21 @@ export async function PATCH(req: NextRequest) {
     }
     if (country !== undefined) {
       updateData.country = country ? (country as string).trim() : null;
+    }
+    if (bio !== undefined) {
+      updateData.bio = bio ? (bio as string).trim() : null;
+    }
+    if (avatarUrl !== undefined) {
+      updateData.avatarUrl = avatarUrl ? (avatarUrl as string).trim() : null;
+    }
+    if (githubUrl !== undefined) {
+      updateData.githubUrl = githubUrl ? (githubUrl as string).trim() : null;
+    }
+    if (linkedinUrl !== undefined) {
+      updateData.linkedinUrl = linkedinUrl ? (linkedinUrl as string).trim() : null;
+    }
+    if (websiteUrl !== undefined) {
+      updateData.websiteUrl = websiteUrl ? (websiteUrl as string).trim() : null;
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -91,6 +175,11 @@ export async function PATCH(req: NextRequest) {
         id: updated.id,
         username: updated.username,
         country: updated.country,
+        bio: updated.bio,
+        avatarUrl: updated.avatarUrl,
+        githubUrl: updated.githubUrl,
+        linkedinUrl: updated.linkedinUrl,
+        websiteUrl: updated.websiteUrl,
       },
     });
   } catch (error) {

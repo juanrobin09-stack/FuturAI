@@ -160,14 +160,11 @@ export default async function IdeaDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {idea.latitude && idea.longitude && (
+          {idea.country && (
             <div className="card">
               <h3 className="font-semibold mb-3">{t.ideas.location}</h3>
               <p className="text-sm text-gray-400">
-                {idea.country || t.ideas.notSpecified}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {idea.latitude.toFixed(4)}, {idea.longitude.toFixed(4)}
+                {idea.country}
               </p>
               <Link
                 href="/map"

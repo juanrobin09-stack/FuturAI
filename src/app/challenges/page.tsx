@@ -45,13 +45,19 @@ export default function ChallengesPage() {
     if (search) params.set("search", search);
     if (categoryFilter) params.set("category", categoryFilter);
 
-    fetch(`/api/challenges?${params}`)
-      .then((r) => r.json())
+    fetch(`/api/challenges?${params}`, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Fetch failed");
+        return r.json();
+      })
       .then((data) => {
         setChallenges(data.challenges || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Failed to fetch challenges:", err);
+        setLoading(false);
+      });
   }, [status, search, categoryFilter]);
 
   useEffect(() => {

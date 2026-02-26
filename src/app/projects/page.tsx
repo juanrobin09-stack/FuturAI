@@ -45,13 +45,19 @@ export default function ProjectsPage() {
     if (status) params.set("status", status);
     if (search) params.set("search", search);
 
-    fetch(`/api/projects?${params}`)
-      .then((r) => r.json())
+    fetch(`/api/projects?${params}`, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Fetch failed");
+        return r.json();
+      })
       .then((data) => {
         setProjects(data.projects || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Failed to fetch projects:", err);
+        setLoading(false);
+      });
   }, [category, status, search]);
 
   useEffect(() => {

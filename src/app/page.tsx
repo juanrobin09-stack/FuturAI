@@ -2,10 +2,13 @@ import Link from "next/link";
 import {
   ArrowRight, Brain, Globe, Trophy, Lightbulb, Sparkles, Users,
   FolderKanban, Award, FlaskConical, MessageSquare, Star, TrendingUp,
+  Zap, Shield, BarChart3, Layers,
 } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { getCategoryColor, getCategoryLabel, getStatusLabel } from "@/lib/utils";
 import { getServerTranslations } from "@/i18n/server";
+
+const MIN_STATS_THRESHOLD = 10;
 
 async function getHomeData() {
   try {
@@ -48,6 +51,7 @@ async function getHomeData() {
       userCount,
       projectCount,
       challengeCount,
+      showCommunityStats: userCount >= MIN_STATS_THRESHOLD,
       spotlight: {
         topProject: topProject ? { title: topProject.title, contributions: topProject._count.contributions } : null,
         topContributor: topContributor ? { username: topContributor.username, points: topContributor.points } : null,
@@ -55,63 +59,64 @@ async function getHomeData() {
       },
     };
   } catch {
-    return { projects: [], challenges: [], ideaCount: 0, userCount: 0, projectCount: 0, challengeCount: 0, spotlight: { topProject: null, topContributor: null, fastestGrowing: null } };
+    return { projects: [], challenges: [], ideaCount: 0, userCount: 0, projectCount: 0, challengeCount: 0, showCommunityStats: false, spotlight: { topProject: null, topContributor: null, fastestGrowing: null } };
   }
 }
 
 export default async function HomePage() {
-  const { projects, challenges, ideaCount, userCount, projectCount, challengeCount, spotlight } = await getHomeData();
+  const { projects, challenges, ideaCount, userCount, projectCount, challengeCount, showCommunityStats, spotlight } = await getHomeData();
   const { t } = getServerTranslations();
+
+  const hasSpotlight = spotlight.topProject && spotlight.topContributor && spotlight.topProject.contributions > 0;
 
   return (
     <div className="relative">
-      {/* Hero */}
+      {/* ─── Hero ─── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary-950/50 via-gray-950 to-gray-950" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-r from-primary-500/10 to-accent-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[800px] h-[400px] sm:h-[600px] bg-gradient-to-r from-primary-500/10 to-accent-500/10 rounded-full blur-3xl" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-24 sm:pt-32 sm:pb-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-16 sm:pt-32 sm:pb-28">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-8">
-              <Sparkles className="w-4 h-4 text-accent-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm text-gray-300 mb-6 sm:mb-8">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent-400" />
               {t.home.badge}
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black leading-tight mb-6">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black leading-tight mb-4 sm:mb-6">
               <span className="gradient-text">{t.home.heroTitle1}</span>
-              <br />
-              {t.home.heroTitle2}
+              {t.home.heroTitle2 && <><br />{t.home.heroTitle2}</>}
               {t.home.heroTitle3 && <><br />{t.home.heroTitle3}</>}
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+            <p className="text-base sm:text-xl text-gray-400 max-w-2xl mx-auto mb-8 sm:mb-10">
               {t.home.heroDescription}
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/projects" className="btn-accent text-lg px-8 py-4 flex items-center gap-2">
-                <FolderKanban className="w-5 h-5" />
-                {t.home.joinProject}
-                <ArrowRight className="w-5 h-5" />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+              <Link href="/arena" className="btn-accent text-sm sm:text-lg px-6 py-3 sm:px-8 sm:py-4 flex items-center gap-2 w-full sm:w-auto justify-center">
+                <FlaskConical className="w-4 h-4 sm:w-5 sm:h-5" />
+                {t.home.exploreArena}
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
-              <Link href="/ideas/submit" className="btn-ghost text-lg px-8 py-4 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5" />
-                {t.home.submitIdea}
+              <Link href="/projects" className="btn-ghost text-sm sm:text-lg px-6 py-3 sm:px-8 sm:py-4 flex items-center gap-2 w-full sm:w-auto justify-center">
+                <FolderKanban className="w-4 h-4 sm:w-5 sm:h-5" />
+                {t.home.joinProject}
               </Link>
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-20 max-w-3xl mx-auto">
+          {/* Platform Capabilities (always visible — shows power, not vanity) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mt-12 sm:mt-20 max-w-3xl mx-auto">
             {[
-              { icon: FolderKanban, label: t.home.activeProjects, value: String(projectCount) },
-              { icon: Users, label: t.home.innovators, value: String(userCount) },
-              { icon: Lightbulb, label: t.home.ideasCount || "Id\u00e9es", value: String(ideaCount) },
-              { icon: Award, label: t.home.challengesCount, value: String(challengeCount) },
+              { icon: Zap, label: t.home.statProviders, value: "9" },
+              { icon: Shield, label: t.home.statEncryption, value: "AES-256" },
+              { icon: Layers, label: t.home.statModes, value: "3" },
+              { icon: BarChart3, label: t.home.statImpactScore, value: "100" },
             ].map((stat) => (
-              <div key={stat.label} className="card text-center py-6">
-                <stat.icon className="w-6 h-6 text-primary-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold gradient-text">{stat.value}</div>
+              <div key={stat.label} className="card text-center py-4 sm:py-6">
+                <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-400 mx-auto mb-2" />
+                <div className="text-xl sm:text-2xl font-bold gradient-text">{stat.value}</div>
                 <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
               </div>
             ))}
@@ -119,7 +124,54 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Active Challenges */}
+      {/* ─── Features — Arena first, highlighted ─── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">
+          {t.home.completePlatform} <span className="gradient-text">{t.home.completePlatformHighlight}</span>
+        </h2>
+        <p className="text-gray-400 text-center mb-10 max-w-xl mx-auto text-sm sm:text-base">{t.home.platformSubtitle}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          {[
+            { icon: FlaskConical, title: t.home.featArena, desc: t.home.featArenaDesc, highlight: true },
+            { icon: FolderKanban, title: t.home.featProjects, desc: t.home.featProjectsDesc, highlight: false },
+            { icon: Award, title: t.home.featChallenges, desc: t.home.featChallengesDesc, highlight: false },
+            { icon: Globe, title: t.home.featMap, desc: t.home.featMapDesc, highlight: false },
+          ].map((f) => (
+            <div key={f.title} className={`card text-center group ${f.highlight ? "border-primary-500/30 bg-primary-500/5 ring-1 ring-primary-500/10" : ""}`}>
+              <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${f.highlight ? "from-primary-500/30 to-accent-500/30" : "from-primary-500/20 to-accent-500/20"} flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
+                <f.icon className={`w-5 h-5 sm:w-7 sm:h-7 ${f.highlight ? "text-accent-400" : "text-primary-400"}`} />
+              </div>
+              <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{f.title}</h3>
+              <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── Community Stats — only when impressive ─── */}
+      {showCommunityStats && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-center mb-6">
+            {t.home.communityTitle} <span className="gradient-text">{t.home.communityTitleHighlight}</span>
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 max-w-3xl mx-auto">
+            {[
+              { icon: FolderKanban, label: t.home.activeProjects, value: String(projectCount) },
+              { icon: Users, label: t.home.innovators, value: String(userCount) },
+              { icon: Lightbulb, label: t.home.ideasCount || "Idées", value: String(ideaCount) },
+              { icon: Award, label: t.home.challengesCount, value: String(challengeCount) },
+            ].map((stat) => (
+              <div key={stat.label} className="card text-center py-4 sm:py-6">
+                <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-accent-400 mx-auto mb-2" />
+                <div className="text-xl sm:text-2xl font-bold text-white">{stat.value}</div>
+                <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ─── Active Challenges ─── */}
       {challenges.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
           <div className="flex items-center justify-between mb-8">
@@ -162,66 +214,67 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Global Spotlight */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">
-          {t.spotlight.title} <span className="gradient-text">{t.spotlight.titleHighlight}</span>
-        </h2>
-        <p className="text-gray-400 text-center mb-8">{t.spotlight.thisWeek}</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            {
-              icon: Trophy,
-              title: t.spotlight.topProject,
-              value: spotlight.topProject?.title ?? "—",
-              metric: spotlight.topProject ? `${spotlight.topProject.contributions} ${t.spotlight.contributions}` : "",
-              color: "from-yellow-500/20 to-amber-500/20",
-              textColor: "text-yellow-400",
-            },
-            {
-              icon: Star,
-              title: t.spotlight.topContributor,
-              value: spotlight.topContributor?.username ?? "—",
-              metric: spotlight.topContributor ? `${spotlight.topContributor.points} ${t.spotlight.points}` : "",
-              color: "from-primary-500/20 to-blue-500/20",
-              textColor: "text-primary-400",
-            },
-            {
-              icon: TrendingUp,
-              title: t.spotlight.fastestGrowing,
-              value: spotlight.fastestGrowing?.title ?? "—",
-              metric: spotlight.fastestGrowing ? `${spotlight.fastestGrowing.members} ${t.home.participants}` : "",
-              color: "from-green-500/20 to-emerald-500/20",
-              textColor: "text-green-400",
-            },
-          ].map((item) => (
-            <div key={item.title} className="card text-center group">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mx-auto mb-3`}>
-                <item.icon className={`w-6 h-6 ${item.textColor}`} />
+      {/* ─── Global Spotlight — only when meaningful ─── */}
+      {hasSpotlight && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">
+            {t.spotlight.title} <span className="gradient-text">{t.spotlight.titleHighlight}</span>
+          </h2>
+          <p className="text-gray-400 text-center mb-8">{t.spotlight.thisWeek}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: Trophy,
+                title: t.spotlight.topProject,
+                value: spotlight.topProject?.title ?? "—",
+                metric: spotlight.topProject ? `${spotlight.topProject.contributions} ${t.spotlight.contributions}` : "",
+                color: "from-yellow-500/20 to-amber-500/20",
+                textColor: "text-yellow-400",
+              },
+              {
+                icon: Star,
+                title: t.spotlight.topContributor,
+                value: spotlight.topContributor?.username ?? "—",
+                metric: spotlight.topContributor ? `${spotlight.topContributor.points} ${t.spotlight.points}` : "",
+                color: "from-primary-500/20 to-blue-500/20",
+                textColor: "text-primary-400",
+              },
+              {
+                icon: TrendingUp,
+                title: t.spotlight.fastestGrowing,
+                value: spotlight.fastestGrowing?.title ?? "—",
+                metric: spotlight.fastestGrowing ? `${spotlight.fastestGrowing.members} ${t.home.participants}` : "",
+                color: "from-green-500/20 to-emerald-500/20",
+                textColor: "text-green-400",
+              },
+            ].map((item) => (
+              <div key={item.title} className="card text-center group">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mx-auto mb-3`}>
+                  <item.icon className={`w-6 h-6 ${item.textColor}`} />
+                </div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{item.title}</p>
+                <h3 className="font-semibold text-white text-lg line-clamp-1">{item.value}</h3>
+                {item.metric && <p className="text-sm text-gray-400 mt-1">{item.metric}</p>}
               </div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{item.title}</p>
-              <h3 className="font-semibold text-white text-lg line-clamp-1">{item.value}</h3>
-              {item.metric && <p className="text-sm text-gray-400 mt-1">{item.metric}</p>}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Top Projects */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold">
-              {t.home.collaborativeProjects} <span className="gradient-text">{t.home.collaborativeProjectsHighlight}</span>
-            </h2>
-            <p className="text-gray-400 mt-1">{t.home.joinTeamBuild}</p>
+            ))}
           </div>
-          <Link href="/projects" className="btn-ghost text-sm py-2 px-4 hidden sm:flex items-center gap-2">
-            {t.common.seeAll} <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+        </section>
+      )}
 
-        {projects.length > 0 ? (
+      {/* ─── Projects — only if there are some ─── */}
+      {projects.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold">
+                {t.home.collaborativeProjects} <span className="gradient-text">{t.home.collaborativeProjectsHighlight}</span>
+              </h2>
+              <p className="text-gray-400 mt-1">{t.home.joinTeamBuild}</p>
+            </div>
+            <Link href="/projects" className="btn-ghost text-sm py-2 px-4 hidden sm:flex items-center gap-2">
+              {t.common.seeAll} <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
               <Link key={project.id} href={`/projects/${project.id}`} className="card group hover:border-primary-500/20">
@@ -255,41 +308,8 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
-        ) : (
-          <div className="card text-center py-16">
-            <Brain className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-400">{t.home.noProjectsYet}</h3>
-            <p className="text-sm text-gray-500 mt-2">{t.home.createFirstProject}</p>
-            <Link href="/projects/create" className="btn-accent mt-4 inline-flex items-center gap-2">
-              <FolderKanban className="w-4 h-4" />
-              {t.home.createProject}
-            </Link>
-          </div>
-        )}
-      </section>
-
-      {/* Features */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">
-          {t.home.completePlatform} <span className="gradient-text">{t.home.completePlatformHighlight}</span>
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { icon: FolderKanban, title: t.home.featProjects, desc: t.home.featProjectsDesc },
-            { icon: Award, title: t.home.featChallenges, desc: t.home.featChallengesDesc },
-            { icon: FlaskConical, title: t.home.featArena, desc: t.home.featArenaDesc },
-            { icon: Globe, title: t.home.featMap, desc: t.home.featMapDesc },
-          ].map((f) => (
-            <div key={f.title} className="card text-center group">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <f.icon className="w-7 h-7 text-primary-400" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
-              <p className="text-sm text-gray-400">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

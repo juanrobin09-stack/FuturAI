@@ -17,8 +17,6 @@ export default function IdeaForm() {
     category: "",
     country: "",
     imageUrl: "",
-    latitude: "",
-    longitude: "",
   });
 
   const handleChange = (
@@ -40,11 +38,7 @@ export default function IdeaForm() {
         const res = await fetch("/api/ideas", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...form,
-            latitude: form.latitude ? parseFloat(form.latitude) : null,
-            longitude: form.longitude ? parseFloat(form.longitude) : null,
-          }),
+          body: JSON.stringify(form),
         });
 
         if (!res.ok) {
@@ -120,48 +114,18 @@ export default function IdeaForm() {
         </select>
       </div>
 
-      {/* Country + Location */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            {t.ideaForm.countryLabel}
-          </label>
-          <input
-            name="country"
-            value={form.country}
-            onChange={handleChange}
-            placeholder={t.ideaForm.countryPlaceholder}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            {t.ideaForm.latitudeLabel}
-          </label>
-          <input
-            name="latitude"
-            value={form.latitude}
-            onChange={handleChange}
-            placeholder="48.8566"
-            type="number"
-            step="any"
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            {t.ideaForm.longitudeLabel}
-          </label>
-          <input
-            name="longitude"
-            value={form.longitude}
-            onChange={handleChange}
-            placeholder="2.3522"
-            type="number"
-            step="any"
-            className="input-field"
-          />
-        </div>
+      {/* Country */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          {t.ideaForm.countryLabel}
+        </label>
+        <input
+          name="country"
+          value={form.country}
+          onChange={handleChange}
+          placeholder={t.ideaForm.countryPlaceholder}
+          className="input-field"
+        />
       </div>
 
       {/* Image URL */}

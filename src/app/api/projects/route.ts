@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
-      title, description, category, status, country, latitude, longitude, imageUrl,
+      title, description, category, status, country, imageUrl,
       problemAddressed, challengeId,
       // V7 Impact fields
       problemSeverity, populationAffected, geographicScope,
@@ -101,8 +101,6 @@ export async function POST(req: NextRequest) {
           category,
           status: status || "open",
           country: country || null,
-          latitude: latitude ? parseFloat(latitude) : null,
-          longitude: longitude ? parseFloat(longitude) : null,
           imageUrl: imageUrl || null,
           problemAddressed: problemAddressed?.trim() || null,
           challengeId: challengeId || null,

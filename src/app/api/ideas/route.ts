@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     const user = await getCurrentUser();
 
     const body = await req.json();
-    const { title, description, category, country, latitude, longitude, imageUrl } = body;
+    const { title, description, category, country, imageUrl } = body;
 
     if (!title?.trim() || !description?.trim() || !category) {
       return NextResponse.json(
@@ -76,8 +76,6 @@ export async function POST(req: NextRequest) {
         description: description.trim(),
         category,
         country: country || null,
-        latitude: latitude || null,
-        longitude: longitude || null,
         imageUrl: imageUrl || null,
         authorId: user.id,
       },

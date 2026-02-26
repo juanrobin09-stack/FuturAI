@@ -58,13 +58,19 @@ export default function ForumPage() {
     if (debouncedSearch) params.set("search", debouncedSearch);
     params.set("sort", sort);
 
-    fetch(`/api/forum?${params}`)
-      .then((r) => r.json())
+    fetch(`/api/forum?${params}`, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Fetch failed");
+        return r.json();
+      })
       .then((data) => {
         setThreads(data.threads || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Failed to fetch forum threads:", err);
+        setLoading(false);
+      });
   }, [category, debouncedSearch, sort]);
 
   useEffect(() => {
@@ -76,12 +82,12 @@ export default function ForumPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center shrink-0">
-              <MessageCircle className="w-7 h-7 text-primary-400" />
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center shrink-0">
+              <MessageCircle className="w-5 h-5 sm:w-7 sm:h-7 text-primary-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-2xl sm:text-3xl font-bold">
                 {t.forum.title}{" "}
                 <span className="gradient-text">{t.forum.titleHighlight}</span>
               </h1>
@@ -114,7 +120,7 @@ export default function ForumPage() {
         <div className="flex items-center gap-2 mb-6">
           <button
             onClick={() => setSort("recent")}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
               sort === "recent"
                 ? "bg-primary-500/20 text-primary-300 border border-primary-500/30"
                 : "bg-gray-800/50 text-gray-400 border border-white/5 hover:border-white/10"
@@ -124,7 +130,7 @@ export default function ForumPage() {
           </button>
           <button
             onClick={() => setSort("popular")}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
               sort === "popular"
                 ? "bg-primary-500/20 text-primary-300 border border-primary-500/30"
                 : "bg-gray-800/50 text-gray-400 border border-white/5 hover:border-white/10"

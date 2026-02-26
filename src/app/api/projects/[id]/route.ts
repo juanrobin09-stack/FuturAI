@@ -160,20 +160,6 @@ export async function PATCH(
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl || null;
     if (body.repoUrl !== undefined) updateData.repoUrl = body.repoUrl || null;
     if (body.country !== undefined) updateData.country = body.country || null;
-    if (body.latitude !== undefined) {
-      const lat = body.latitude ? parseFloat(body.latitude) : null;
-      if (lat !== null && (isNaN(lat) || lat < -90 || lat > 90)) {
-        return NextResponse.json({ error: "Invalid latitude" }, { status: 400 });
-      }
-      updateData.latitude = lat;
-    }
-    if (body.longitude !== undefined) {
-      const lng = body.longitude ? parseFloat(body.longitude) : null;
-      if (lng !== null && (isNaN(lng) || lng < -180 || lng > 180)) {
-        return NextResponse.json({ error: "Invalid longitude" }, { status: 400 });
-      }
-      updateData.longitude = lng;
-    }
 
     const project = await prisma.project.update({
       where: { id: params.id },
@@ -219,7 +205,7 @@ export async function DELETE(
     // Verify the project exists
     const existing = await prisma.project.findUnique({
       where: { id: params.id },
-      include: { members: { where: { userId: user.id, role: "OWNER" } } },
+      include: { members: { where: { userId: user.id, role: "creator" } } },
     });
     if (!existing) {
       return NextResponse.json(

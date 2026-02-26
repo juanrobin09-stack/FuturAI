@@ -45,8 +45,11 @@ export default function LeaderboardPage() {
     const params = new URLSearchParams({ leaderboard: "true" });
     if (timeRange !== "allTime") params.set("range", timeRange);
     if (countryFilter) params.set("country", countryFilter);
-    fetch(`/api/users?${params}`)
-      .then((r) => r.json())
+    fetch(`/api/users?${params}`, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Fetch failed");
+        return r.json();
+      })
       .then((data) => {
         const userList = data.users || [];
         setUsers(userList);
@@ -57,7 +60,10 @@ export default function LeaderboardPage() {
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Failed to fetch users:", err);
+        setLoading(false);
+      });
   }, [timeRange, countryFilter]);
 
   // SSE for live activity feed
@@ -165,7 +171,7 @@ export default function LeaderboardPage() {
             <select
               value={countryFilter}
               onChange={(e) => setCountryFilter(e.target.value)}
-              className="input-field w-auto min-w-[200px] text-sm"
+              className="input-field w-full sm:w-auto sm:min-w-[200px] text-sm"
             >
               <option value="">{t.leaderboard.allCountries}</option>
               {allCountries.map((c) => (
@@ -195,7 +201,7 @@ export default function LeaderboardPage() {
                           "border-amber-700/30 from-amber-700/10 to-amber-800/5",
                         ];
                         const medalColors = ["text-yellow-300", "text-gray-300", "text-amber-500"];
-                        const sizes = ["text-4xl", "text-3xl", "text-3xl"];
+                        const sizes = ["text-2xl sm:text-4xl", "text-xl sm:text-3xl", "text-xl sm:text-3xl"];
                         return (
                           <motion.div
                             key={user.id}
@@ -206,7 +212,7 @@ export default function LeaderboardPage() {
                           >
                             <div className="text-center">
                               <span className={`${sizes[i]} font-black ${medalColors[i]}`}>#{i + 1}</span>
-                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xl font-bold text-white mx-auto mt-3">
+                              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-base sm:text-xl font-bold text-white mx-auto mt-3">
                                 {user.username.charAt(0).toUpperCase()}
                               </div>
                               <Link href={`/profile/${user.id}`} className="hover:underline"><h3 className="font-semibold mt-2">{user.username}</h3></Link>

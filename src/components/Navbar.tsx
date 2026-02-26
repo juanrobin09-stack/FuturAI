@@ -21,6 +21,7 @@ import {
   MessageCircle,
   ChevronDown,
   MoreHorizontal,
+  Radio,
 } from "lucide-react";
 import FutureAILogo from "./FutureAILogo";
 import { AnimatePresence, motion } from "framer-motion";
@@ -100,6 +101,7 @@ export default function Navbar() {
     { href: "/challenges", label: t.nav.challenges, icon: Award },
     { href: "/arena", label: t.nav.arena, icon: FlaskConical },
     { href: "/forum", label: t.nav.forum || "Forum", icon: MessageCircle },
+    { href: "/events", label: t.nav.events || "Sessions", icon: Radio },
     { href: "/leaderboard", label: t.nav.leaderboard, icon: Trophy },
   ];
 
@@ -161,7 +163,7 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-52 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden py-1 z-50"
+                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden py-1 z-50"
                   >
                     {secondaryLinks.map((link) => (
                       <Link
@@ -206,24 +208,24 @@ export default function Navbar() {
               transition={{ duration: 0.2 }}
               className="lg:hidden overflow-hidden border-t border-white/5"
             >
-              <div className="py-3 grid grid-cols-2 gap-1">
+              <div className="py-2 grid grid-cols-2 gap-0.5 px-1">
                 {allLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                    className="flex items-center gap-2 px-3 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all min-h-[44px]"
                   >
-                    <link.icon className="w-4 h-4 shrink-0" />
-                    {link.label}
+                    <link.icon className="w-4 h-4 shrink-0 text-gray-500" />
+                    <span className="truncate">{link.label}</span>
                   </Link>
                 ))}
               </div>
-              <div className="border-t border-white/5 py-3 px-3 flex items-center gap-3">
+              <div className="border-t border-white/5 py-3 px-4">
                 <Link
                   href="/ideas/submit"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-sm text-accent-400 font-medium"
+                  className="flex items-center gap-2 text-sm text-accent-400 font-medium min-h-[44px]"
                 >
                   <Lightbulb className="w-4 h-4" />
                   {t.nav.submitIdea}

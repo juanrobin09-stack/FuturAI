@@ -6,8 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const CATEGORIES = [
-  { value: "NLP", color: "#0d9488" },
-  { value: "Vision par ordinateur", color: "#f97316" },
+  { value: "Automatisation", color: "#0d9488" },
+  { value: "Analyse de donnees", color: "#f97316" },
   { value: "Creation IA", color: "#8b5cf6" },
   { value: "Sante", color: "#ef4444" },
   { value: "Mobilite", color: "#3b82f6" },
@@ -124,8 +124,8 @@ export function getChallengeCategoryColor(category: string): string {
 export const FORUM_CATEGORIES = [
   { value: "general", color: "#6366f1" },
   { value: "ml", color: "#f97316" },
-  { value: "nlp", color: "#0d9488" },
-  { value: "vision", color: "#8b5cf6" },
+  { value: "automation", color: "#0d9488" },
+  { value: "data", color: "#8b5cf6" },
   { value: "ethics", color: "#ec4899" },
   { value: "community", color: "#22c55e" },
   { value: "help", color: "#eab308" },

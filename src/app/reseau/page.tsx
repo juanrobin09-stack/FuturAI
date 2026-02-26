@@ -100,25 +100,25 @@ export default function ReseauPage() {
     <PageTransition>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center mx-auto mb-4">
-            <Users className="w-8 h-8 text-primary-400" />
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary-400" />
           </div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-2xl sm:text-3xl font-bold">
             <span className="gradient-text">{t.network?.title || "Network"}</span>
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-gray-400 mt-2 text-sm sm:text-base">
             {t.network?.subtitle || "Build your professional network and collaborate with innovators worldwide"}
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-2 mb-8">
+        <div className="flex justify-center gap-1 sm:gap-2 mb-8 overflow-x-auto">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`relative flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`relative flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                 tab === t.key
                   ? "bg-primary-500/20 text-primary-400 border border-primary-500/30"
                   : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"

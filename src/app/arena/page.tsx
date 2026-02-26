@@ -33,14 +33,14 @@ export default function ArenaPage() {
   return (
     <PageTransition>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-500/20 to-primary-500/20 flex items-center justify-center mx-auto mb-4">
-            <FlaskConical className="w-8 h-8 text-accent-400" />
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-accent-500/20 to-primary-500/20 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <FlaskConical className="w-6 h-6 sm:w-8 sm:h-8 text-accent-400" />
           </div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-2xl sm:text-3xl font-bold">
             <span className="gradient-text">{t.arena.title}</span>
           </h1>
-          <p className="text-gray-400 mt-2 max-w-lg mx-auto">
+          <p className="text-gray-400 mt-2 max-w-lg mx-auto text-sm sm:text-base">
             {t.arena.subtitle}
           </p>
         </div>

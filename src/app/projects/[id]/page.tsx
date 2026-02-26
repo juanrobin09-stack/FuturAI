@@ -349,14 +349,11 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
 
           {/* Location */}
-          {project.latitude && project.longitude && (
+          {project.country && (
             <div className="card">
               <h3 className="font-semibold mb-3">{t.projects.location}</h3>
               <p className="text-sm text-gray-400">
-                {project.country || t.projects.notSpecified}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {project.latitude.toFixed(4)}, {project.longitude.toFixed(4)}
+                {project.country}
               </p>
               <Link
                 href="/map"

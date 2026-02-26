@@ -213,7 +213,7 @@ export default function ForumReplySection({
 
               {/* Nested reply input */}
               {replyTo === post.id && (
-                <div className="flex gap-2 mt-3 ml-8 border-l-2 border-white/5 pl-4">
+                <div className="flex gap-2 mt-3 ml-3 sm:ml-8 border-l-2 border-white/5 pl-2 sm:pl-4">
                   <textarea
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
@@ -240,7 +240,7 @@ export default function ForumReplySection({
 
               {/* Nested replies */}
               {post.replies && post.replies.length > 0 && (
-                <div className="mt-4 ml-8 border-l-2 border-white/5 space-y-3 pl-4">
+                <div className="mt-4 ml-3 sm:ml-8 border-l-2 border-white/5 space-y-3 pl-2 sm:pl-4">
                   {post.replies.map((reply) => (
                     <div
                       key={reply.id}

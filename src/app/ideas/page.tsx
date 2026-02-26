@@ -34,13 +34,19 @@ export default function IdeasPage() {
     if (category) params.set("category", category);
     if (search) params.set("search", search);
 
-    fetch(`/api/ideas?${params}`)
-      .then((r) => r.json())
+    fetch(`/api/ideas?${params}`, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Fetch failed");
+        return r.json();
+      })
       .then((data) => {
         setIdeas(data.ideas || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Failed to fetch ideas:", err);
+        setLoading(false);
+      });
   }, [category, search]);
 
   return (
@@ -49,7 +55,7 @@ export default function IdeasPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl sm:text-3xl font-bold">
               {t.ideas.title} <span className="gradient-text">{t.ideas.titleHighlight}</span>
             </h1>
             <p className="text-gray-400 mt-1">

@@ -62,19 +62,19 @@ export default function ForumCreatePage() {
         </Link>
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="w-8 h-8 text-primary-400" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-primary-400" />
           </div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-2xl sm:text-3xl font-bold">
             Lancer une{" "}
             <span className="gradient-text">discussion</span>
           </h1>
-          <p className="text-gray-400 mt-2">{t.forum.subtitle}</p>
+          <p className="text-gray-400 mt-2 text-sm sm:text-base">{t.forum.subtitle}</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="card space-y-6">
+        <form onSubmit={handleSubmit} className="card space-y-4 sm:space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -118,7 +118,7 @@ export default function ForumCreatePage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={t.forum.threadContentPlaceholder}
-              className="input-field min-h-[200px] resize-y"
+              className="input-field min-h-[120px] sm:min-h-[200px] resize-y"
               required
             />
           </div>
