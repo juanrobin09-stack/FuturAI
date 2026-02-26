@@ -35,7 +35,11 @@ export default function VoteButton({
           body: JSON.stringify({ value: newVote }),
         });
 
-        if (!res.ok) throw new Error("Vote failed");
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          toast.error(data.error || t.vote.error);
+          return;
+        }
 
         const data = await res.json();
         setScore(data.score);

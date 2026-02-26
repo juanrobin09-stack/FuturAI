@@ -19,6 +19,7 @@ interface Idea {
   createdAt: string;
   author: { username: string; avatarUrl: string | null };
   score: number;
+  userVote?: number;
 }
 
 export default function IdeasPage() {
@@ -93,7 +94,7 @@ export default function IdeasPage() {
           <StaggerContainer className="space-y-4">
             {ideas.map((idea) => (
               <StaggerItem key={idea.id}>
-                <IdeaCard idea={idea} />
+                <IdeaCard idea={idea} userVote={idea.userVote} />
               </StaggerItem>
             ))}
           </StaggerContainer>

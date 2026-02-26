@@ -7,6 +7,7 @@ import { MapPin, Clock, User, ArrowLeft } from "lucide-react";
 import { timeAgo, formatDate, getCategoryLabel } from "@/lib/utils";
 import Link from "next/link";
 import { getServerTranslations } from "@/i18n/server";
+import { getAuthUserId, getCurrentUser } from "@/lib/auth";
 
 interface Props {
   params: { id: string };
@@ -38,6 +39,16 @@ export default async function IdeaDetailPage({ params }: Props) {
   const { t, locale } = getServerTranslations();
   const score = idea.votes.reduce((sum, v) => sum + v.value, 0);
 
+  // Get current user's vote
+  let userVote = 0;
+  try {
+    const authId = await getAuthUserId();
+    if (authId) {
+      const user = await getCurrentUser();
+      userVote = idea.votes.find((v) => v.userId === user.id)?.value ?? 0;
+    }
+  } catch {}
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
       {/* Back */}
@@ -54,7 +65,7 @@ export default async function IdeaDetailPage({ params }: Props) {
         <div>
           {/* Header */}
           <div className="flex items-start gap-4 mb-6">
-            <VoteButton ideaId={idea.id} initialScore={score} size="lg" />
+            <VoteButton ideaId={idea.id} initialScore={score} initialUserVote={userVote} size="lg" />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold mb-2">{idea.title}</h1>
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400">

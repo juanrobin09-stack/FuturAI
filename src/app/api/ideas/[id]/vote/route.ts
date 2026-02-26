@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
 
 // POST /api/ideas/:id/vote
@@ -9,6 +9,15 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require authentication
+    const authId = await getAuthUserId();
+    if (!authId) {
+      return NextResponse.json(
+        { error: "Connectez-vous pour voter" },
+        { status: 401 }
+      );
+    }
+
     const user = await getCurrentUser();
 
     const body = await req.json();
@@ -23,6 +32,19 @@ export async function POST(
     if (!idea) {
       return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
     }
+
+    // Prevent self-voting
+    if (idea.authorId === user.id) {
+      return NextResponse.json(
+        { error: "Vous ne pouvez pas voter pour votre propre idee" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already has a vote (for points logic)
+    const existingVote = await prisma.vote.findUnique({
+      where: { userId_ideaId: { userId: user.id, ideaId: params.id } },
+    });
 
     if (value === 0) {
       // Remove vote
@@ -51,8 +73,8 @@ export async function POST(
     });
     const score = votes.reduce((sum, v) => sum + v.value, 0);
 
-    // Award points
-    if (value !== 0) {
+    // Award points only for NEW votes (not changes or removals)
+    if (value !== 0 && !existingVote) {
       // VOTE point to voter
       await prisma.user.update({
         where: { id: user.id },
@@ -60,16 +82,14 @@ export async function POST(
       }).catch(() => {});
 
       // RECEIVE_VOTE points to the idea author
-      if (idea.authorId !== user.id) {
-        await prisma.user.update({
-          where: { id: idea.authorId },
-          data: { points: { increment: 2 } },
-        }).catch(() => {});
-      }
+      await prisma.user.update({
+        where: { id: idea.authorId },
+        data: { points: { increment: 2 } },
+      }).catch(() => {});
     }
 
-    // Log activity for real-time feed
-    if (value !== 0) {
+    // Log activity for real-time feed (only new votes)
+    if (value !== 0 && !existingVote) {
       await prisma.activity.create({
         data: {
           type: "vote",

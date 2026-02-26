@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { checkAndAwardBadges } from "@/lib/badges";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 
 // GET /api/ideas - List ideas with filters
 export async function GET(req: NextRequest) {
@@ -12,6 +12,16 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search");
     const sort = searchParams.get("sort") || "recent";
     const hasLocation = searchParams.get("hasLocation");
+
+    // Get current user ID for vote tracking (optional, won't fail)
+    let currentUserId: string | null = null;
+    try {
+      const authId = await getAuthUserId();
+      if (authId) {
+        const user = await getCurrentUser();
+        currentUserId = user.id;
+      }
+    } catch {}
 
     const where: Record<string, unknown> = {};
 
@@ -32,17 +42,20 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         author: { select: { username: true, avatarUrl: true } },
-        votes: { select: { value: true } },
+        votes: { select: { value: true, userId: true } },
       },
       orderBy: sort === "top" ? { createdAt: "desc" } : { createdAt: "desc" },
       take: 50,
     });
 
-    // Compute scores and sort
+    // Compute scores, user votes, and sort
     const ideasWithScores = ideas
       .map((idea) => ({
         ...idea,
         score: idea.votes.reduce((sum, v) => sum + v.value, 0),
+        userVote: currentUserId
+          ? (idea.votes.find((v) => v.userId === currentUserId)?.value ?? 0)
+          : 0,
         createdAt: idea.createdAt.toISOString(),
         updatedAt: idea.updatedAt.toISOString(),
       }))

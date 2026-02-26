@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 import { POINTS } from "@/lib/points";
 
 // POST /api/challenges/:id/entries/:entryId/vote - Vote for a challenge entry
@@ -9,6 +9,15 @@ export async function POST(
   { params }: { params: { id: string; entryId: string } }
 ) {
   try {
+    // Require authentication
+    const authId = await getAuthUserId();
+    if (!authId) {
+      return NextResponse.json(
+        { error: "Connectez-vous pour voter" },
+        { status: 401 }
+      );
+    }
+
     const user = await getCurrentUser();
 
     // Verify challenge exists and is in voting phase

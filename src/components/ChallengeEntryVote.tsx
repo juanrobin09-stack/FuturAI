@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ThumbsUp } from "lucide-react";
 import { useLanguage } from "@/i18n";
+import toast from "react-hot-toast";
 
 interface ChallengeEntryVoteProps {
   challengeId: string;
@@ -37,9 +38,12 @@ export default function ChallengeEntryVote({
       if (res.ok) {
         setScore((prev) => prev + 1);
         setVoted(true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || t.vote.error);
       }
     } catch {
-      // Silently fail
+      toast.error(t.vote.error);
     } finally {
       setLoading(false);
     }
