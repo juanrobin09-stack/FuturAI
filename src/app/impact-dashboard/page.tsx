@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   BarChart3, Globe, Users, TrendingUp, Target, Loader2,
   Zap, ArrowUpRight, Layers, Activity, ChevronRight,
+  Crosshair, FlaskConical, Maximize, Trophy, Medal,
 } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
@@ -342,7 +343,8 @@ export default function ImpactDashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {top3.map((project, i) => {
                 const tierConf = IMPACT_TIERS[project.impact.tier];
-                const medal = ["🥇", "🥈", "🥉"][i];
+                const medalColors = ["text-yellow-400 bg-yellow-500/10 border-yellow-500/20", "text-gray-300 bg-gray-400/10 border-gray-400/20", "text-amber-600 bg-amber-600/10 border-amber-600/20"];
+                const rankNum = i + 1;
                 return (
                   <motion.div
                     key={project.id}
@@ -358,7 +360,9 @@ export default function ImpactDashboardPage() {
                       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-500 to-accent-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                       <div className="flex items-start gap-3 mb-4">
-                        <span className="text-2xl leading-none">{medal}</span>
+                        <div className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${medalColors[i]}`}>
+                          <span className="text-sm font-bold">{rankNum}</span>
+                        </div>
                         <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-white transition-colors">
                             {project.title}
@@ -601,7 +605,8 @@ export default function ImpactDashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               {
-                icon: "🎯",
+                Icon: Crosshair,
+                iconColor: "text-primary-400",
                 title: locale === "fr" ? "Sévérité du Problème" : "Problem Severity",
                 range: "1-10 → 0-25",
                 desc: locale === "fr"
@@ -610,7 +615,8 @@ export default function ImpactDashboardPage() {
                 color: "from-primary-500/10 to-transparent border-primary-500/10",
               },
               {
-                icon: "🌍",
+                Icon: Globe,
+                iconColor: "text-accent-400",
                 title: locale === "fr" ? "Portée Géographique" : "Geographic Reach",
                 range: "20%–100% → 0-25",
                 desc: locale === "fr"
@@ -619,7 +625,8 @@ export default function ImpactDashboardPage() {
                 color: "from-accent-500/10 to-transparent border-accent-500/10",
               },
               {
-                icon: "🔬",
+                Icon: FlaskConical,
+                iconColor: "text-blue-400",
                 title: locale === "fr" ? "Niveau de Maturité" : "Readiness Level",
                 range: "IRL 1-9 → 0-25",
                 desc: locale === "fr"
@@ -628,7 +635,8 @@ export default function ImpactDashboardPage() {
                 color: "from-blue-500/10 to-transparent border-blue-500/10",
               },
               {
-                icon: "🚀",
+                Icon: Maximize,
+                iconColor: "text-emerald-400",
                 title: locale === "fr" ? "Potentiel de Scalabilité" : "Scalability Potential",
                 range: "1-5 → 0-25",
                 desc: locale === "fr"
@@ -642,7 +650,7 @@ export default function ImpactDashboardPage() {
                 className={`bg-gradient-to-br ${dim.color} border rounded-xl p-4 space-y-1`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{dim.icon}</span>
+                  <dim.Icon className={`w-4 h-4 ${dim.iconColor}`} />
                   <p className="font-medium text-sm text-white">{dim.title}</p>
                 </div>
                 <p className="text-[11px] text-gray-500 font-mono">{dim.range}</p>

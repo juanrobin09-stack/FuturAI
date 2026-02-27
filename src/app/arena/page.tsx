@@ -1,7 +1,7 @@
 "use client";
 
 import SandboxSession from "@/components/SandboxSession";
-import { FlaskConical, Sparkles, Code, Image, Video, AlertTriangle, ArrowDown, Zap } from "lucide-react";
+import { FlaskConical, Sparkles, Code, Image, Video, AlertTriangle, ArrowDown, Zap, Gift, UserCheck, Radio } from "lucide-react";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
 import FadeIn from "@/components/animations/FadeIn";
@@ -89,12 +89,12 @@ export default function ArenaPage() {
             <FadeIn delay={0.5}>
               <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
                 {[
-                  { label: locale === "fr" ? "Gratuit" : "Free", icon: "✨" },
-                  { label: locale === "fr" ? "Sans inscription requise" : "No signup required", icon: "🔓" },
-                  { label: locale === "fr" ? "Résultats en temps réel" : "Real-time results", icon: "⚡" },
+                  { label: locale === "fr" ? "Gratuit" : "Free", Icon: Gift },
+                  { label: locale === "fr" ? "Sans inscription requise" : "No signup required", Icon: UserCheck },
+                  { label: locale === "fr" ? "Résultats en temps réel" : "Real-time results", Icon: Radio },
                 ].map((chip) => (
                   <span key={chip.label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 text-xs text-gray-400">
-                    <span>{chip.icon}</span>
+                    <chip.Icon className="w-3.5 h-3.5 text-gray-500" />
                     {chip.label}
                   </span>
                 ))}
