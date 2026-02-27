@@ -47,7 +47,6 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4">{t.footer.community}</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/manifesto" className="text-gray-400 hover:text-white transition-colors">{t.footer.manifesto}</Link></li>
-              <li><Link href="/manifesto" className="text-gray-400 hover:text-white transition-colors">{t.footer.about}</Link></li>
               <li><span className="text-gray-600 cursor-default">{t.footer.blog}</span></li>
               <li><span className="text-gray-600 cursor-default">{t.footer.newsletter}</span></li>
               <li><a href="mailto:contact@futurai.space" className="text-gray-400 hover:text-white transition-colors">{t.footer.contact}</a></li>
