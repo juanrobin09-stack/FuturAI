@@ -911,4 +911,42 @@ export const en: TranslationKeys = {
     help: "Help & Questions",
     news: "AI News",
   } as Record<string, string>,
+
+  // ─── SEO Metadata ───────────────────────────────────
+  seo: {
+    ideasTitle: "AI Ideas - FutureAI",
+    ideasDesc: "Explore AI innovation ideas submitted by the global FutureAI community.",
+    projectsTitle: "Collaborative AI Projects - FutureAI",
+    projectsDesc: "Discover and join collaborative AI projects on FutureAI.",
+    challengesTitle: "AI Challenges - FutureAI",
+    challengesDesc: "Participate in AI challenges and earn recognition on FutureAI.",
+    arenaTitle: "AI Arena - FutureAI",
+    arenaDesc: "9 AI providers, 3 generation modes. Collaborate in real-time on FutureAI.",
+    forumTitle: "AI Forum - FutureAI",
+    forumDesc: "Discuss, ask questions and share your knowledge about AI.",
+    leaderboardTitle: "Leaderboard - FutureAI",
+    leaderboardDesc: "Discover the top contributors of the FutureAI community.",
+  },
+
+  // ─── Social Sharing ─────────────────────────────────
+  share: {
+    shareOn: "Share on",
+    copyLink: "Copy link",
+    linkCopied: "Link copied!",
+    twitter: "Twitter/X",
+    linkedin: "LinkedIn",
+  },
+
+  // ─── Welcome Onboarding ─────────────────────────────
+  welcome: {
+    title: "Welcome to FutureAI!",
+    subtitle: "The global AI collaboration platform. Where would you like to start?",
+    pathIdea: "Submit an Idea",
+    pathIdeaDesc: "Share an AI innovation idea with the global community.",
+    pathProject: "Join a Project",
+    pathProjectDesc: "Collaborate with other innovators on an existing project.",
+    pathArena: "Try the Arena",
+    pathArenaDesc: "Test 9 AI providers in real-time: code, image, video.",
+    skip: "Explore freely",
+  },
 };

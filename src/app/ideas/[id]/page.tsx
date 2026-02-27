@@ -1,9 +1,11 @@
+import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import VoteButton from "@/components/VoteButton";
 import CategoryBadge from "@/components/CategoryBadge";
 import SandboxAI from "@/components/SandboxAI";
-import { MapPin, Clock, User, ArrowLeft } from "lucide-react";
+import ShareButtons from "@/components/ShareButtons";
+import { MapPin, Clock, User, ArrowLeft, Share2 } from "lucide-react";
 import { timeAgo, formatDate, getCategoryLabel } from "@/lib/utils";
 import Link from "next/link";
 import { getServerTranslations } from "@/i18n/server";
@@ -11,6 +13,24 @@ import { getAuthUserId, getCurrentUser } from "@/lib/auth";
 
 interface Props {
   params: { id: string };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const idea = await getIdea(params.id);
+  if (!idea) return {};
+  const desc = idea.description.slice(0, 160);
+  return {
+    title: idea.title,
+    description: desc,
+    openGraph: {
+      title: idea.title,
+      description: desc,
+      url: `https://futurai.space/ideas/${idea.id}`,
+      type: "article",
+      images: idea.imageUrl ? [{ url: idea.imageUrl }] : ["/og-image.png"],
+    },
+    twitter: { card: "summary_large_image", title: idea.title, description: desc },
+  };
 }
 
 async function getIdea(id: string) {
@@ -185,6 +205,17 @@ export default async function IdeaDetailPage({ params }: Props) {
               </Link>
             </div>
           )}
+
+          <div className="card">
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-primary-400" />
+              {t.share.shareOn}
+            </h3>
+            <ShareButtons
+              title={idea.title}
+              url={`https://futurai.space/ideas/${idea.id}`}
+            />
+          </div>
         </div>
       </div>
     </div>

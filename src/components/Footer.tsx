@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Github, Twitter, Globe } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useLanguage } from "@/i18n";
 import FutureAILogo from "./FutureAILogo";
 
@@ -22,15 +22,13 @@ export default function Footer() {
               {t.footer.description}
             </p>
             <div className="flex gap-4 mt-4">
-              <span className="text-gray-600 cursor-default" title={locale === "fr" ? "Bientot disponible" : "Coming soon"}>
-                <Twitter className="w-5 h-5" />
-              </span>
-              <span className="text-gray-600 cursor-default" title={locale === "fr" ? "Bientot disponible" : "Coming soon"}>
-                <Github className="w-5 h-5" />
-              </span>
-              <span className="text-gray-600 cursor-default" title={locale === "fr" ? "Bientot disponible" : "Coming soon"}>
-                <Globe className="w-5 h-5" />
-              </span>
+              <a
+                href="mailto:contact@futurai.space"
+                className="text-gray-400 hover:text-white transition-colors"
+                title="Contact"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
             </div>
           </div>
 
@@ -52,7 +50,7 @@ export default function Footer() {
               <li><Link href="/manifesto" className="text-gray-400 hover:text-white transition-colors">{t.footer.about}</Link></li>
               <li><span className="text-gray-600 cursor-default">{t.footer.blog}</span></li>
               <li><span className="text-gray-600 cursor-default">{t.footer.newsletter}</span></li>
-              <li><span className="text-gray-600 cursor-default">{t.footer.contact}</span></li>
+              <li><a href="mailto:contact@futurai.space" className="text-gray-400 hover:text-white transition-colors">{t.footer.contact}</a></li>
               <li><Link href="/public-methodology" className="text-gray-400 hover:text-white transition-colors">{t.methodology.title}</Link></li>
               <li><Link href="/governance" className="text-gray-400 hover:text-white transition-colors">{locale === "fr" ? "Gouvernance" : "Governance"}</Link></li>
               <li><Link href="/impact-dashboard" className="text-gray-400 hover:text-white transition-colors">{locale === "fr" ? "Tableau d'impact" : "Impact Dashboard"}</Link></li>

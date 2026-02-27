@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import CategoryBadge from "@/components/CategoryBadge";
 import StatusBadge from "@/components/StatusBadge";
+import ShareButtons from "@/components/ShareButtons";
 import { getServerTranslations } from "@/i18n/server";
 import { getAuthUserId, getCurrentUser } from "@/lib/auth";
 import {
@@ -18,6 +20,7 @@ import {
   FlaskConical,
   UserPlus,
   Tag,
+  Share2,
 } from "lucide-react";
 import { timeAgo, formatDate } from "@/lib/utils";
 import { getContributionPoints } from "@/lib/points";
@@ -26,6 +29,24 @@ import ProjectPreview from "./ProjectPreview";
 
 interface Props {
   params: { id: string };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const project = await getProject(params.id);
+  if (!project) return {};
+  const desc = (project.description || "").slice(0, 160);
+  return {
+    title: project.title,
+    description: desc,
+    openGraph: {
+      title: project.title,
+      description: desc,
+      url: `https://futurai.space/projects/${project.id}`,
+      type: "article",
+      images: project.imageUrl ? [{ url: project.imageUrl }] : ["/og-image.png"],
+    },
+    twitter: { card: "summary_large_image", title: project.title, description: desc },
+  };
 }
 
 async function getProject(id: string) {
@@ -375,6 +396,18 @@ export default async function ProjectDetailPage({ params }: Props) {
               </Link>
             </div>
           )}
+
+          {/* Share */}
+          <div className="card">
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-primary-400" />
+              {t.share.shareOn}
+            </h3>
+            <ShareButtons
+              title={project.title}
+              url={`https://futurai.space/projects/${project.id}`}
+            />
+          </div>
         </div>
       </div>
     </div>

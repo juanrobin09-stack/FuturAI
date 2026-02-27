@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import ShareButtons from "@/components/ShareButtons";
 import {
   ArrowLeft,
   Trophy,
@@ -15,6 +17,7 @@ import {
   BookOpen,
   Shield,
   Globe,
+  Share2,
 } from "lucide-react";
 import { formatDate, timeAgo } from "@/lib/utils";
 import ChallengeCountdown from "./ChallengeCountdown";
@@ -26,6 +29,23 @@ import { getCurrentUser } from "@/lib/auth";
 
 interface Props {
   params: { id: string };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const challenge = await getChallenge(params.id);
+  if (!challenge) return {};
+  const desc = challenge.description.slice(0, 160);
+  return {
+    title: challenge.title,
+    description: desc,
+    openGraph: {
+      title: challenge.title,
+      description: desc,
+      url: `https://futurai.space/challenges/${challenge.id}`,
+      type: "article",
+    },
+    twitter: { card: "summary_large_image", title: challenge.title, description: desc },
+  };
 }
 
 async function getChallenge(id: string) {
@@ -522,6 +542,19 @@ export default async function ChallengeDetailPage({ params }: Props) {
               </div>
             </div>
           )}
+
+          {/* Share */}
+          <div className="card">
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-primary-400" />
+              {t.share.shareOn}
+            </h3>
+            <ShareButtons
+              title={challenge.title}
+              url={`https://futurai.space/challenges/${challenge.id}`}
+              hashtags={["FutureAI", "AIChallenge"]}
+            />
+          </div>
         </div>
       </div>
     </div>

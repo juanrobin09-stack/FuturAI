@@ -909,6 +909,44 @@ export const fr = {
     help: "Aide & Questions",
     news: "Actualités IA",
   } as Record<string, string>,
+
+  // ─── SEO Metadata ───────────────────────────────────
+  seo: {
+    ideasTitle: "Idees IA - FutureAI",
+    ideasDesc: "Explorez les idees d'innovation IA soumises par la communaute mondiale FutureAI.",
+    projectsTitle: "Projets IA collaboratifs - FutureAI",
+    projectsDesc: "Decouvrez et rejoignez des projets IA collaboratifs sur FutureAI.",
+    challengesTitle: "Challenges IA - FutureAI",
+    challengesDesc: "Participez aux challenges IA et gagnez en reconnaissance sur FutureAI.",
+    arenaTitle: "Arena IA - FutureAI",
+    arenaDesc: "9 providers IA, 3 modes de generation. Collaborez en temps reel sur FutureAI.",
+    forumTitle: "Forum IA - FutureAI",
+    forumDesc: "Discutez, posez vos questions et partagez vos connaissances sur l'IA.",
+    leaderboardTitle: "Classement - FutureAI",
+    leaderboardDesc: "Decouvrez les meilleurs contributeurs de la communaute FutureAI.",
+  },
+
+  // ─── Social Sharing ─────────────────────────────────
+  share: {
+    shareOn: "Partager sur",
+    copyLink: "Copier le lien",
+    linkCopied: "Lien copie !",
+    twitter: "Twitter/X",
+    linkedin: "LinkedIn",
+  },
+
+  // ─── Welcome Onboarding ─────────────────────────────
+  welcome: {
+    title: "Bienvenue sur FutureAI !",
+    subtitle: "La plateforme mondiale de collaboration IA. Par ou voulez-vous commencer ?",
+    pathIdea: "Soumettre une idee",
+    pathIdeaDesc: "Partagez une idee d'innovation IA avec la communaute.",
+    pathProject: "Rejoindre un projet",
+    pathProjectDesc: "Collaborez avec d'autres innovateurs sur un projet existant.",
+    pathArena: "Essayer l'Arena",
+    pathArenaDesc: "Testez 9 providers IA en temps reel : code, image, video.",
+    skip: "Explorer librement",
+  },
 };
 
 export type TranslationKeys = typeof fr;
