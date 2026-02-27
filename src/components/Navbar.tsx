@@ -219,16 +219,6 @@ export default function Navbar() {
                   </Link>
                 ))}
               </div>
-              <div className="border-t border-white/5 py-3 px-4">
-                <Link
-                  href="/ideas/submit"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-sm text-accent-400 font-medium min-h-[44px]"
-                >
-                  <Lightbulb className="w-4 h-4" />
-                  {t.nav.submitIdea}
-                </Link>
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
