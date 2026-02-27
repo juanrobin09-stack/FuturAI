@@ -77,13 +77,13 @@ export default function ShareButtons({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
       <a
         href={twitterUrl}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => handleShareClick("twitter")}
-        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
+        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
       >
         {t.share.twitter}
       </a>
@@ -92,13 +92,13 @@ export default function ShareButtons({
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => handleShareClick("linkedin")}
-        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600/10 text-blue-300 hover:bg-blue-600/20 transition-colors"
+        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-medium bg-blue-600/10 text-blue-300 hover:bg-blue-600/20 transition-colors"
       >
         {t.share.linkedin}
       </a>
       <button
         onClick={handleCopyLink}
-        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-gray-400 hover:bg-white/10 transition-colors flex items-center gap-1"
+        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-medium bg-white/5 text-gray-400 hover:bg-white/10 transition-colors flex items-center gap-1"
       >
         {copied ? (
           <Check className="w-3 h-3 text-green-400" />

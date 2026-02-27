@@ -233,10 +233,10 @@ export default function Navbar() {
           </div>
 
           {/* Auth + Notifications + Language */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0">
             <StreakDisplay streak={userStreak} />
             <NotificationBell />
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <LanguageSwitcher />
             </div>
             <AuthSection />

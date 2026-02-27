@@ -96,12 +96,12 @@ export default function ActivityHeatmap({ userId }: ActivityHeatmapProps) {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <Activity className="w-4 h-4 text-primary-400" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+        <h3 className="text-xs sm:text-sm font-semibold text-white flex items-center gap-2">
+          <Activity className="w-4 h-4 text-primary-400 shrink-0" />
           {t.engagement.activityTitle}
         </h3>
-        <div className="flex items-center gap-3 text-xs text-gray-500">
+        <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-gray-500">
           <span>
             <strong className="text-gray-300">{data.totalThisWeek}</strong>{" "}
             {t.engagement.actionsLabel} {t.engagement.activityThisWeek}
@@ -160,7 +160,7 @@ export default function ActivityHeatmap({ userId }: ActivityHeatmapProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-end gap-1 mt-3 text-[10px] text-gray-600">
+      <div className="flex items-center justify-center sm:justify-end gap-0.5 sm:gap-1 mt-3 text-[8px] sm:text-[10px] text-gray-600 flex-wrap">
         <span>{t.engagement.lessActive}</span>
         {COLOR_SCALE.map((c, i) => (
           <svg key={i} width={10} height={10}>

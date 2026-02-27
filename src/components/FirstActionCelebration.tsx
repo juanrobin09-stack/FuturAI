@@ -87,7 +87,7 @@ export default function FirstActionCelebration({ show, actionType, onClose }: Fi
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.8, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative p-8 rounded-2xl bg-gray-900/95 border border-white/10 shadow-2xl text-center max-w-sm mx-4"
+            className="relative p-6 sm:p-8 rounded-2xl bg-gray-900/95 border border-white/10 shadow-2xl text-center max-w-sm mx-4"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sparkle ring */}

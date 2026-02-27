@@ -31,12 +31,12 @@ export default function ProfileCompletionBar({ completion, onFieldClick }: Profi
 
   return (
     <div className="card mb-6 border border-primary-500/10 bg-gradient-to-r from-primary-500/5 to-accent-500/5">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-primary-400" />
-          {t.engagement.profileCompletion}
+      <div className="flex items-center justify-between mb-3 gap-2">
+        <h3 className="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 min-w-0">
+          <CheckCircle2 className="w-4 h-4 text-primary-400 shrink-0" />
+          <span className="truncate">{t.engagement.profileCompletion}</span>
         </h3>
-        <span className="text-xs font-bold text-primary-400">{completion.percent}%</span>
+        <span className="text-xs font-bold text-primary-400 shrink-0">{completion.percent}%</span>
       </div>
 
       {/* Progress bar */}
@@ -50,7 +50,7 @@ export default function ProfileCompletionBar({ completion, onFieldClick }: Profi
       </div>
 
       {/* Missing fields */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2">
         {completion.missing.map((field) => {
           const config = FIELD_CONFIG[field];
           if (!config) return null;
@@ -60,7 +60,7 @@ export default function ProfileCompletionBar({ completion, onFieldClick }: Profi
             <button
               key={field}
               onClick={() => onFieldClick?.(field)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 bg-white/5 border border-white/5 hover:border-primary-500/30 hover:text-primary-300 transition-all"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-medium text-gray-400 bg-white/5 border border-white/5 hover:border-primary-500/30 hover:text-primary-300 transition-all"
             >
               <Icon className="w-3 h-3" />
               {label}

@@ -22,8 +22,8 @@ export async function GET(req: NextRequest) {
 
     // Update login streak (awards daily points, non-blocking on error)
     const streakInfo = await updateLoginStreak(user.id).catch(() => ({
-      currentStreak: user.currentStreak,
-      longestStreak: user.longestStreak,
+      currentStreak: (user as Record<string, unknown>).currentStreak as number ?? 0,
+      longestStreak: (user as Record<string, unknown>).longestStreak as number ?? 0,
       pointsAwarded: 0,
       isNewDay: false,
     }));

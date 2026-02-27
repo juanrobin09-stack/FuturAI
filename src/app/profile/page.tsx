@@ -686,8 +686,8 @@ export default function ProfilePage() {
                 { label: t.impactScore.collaborationIndex, value: profile.impactBreakdown.collaborationIndex, color: "bg-accent-500" },
                 { label: t.impactScore.solutionMaturity, value: profile.impactBreakdown.solutionMaturity, color: "bg-emerald-500" },
               ].map((item) => (
-                <div key={item.label} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400 w-40 text-right shrink-0">{item.label}</span>
+                <div key={item.label} className="flex items-center gap-2 sm:gap-3">
+                  <span className="text-[10px] sm:text-xs text-gray-400 w-20 sm:w-40 text-right shrink-0">{item.label}</span>
                   <div className="flex-1 bg-white/5 rounded-full h-5 overflow-hidden">
                     <div
                       className={`${item.color} h-full rounded-full flex items-center justify-end pr-2 transition-all`}
