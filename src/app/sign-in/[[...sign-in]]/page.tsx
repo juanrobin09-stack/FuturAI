@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/i18n";
 import FutureAILogo from "@/components/FutureAILogo";
+import { clerkDarkTheme } from "@/lib/clerk-theme";
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
 const isClerkAvailable =
@@ -32,35 +33,10 @@ export default function SignInPage() {
         </Link>
         <p className="text-sm text-gray-500 mb-8">{t.auth.signInSubtitle || "Connecte-toi pour continuer"}</p>
 
-        {/* Clerk form */}
-        <div className="w-full max-w-[440px]">
+        {/* Clerk form — centered */}
+        <div className="w-full flex justify-center">
           <ClerkSignIn
-            appearance={{
-              elements: {
-                rootBox: "w-full",
-                card: "!bg-gray-900/80 !backdrop-blur-xl !border !border-white/10 !shadow-2xl !shadow-black/40 !rounded-2xl",
-                headerTitle: "!text-white !text-xl",
-                headerSubtitle: "!text-gray-400",
-                socialButtonsBlockButton:
-                  "!bg-gray-800/80 !border-white/10 !text-white hover:!bg-gray-700 !rounded-xl !transition-all",
-                socialButtonsBlockButtonText: "!text-sm !font-medium",
-                dividerLine: "!bg-white/10",
-                dividerText: "!text-gray-500",
-                formFieldLabel: "!text-gray-300 !text-sm",
-                formFieldInput:
-                  "!bg-gray-800/60 !border-white/10 !text-white !placeholder-gray-500 !rounded-xl focus:!border-primary-500/50 focus:!ring-primary-500/20",
-                footerAction: "!text-gray-400",
-                footerActionLink: "!text-primary-400 hover:!text-primary-300 !font-medium",
-                formButtonPrimary:
-                  "!bg-gradient-to-r !from-primary-500 !to-primary-600 hover:!from-primary-400 hover:!to-primary-500 !rounded-xl !text-sm !font-semibold !shadow-lg !shadow-primary-500/20 !transition-all",
-                identityPreview: "!bg-gray-800/60 !border-white/10",
-                identityPreviewText: "!text-gray-300",
-                identityPreviewEditButton: "!text-primary-400",
-                formFieldAction: "!text-primary-400",
-                alertText: "!text-red-300",
-                formFieldErrorText: "!text-red-400",
-              },
-            }}
+            appearance={clerkDarkTheme}
             routing="path"
             path="/sign-in"
             signUpUrl="/sign-up"

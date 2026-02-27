@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { LogIn, UserPlus } from "lucide-react";
 import { useLanguage } from "@/i18n";
+import { clerkDarkTheme } from "@/lib/clerk-theme";
 
 /**
  * Client-only auth section (loaded via dynamic import with ssr:false).
@@ -185,7 +186,13 @@ export default function ClerkAuthSection() {
         {clerkReady && ClerkUserButton && (
           <ClerkUserButton
             afterSignOutUrl="/"
-            appearance={{ elements: { avatarBox: "w-8 h-8 rounded-lg" } }}
+            appearance={{
+              variables: clerkDarkTheme.variables,
+              elements: {
+                ...clerkDarkTheme.elements,
+                avatarBox: "w-8 h-8 rounded-lg",
+              },
+            }}
           />
         )}
       </>
