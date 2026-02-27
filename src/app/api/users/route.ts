@@ -27,12 +27,18 @@ export async function GET(req: NextRequest) {
       }
 
       const country = searchParams.get("country");
-      const whereClause: Record<string, unknown> = {};
+      const whereClause: Record<string, unknown> = {
+        // Exclude demo/seed users and auto-created placeholders
+        AND: [
+          { NOT: { email: { endsWith: "@futureai.dev" } } },
+          { NOT: { email: { endsWith: "@placeholder.dev" } } },
+        ],
+      };
       if (userIds) whereClause.id = { in: userIds };
       if (country) whereClause.country = country;
 
       const users = await prisma.user.findMany({
-        where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+        where: whereClause,
         orderBy: { points: "desc" },
         take: 50,
         include: {
@@ -104,9 +110,17 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Calculate global rank (number of users with more points + 1)
+    // Exclude demo/seed users from rank calculations
+    const realUserFilter = {
+      AND: [
+        { NOT: { email: { endsWith: "@futureai.dev" } } },
+        { NOT: { email: { endsWith: "@placeholder.dev" } } },
+      ],
+    };
+
+    // Calculate global rank (number of real users with more points + 1)
     const globalRank = (await prisma.user.count({
-      where: { points: { gt: user.points } },
+      where: { ...realUserFilter, points: { gt: user.points } },
     })) + 1;
 
     // Calculate country rank if user has a country
@@ -114,6 +128,7 @@ export async function GET(req: NextRequest) {
     if (user.country) {
       countryRank = (await prisma.user.count({
         where: {
+          ...realUserFilter,
           country: user.country,
           points: { gt: user.points },
         },

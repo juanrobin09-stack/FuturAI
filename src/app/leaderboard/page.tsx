@@ -245,12 +245,13 @@ export default function LeaderboardPage() {
                 )}
 
                 <StaggerContainer className="space-y-2">
-                  {users.map((user, i) => {
+                  {(users.length >= 3 ? users.slice(3) : users).map((user, i) => {
+                    const rank = users.length >= 3 ? i + 4 : i + 1;
                     const { level } = getLevelFromPoints(user.points, t.levels);
                     return (
                       <StaggerItem key={user.id}>
                         <motion.div layout className="card flex items-center gap-4 py-4">
-                          <span className="w-8 text-center font-bold text-gray-500 shrink-0">{i + 1}</span>
+                          <span className="w-8 text-center font-bold text-gray-500 shrink-0">{rank}</span>
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
                             {user.username.charAt(0).toUpperCase()}
                           </div>
