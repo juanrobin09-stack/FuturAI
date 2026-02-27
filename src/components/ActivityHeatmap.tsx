@@ -18,6 +18,7 @@ interface HeatmapData {
 
 interface ActivityHeatmapProps {
   userId: string;
+  refreshKey?: number;
 }
 
 const COLOR_SCALE = [
@@ -41,7 +42,7 @@ const GAP = 2;
 const ROWS = 7;
 const COLS = 13; // ~91 days
 
-export default function ActivityHeatmap({ userId }: ActivityHeatmapProps) {
+export default function ActivityHeatmap({ userId, refreshKey = 0 }: ActivityHeatmapProps) {
   const { t } = useLanguage();
   const [data, setData] = useState<HeatmapData | null>(null);
   const [hoveredDay, setHoveredDay] = useState<HeatmapDay | null>(null);
@@ -51,7 +52,7 @@ export default function ActivityHeatmap({ userId }: ActivityHeatmapProps) {
       .then((r) => r.json())
       .then(setData)
       .catch(() => {});
-  }, [userId]);
+  }, [userId, refreshKey]);
 
   if (!data) return null;
 

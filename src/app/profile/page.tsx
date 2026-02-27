@@ -102,6 +102,9 @@ export default function ProfilePage() {
   const [editWebsite, setEditWebsite] = useState("");
   const [savingSocial, setSavingSocial] = useState(false);
 
+  // Refresh counter — increment to trigger child refetch (heatmap, etc.)
+  const [refreshVersion, setRefreshVersion] = useState(0);
+
   const saveUsername = async () => {
     if (!editUsername.trim() || savingProfile) return;
     setSavingProfile(true);
@@ -113,9 +116,11 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setProfile((p) => p ? { ...p, username: data.user.username } : p);
+        setProfile((p) => p ? { ...p, username: data.user.username, profileCompletion: data.user.profileCompletion ?? p.profileCompletion } : p);
         setEditingUsername(false);
+        setRefreshVersion((v) => v + 1);
         toast.success(t.profile.usernameSaved || "Username updated!");
+        if (data.user.profileBonusAwarded) toast.success("+ 50 pts !", { icon: "🎉" });
       } else {
         toast.error(data.error || t.common.error);
       }
@@ -137,9 +142,11 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setProfile((p) => p ? { ...p, country: data.user.country } : p);
+        setProfile((p) => p ? { ...p, country: data.user.country, profileCompletion: data.user.profileCompletion ?? p.profileCompletion } : p);
         setEditingCountry(false);
+        setRefreshVersion((v) => v + 1);
         toast.success(t.profile.countrySaved || "Country updated!");
+        if (data.user.profileBonusAwarded) toast.success("+ 50 pts !", { icon: "🎉" });
       } else {
         toast.error(data.error || t.common.error);
       }
@@ -161,9 +168,11 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setProfile((p) => p ? { ...p, bio: data.user.bio } : p);
+        setProfile((p) => p ? { ...p, bio: data.user.bio, profileCompletion: data.user.profileCompletion ?? p.profileCompletion } : p);
         setEditingBio(false);
+        setRefreshVersion((v) => v + 1);
         toast.success(t.profile.bioSaved || "Bio updated!");
+        if (data.user.profileBonusAwarded) toast.success("+ 50 pts !", { icon: "🎉" });
       } else {
         toast.error(data.error || t.common.error);
       }
@@ -185,9 +194,11 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setProfile((p) => p ? { ...p, avatarUrl: data.user.avatarUrl } : p);
+        setProfile((p) => p ? { ...p, avatarUrl: data.user.avatarUrl, profileCompletion: data.user.profileCompletion ?? p.profileCompletion } : p);
         setEditingAvatar(false);
+        setRefreshVersion((v) => v + 1);
         toast.success(t.profile.avatarSaved || "Photo updated!");
+        if (data.user.profileBonusAwarded) toast.success("+ 50 pts !", { icon: "🎉" });
       } else {
         toast.error(data.error || t.common.error);
       }
@@ -218,9 +229,14 @@ export default function ProfilePage() {
           githubUrl: data.user.githubUrl,
           linkedinUrl: data.user.linkedinUrl,
           websiteUrl: data.user.websiteUrl,
+          profileCompletion: data.user.profileCompletion ?? p.profileCompletion,
         } : p);
         setEditingSocial(false);
+        setRefreshVersion((v) => v + 1);
         toast.success(t.profile.socialSaved || "Links updated!");
+        if (data.user.profileBonusAwarded) {
+          toast.success("+ 50 pts — Profil complet !", { icon: "🎉" });
+        }
       } else {
         toast.error(data.error || t.common.error);
       }
@@ -638,12 +654,27 @@ export default function ProfilePage() {
 
         {/* Profile Completion Bar */}
         {profile.profileCompletion && !profile.profileCompletion.complete && (
-          <ProfileCompletionBar completion={profile.profileCompletion} />
+          <ProfileCompletionBar
+            completion={profile.profileCompletion}
+            onFieldClick={(field) => {
+              if (field === "bio") { setEditBio(profile.bio || ""); setEditingBio(true); }
+              else if (field === "country") { setEditCountry(profile.country || ""); setEditingCountry(true); }
+              else if (field === "avatarUrl") { setEditAvatarUrl(profile.avatarUrl || ""); setEditingAvatar(true); }
+              else if (field === "socialLink") {
+                setEditGithub(profile.githubUrl || "");
+                setEditLinkedin(profile.linkedinUrl || "");
+                setEditWebsite(profile.websiteUrl || "");
+                setEditingSocial(true);
+              } else if (field === "username") { setEditUsername(profile.username); setEditingUsername(true); }
+              // Scroll to top where the edit fields are
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
         )}
 
         {/* Activity Heatmap */}
         <div className="mb-8">
-          <ActivityHeatmap userId={profile.id} />
+          <ActivityHeatmap userId={profile.id} refreshKey={refreshVersion} />
         </div>
 
         {/* Performance Dashboard */}
