@@ -440,6 +440,8 @@ export const en: TranslationKeys = {
   auth: {
     signIn: "Sign in",
     signUp: "Sign up",
+    signInSubtitle: "Sign in to continue",
+    signUpSubtitle: "Join the FutureAI community",
     clerkNotConfigured: "Clerk authentication is not configured yet. Add your API keys in .env.local to enable sign in.",
     getKeysAt: "Get your keys at",
     backHome: "Back to home",

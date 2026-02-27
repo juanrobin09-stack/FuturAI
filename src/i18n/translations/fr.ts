@@ -438,6 +438,8 @@ export const fr = {
   auth: {
     signIn: "Connexion",
     signUp: "Inscription",
+    signInSubtitle: "Connecte-toi pour continuer",
+    signUpSubtitle: "Rejoins la communaut\u00e9 FutureAI",
     clerkNotConfigured: "L\u2019authentification Clerk n\u2019est pas encore configur\u00e9e. Ajoutez vos cl\u00e9s API dans .env.local pour activer la connexion.",
     getKeysAt: "Obtenez vos cl\u00e9s sur",
     backHome: "Retour \u00e0 l\u2019accueil",
