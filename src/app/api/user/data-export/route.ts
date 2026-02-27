@@ -1,10 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { applyRateLimit } from "@/lib/rate-limit";
+import { createAuditLog } from "@/lib/audit";
 
-// GET /api/user/data-export — Export all user data as JSON
-export async function GET() {
+// GET /api/user/data-export — Export all user data as JSON (GDPR Article 20)
+export async function GET(req: NextRequest) {
   try {
+    // Rate limit (auth tier — sensitive data export)
+    const blocked = applyRateLimit(req, "auth");
+    if (blocked) return blocked;
+
     const user = await getCurrentUser();
 
     const [
@@ -69,6 +75,14 @@ export async function GET() {
       arenaSessions: sandboxSessions,
       activities,
     };
+
+    // Audit log — data export (GDPR compliance)
+    await createAuditLog({
+      action: "data_export",
+      targetType: "export",
+      targetId: user.id,
+      performedById: user.id,
+    });
 
     return new NextResponse(JSON.stringify(exportData, null, 2), {
       status: 200,

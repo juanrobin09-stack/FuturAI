@@ -3,13 +3,27 @@ import { FileText } from "lucide-react";
 
 export default function TermsPage() {
   const { t } = getServerTranslations();
+  const te = t.terms;
 
   const sections = [
-    { title: t.terms.acceptance, content: t.terms.acceptanceDesc },
-    { title: t.terms.userResponsibilities, content: t.terms.userResponsibilitiesDesc },
-    { title: t.terms.contentOwnership, content: t.terms.contentOwnershipDesc },
-    { title: t.terms.apiKeys, content: t.terms.apiKeysDesc },
-    { title: t.terms.termination, content: t.terms.terminationDesc },
+    { title: te.acceptanceTitle, content: te.acceptanceDesc },
+    { title: te.eligibilityTitle, content: te.eligibilityDesc },
+    { title: te.accountTitle, content: te.accountDesc },
+    { title: te.userResponsibilitiesTitle, content: te.userResponsibilitiesDesc },
+    { title: te.contentOwnershipTitle, content: te.contentOwnershipDesc },
+    { title: te.platformLicenseTitle, content: te.platformLicenseDesc },
+    { title: te.apiKeysTitle, content: te.apiKeysDesc },
+    { title: te.prohibitedConductTitle, content: te.prohibitedConductDesc },
+    { title: te.aiGeneratedContentTitle, content: te.aiGeneratedContentDesc },
+    { title: te.privacyTitle, content: te.privacyDesc },
+    { title: te.disclaimersTitle, content: te.disclaimersDesc },
+    { title: te.limitationTitle, content: te.limitationDesc },
+    { title: te.indemnificationTitle, content: te.indemnificationDesc },
+    { title: te.terminationTitle, content: te.terminationDesc },
+    { title: te.internationalTitle, content: te.internationalDesc },
+    { title: te.governingLawTitle, content: te.governingLawDesc },
+    { title: te.changesTitle, content: te.changesDesc },
+    { title: te.contactTitle, content: te.contactDesc },
   ];
 
   return (
@@ -19,19 +33,26 @@ export default function TermsPage() {
           <FileText className="w-8 h-8 text-accent-400" />
         </div>
         <h1 className="text-3xl font-bold">
-          <span className="gradient-text">{t.terms.title}</span>
+          <span className="gradient-text">{te.title}</span>
         </h1>
-        <p className="text-gray-400 mt-2">{t.terms.subtitle}</p>
+        <p className="text-gray-400 mt-2">{te.subtitle}</p>
         <p className="text-xs text-gray-500 mt-1">
-          {t.terms.lastUpdated}: 2026-02-01
+          {te.lastUpdated}: 2026-02-27
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          {te.effectiveDate}: 2026-03-01
         </p>
       </div>
 
       <div className="space-y-6">
-        {sections.map((section) => (
-          <div key={section.title} className="card">
-            <h2 className="text-lg font-semibold mb-3">{section.title}</h2>
-            <p className="text-sm text-gray-400 leading-relaxed">{section.content}</p>
+        {sections.map((section, index) => (
+          <div key={index} className="card">
+            <h2 className="text-lg font-semibold mb-3">
+              {index + 1}. {section.title}
+            </h2>
+            <div className="text-sm text-gray-400 leading-relaxed whitespace-pre-line">
+              {section.content}
+            </div>
           </div>
         ))}
       </div>

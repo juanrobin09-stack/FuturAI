@@ -48,7 +48,10 @@ export async function POST(req: NextRequest) {
       console.error(`[Arena] AI failed for ${provider}:`, result.error, result.rawError);
       return NextResponse.json({
         error: result.error,
-        rawError: result.rawError,
+        // Only expose raw error details in development
+        ...(process.env.NODE_ENV !== "production" && result.rawError
+          ? { rawError: result.rawError }
+          : {}),
         provider: result.provider,
         durationMs: result.durationMs,
       }, { status: result.error === "no_api_key" ? 400 : 502 });

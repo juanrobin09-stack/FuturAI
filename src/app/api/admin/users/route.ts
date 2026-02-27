@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import type { UserRole } from "@/lib/auth";
+import { applyRateLimit } from "@/lib/rate-limit";
+import { isValidId } from "@/lib/validation";
+import { createAuditLog } from "@/lib/audit";
 
 const VALID_ROLES: UserRole[] = [
   "USER",
@@ -11,8 +14,12 @@ const VALID_ROLES: UserRole[] = [
 ];
 
 // GET /api/admin/users — List all users with roles (admin only)
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Rate limit (auth tier — sensitive admin endpoint)
+    const blocked = applyRateLimit(req, "auth");
+    if (blocked) return blocked;
+
     await requireRole("ADMIN");
 
     const users = await prisma.user.findMany({
@@ -52,6 +59,10 @@ export async function GET() {
 // PATCH /api/admin/users — Update a user's role (admin only)
 export async function PATCH(req: NextRequest) {
   try {
+    // Rate limit (auth tier — sensitive admin endpoint)
+    const blocked = applyRateLimit(req, "auth");
+    if (blocked) return blocked;
+
     await requireRole("ADMIN");
 
     const body = await req.json();
@@ -60,6 +71,17 @@ export async function PATCH(req: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "userId required" }, { status: 400 });
     }
+
+    // Validate userId format
+    if (!isValidId(userId)) {
+      return NextResponse.json({ error: "Invalid userId format" }, { status: 400 });
+    }
+
+    // Capture previous state for audit log
+    const previousState = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true, verified: true },
+    });
 
     const updateData: Record<string, unknown> = {};
 
@@ -93,6 +115,21 @@ export async function PATCH(req: NextRequest) {
         email: true,
         role: true,
         verified: true,
+      },
+    });
+
+    // Audit log
+    const admin = await requireRole("ADMIN");
+    await createAuditLog({
+      action: role ? "role_changed" : "user_verified",
+      targetType: "user",
+      targetId: userId,
+      performedById: admin.id,
+      metadata: {
+        previousRole: previousState?.role,
+        newRole: role || undefined,
+        previousVerified: previousState?.verified,
+        newVerified: verified !== undefined ? verified : undefined,
       },
     });
 

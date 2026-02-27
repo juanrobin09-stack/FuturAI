@@ -519,8 +519,8 @@ model AuditLog {
   metadata      String?  // JSON string
   createdAt     DateTime @default(now())
 
-  performedById String
-  performedBy   User @relation(fields: [performedById], references: [id])
+  performedById String?
+  performedBy   User? @relation(fields: [performedById], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
   @@index([targetType])

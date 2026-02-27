@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
+import { applyRateLimit } from "@/lib/rate-limit";
+import { isValidId } from "@/lib/validation";
 
 // POST /api/ideas/:id/vote
 export async function POST(
@@ -9,6 +11,15 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Rate limit
+    const blocked = applyRateLimit(req, "write");
+    if (blocked) return blocked;
+
+    // Validate ID format
+    if (!isValidId(params.id)) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+    }
+
     // Require authentication
     const authId = await getAuthUserId();
     if (!authId) {

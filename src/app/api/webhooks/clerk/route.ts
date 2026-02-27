@@ -12,27 +12,38 @@ async function verifyWebhook(
 ): Promise<Record<string, unknown> | null> {
   const bodyText = await req.text();
 
-  if (WEBHOOK_SECRET) {
+  if (!WEBHOOK_SECRET) {
+    // BLOCK unverified webhooks in production
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        "CRITICAL: CLERK_WEBHOOK_SECRET is not set in production. Rejecting webhook."
+      );
+      return null;
+    }
+    // Dev-only fallback: accept unverified (local development)
+    console.warn(
+      "[DEV] Accepting unverified webhook — CLERK_WEBHOOK_SECRET not set"
+    );
     try {
-      const { Webhook } = await import("svix");
-      const wh = new Webhook(WEBHOOK_SECRET);
-      const headers = {
-        "svix-id": req.headers.get("svix-id") || "",
-        "svix-timestamp": req.headers.get("svix-timestamp") || "",
-        "svix-signature": req.headers.get("svix-signature") || "",
-      };
-      const payload = wh.verify(bodyText, headers);
-      return payload as Record<string, unknown>;
-    } catch (err) {
-      console.error("Webhook signature verification failed:", err);
+      return JSON.parse(bodyText);
+    } catch {
       return null;
     }
   }
 
-  // No webhook secret — accept unverified (local dev only)
+  // Verified path (production + dev when secret is configured)
   try {
-    return JSON.parse(bodyText);
-  } catch {
+    const { Webhook } = await import("svix");
+    const wh = new Webhook(WEBHOOK_SECRET);
+    const headers = {
+      "svix-id": req.headers.get("svix-id") || "",
+      "svix-timestamp": req.headers.get("svix-timestamp") || "",
+      "svix-signature": req.headers.get("svix-signature") || "",
+    };
+    const payload = wh.verify(bodyText, headers);
+    return payload as Record<string, unknown>;
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err);
     return null;
   }
 }
@@ -116,7 +127,7 @@ export async function POST(req: NextRequest) {
             where: { creatorId: user.id },
           });
           await tx.activity.deleteMany({ where: { userId: user.id } });
-          await tx.auditLog.deleteMany({ where: { performedById: user.id } });
+          // Note: audit logs are preserved (onDelete: SetNull sets performedById to null)
           await tx.user.delete({ where: { id: user.id } });
         });
       }

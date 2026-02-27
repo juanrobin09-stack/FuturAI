@@ -1,12 +1,27 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser, getAuthUserId } from "@/lib/auth";
+import { applyRateLimit } from "@/lib/rate-limit";
+import { createAuditLog } from "@/lib/audit";
 
 // DELETE /api/user/delete — GDPR: Hard delete user and all associated data
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
   try {
+    // Rate limit (auth tier — irreversible action)
+    const blocked = applyRateLimit(req, "auth");
+    if (blocked) return blocked;
+
     const user = await getCurrentUser();
     const clerkUserId = await getAuthUserId();
+
+    // Audit log BEFORE deletion (user still exists for FK)
+    await createAuditLog({
+      action: "account_deleted",
+      targetType: "user",
+      targetId: user.id,
+      performedById: user.id,
+      metadata: { email: user.email, username: user.username },
+    });
 
     // 1. Delete all data from our database
     await prisma.$transaction(async (tx) => {
@@ -22,7 +37,8 @@ export async function DELETE() {
       await tx.sandboxParticipant.deleteMany({ where: { userId: user.id } });
       await tx.sandboxSession.deleteMany({ where: { creatorId: user.id } });
       await tx.activity.deleteMany({ where: { userId: user.id } });
-      await tx.auditLog.deleteMany({ where: { performedById: user.id } });
+      // Note: audit logs are NOT deleted — they survive user deletion
+      // thanks to onDelete: SetNull on performedById
 
       // Delete the user — cascade handles: ideas, votes, contributions,
       // projectMembers, comments, notifications, badges, challengeEntries,

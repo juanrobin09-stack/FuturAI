@@ -36,8 +36,23 @@ function isAuthRoute(pathname: string): boolean {
 }
 
 export default async function middleware(req: NextRequest) {
-  // If Clerk isn't configured, let all requests pass (demo mode)
+  // If Clerk isn't configured
   if (!isClerkConfigured) {
+    // In production, block protected routes and API if Clerk isn't configured
+    if (process.env.NODE_ENV === "production") {
+      const { pathname } = req.nextUrl;
+      if (isProtectedRoute(pathname) || pathname.startsWith("/api/")) {
+        console.error(
+          "CRITICAL: Clerk is not configured in production. Blocking protected route:",
+          pathname
+        );
+        return NextResponse.json(
+          { error: "Service unavailable" },
+          { status: 503 }
+        );
+      }
+    }
+    // In development, let all requests pass (demo mode)
     return NextResponse.next();
   }
 

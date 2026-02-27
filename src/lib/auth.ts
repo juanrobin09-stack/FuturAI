@@ -81,7 +81,12 @@ export async function getCurrentUser() {
     return user;
   }
 
-  // Demo mode: use demo user
+  // In production, never fall back to demo mode — require authentication
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Authentication required");
+  }
+
+  // Demo mode (development only): use demo user
   let user = await prisma.user.findUnique({
     where: { clerkId: "demo_clerk_id" },
   });

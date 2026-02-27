@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 // GET /api/users/me — Get current authenticated user's full info
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Rate limit
+    const blocked = applyRateLimit(req, "read");
+    if (blocked) return blocked;
+
     const user = await getCurrentUser();
     // Don't expose demo user to the client — treat as unauthenticated
     if (!user || user.clerkId === "demo_clerk_id") {
@@ -37,6 +42,10 @@ export async function GET() {
 // PATCH /api/users/me — Update current user's profile
 export async function PATCH(req: NextRequest) {
   try {
+    // Rate limit
+    const blocked = applyRateLimit(req, "write");
+    if (blocked) return blocked;
+
     const user = await getCurrentUser();
     if (!user || user.clerkId === "demo_clerk_id") {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
