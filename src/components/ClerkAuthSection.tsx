@@ -127,12 +127,6 @@ export default function ClerkAuthSection() {
     return (
       <>
         <Link
-          href="/ideas/submit"
-          className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-400 hover:to-accent-500 transition-all"
-        >
-          {t.nav.submitIdea}
-        </Link>
-        <Link
           href="/profile"
           className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-white/10 border border-white/10 transition-all"
           title={t.nav.profile || "Profil"}
