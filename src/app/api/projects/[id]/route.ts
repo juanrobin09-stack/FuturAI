@@ -218,7 +218,24 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await prisma.project.delete({ where: { id: params.id } });
+    // Clean up related data in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Delete sandbox sessions linked to this project
+      // (their participants, versions, comments cascade via onDelete: Cascade)
+      const linkedSessions = await tx.sandboxSession.findMany({
+        where: { projectId: params.id },
+        select: { id: true },
+      });
+      if (linkedSessions.length > 0) {
+        await tx.sandboxSession.deleteMany({
+          where: { projectId: params.id },
+        });
+      }
+
+      // Delete the project (cascade handles: members, contributions, comments, versions, etc.)
+      await tx.project.delete({ where: { id: params.id } });
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/projects/:id error:", error);
