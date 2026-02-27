@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { MessageCircle, Plus, Search, Loader2 } from "lucide-react";
+import { MessageCircle, Plus, Search } from "lucide-react";
+import { SkeletonGrid } from "@/components/Skeleton";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
 import { StaggerContainer, StaggerItem } from "@/components/animations/StaggerList";
@@ -185,9 +186,7 @@ export default function ForumPage() {
 
         {/* Thread list */}
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
-          </div>
+          <SkeletonGrid count={5} type="list" />
         ) : threads.length > 0 ? (
           <StaggerContainer className="space-y-4">
             {threads.map((thread) => (

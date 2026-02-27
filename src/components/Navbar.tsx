@@ -3,6 +3,7 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import {
   Map,
   Trophy,
@@ -70,6 +71,18 @@ export default function Navbar() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const { t, locale } = useLanguage();
   const moreRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Check if a link is active
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
+  // Check if any secondary link is active (highlight the "More" button)
+  const isSecondaryActive = () => {
+    return secondaryLinks.some((link) => isActive(link.href));
+  };
 
   // Fetch current user role for admin link visibility
   useEffect(() => {
@@ -132,24 +145,42 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-0.5">
-            {primaryLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all whitespace-nowrap"
-              >
-                <link.icon className="w-4 h-4 shrink-0" />
-                {link.label}
-              </Link>
-            ))}
+            {primaryLinks.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                    active
+                      ? "text-white bg-white/10"
+                      : "text-gray-300 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <link.icon className={`w-4 h-4 shrink-0 ${active ? "text-primary-400" : ""}`} />
+                  {link.label}
+                  {active && (
+                    <motion.div
+                      layoutId="nav-active"
+                      className="absolute -bottom-[1px] left-3 right-3 h-0.5 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
 
             {/* More dropdown */}
             <div className="relative" ref={moreRef}>
               <button
                 onClick={() => setMoreOpen(!moreOpen)}
-                className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isSecondaryActive()
+                    ? "text-white bg-white/10"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                }`}
               >
-                <MoreHorizontal className="w-4 h-4" />
+                <MoreHorizontal className={`w-4 h-4 ${isSecondaryActive() ? "text-primary-400" : ""}`} />
                 <span className="hidden xl:inline">{locale === "fr" ? "Plus" : "More"}</span>
                 <ChevronDown className={`w-3 h-3 transition-transform ${moreOpen ? "rotate-180" : ""}`} />
               </button>
@@ -163,17 +194,27 @@ export default function Navbar() {
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden py-1 z-50"
                   >
-                    {secondaryLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setMoreOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-all"
-                      >
-                        <link.icon className="w-4 h-4 shrink-0 text-gray-500" />
-                        {link.label}
-                      </Link>
-                    ))}
+                    {secondaryLinks.map((link) => {
+                      const active = isActive(link.href);
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMoreOpen(false)}
+                          className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-all ${
+                            active
+                              ? "text-white bg-white/5"
+                              : "text-gray-300 hover:text-white hover:bg-white/5"
+                          }`}
+                        >
+                          <link.icon className={`w-4 h-4 shrink-0 ${active ? "text-primary-400" : "text-gray-500"}`} />
+                          {link.label}
+                          {active && (
+                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-400" />
+                          )}
+                        </Link>
+                      );
+                    })}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -207,17 +248,24 @@ export default function Navbar() {
               className="lg:hidden overflow-hidden border-t border-white/5"
             >
               <div className="py-2 grid grid-cols-2 gap-0.5 px-1">
-                {allLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2 px-3 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all min-h-[44px]"
-                  >
-                    <link.icon className="w-4 h-4 shrink-0 text-gray-500" />
-                    <span className="truncate">{link.label}</span>
-                  </Link>
-                ))}
+                {allLinks.map((link) => {
+                  const active = isActive(link.href);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-2 px-3 py-3 text-sm rounded-lg transition-all min-h-[44px] ${
+                        active
+                          ? "text-white bg-white/10"
+                          : "text-gray-300 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <link.icon className={`w-4 h-4 shrink-0 ${active ? "text-primary-400" : "text-gray-500"}`} />
+                      <span className="truncate">{link.label}</span>
+                    </Link>
+                  );
+                })}
               </div>
             </motion.div>
           )}

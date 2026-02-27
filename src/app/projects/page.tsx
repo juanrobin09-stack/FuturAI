@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import ProjectCard from "@/components/ProjectCard";
 import CategoryFilter from "@/components/CategoryFilter";
-import { Search, Loader2, FolderKanban, Plus, FlaskConical, ArrowRight } from "lucide-react";
+import { Search, FolderKanban, Plus, FlaskConical, ArrowRight } from "lucide-react";
+import { SkeletonGrid } from "@/components/Skeleton";
 import { PROJECT_STATUSES, getStatusLabel } from "@/lib/utils";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
@@ -128,9 +129,7 @@ export default function ProjectsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
-          </div>
+          <SkeletonGrid count={6} type="card" />
         ) : projects.length > 0 ? (
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (

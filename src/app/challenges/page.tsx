@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import ChallengeCard from "@/components/ChallengeCard";
-import { Trophy, Loader2, Search, Plus } from "lucide-react";
+import { Trophy, Search, Plus } from "lucide-react";
+import { SkeletonGrid } from "@/components/Skeleton";
 import { useLanguage } from "@/i18n";
 import { CHALLENGE_CATEGORIES } from "@/lib/utils";
 import PageTransition from "@/components/animations/PageTransition";
@@ -143,9 +144,7 @@ export default function ChallengesPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-accent-400 animate-spin" />
-          </div>
+          <SkeletonGrid count={4} type="card" />
         ) : challenges.length > 0 ? (
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {challenges.map((challenge) => (

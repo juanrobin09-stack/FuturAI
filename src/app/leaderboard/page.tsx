@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Trophy, Loader2, Flame, Users, Award, TrendingUp } from "lucide-react";
+import { Trophy, Flame, Users, Award, TrendingUp } from "lucide-react";
+import { SkeletonGrid } from "@/components/Skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { getLevelFromPoints } from "@/lib/points";
 import { useLanguage } from "@/i18n";
@@ -185,9 +186,7 @@ export default function LeaderboardPage() {
           {/* Main leaderboard */}
           <div>
             {loading ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
-              </div>
+              <SkeletonGrid count={6} type="list" />
             ) : (
               <>
                 {users.length >= 3 && (

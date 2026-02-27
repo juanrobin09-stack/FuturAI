@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import IdeaCard from "@/components/IdeaCard";
 import CategoryFilter from "@/components/CategoryFilter";
-import { Search, Loader2, Lightbulb } from "lucide-react";
+import { Search, Lightbulb } from "lucide-react";
+import { SkeletonGrid } from "@/components/Skeleton";
 import Link from "next/link";
 import { useLanguage } from "@/i18n";
 import { StaggerContainer, StaggerItem } from "@/components/animations/StaggerList";
@@ -87,9 +88,7 @@ export default function IdeasPage() {
 
         {/* Ideas list */}
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
-          </div>
+          <SkeletonGrid count={4} type="list" />
         ) : ideas.length > 0 ? (
           <StaggerContainer className="space-y-4">
             {ideas.map((idea) => (
