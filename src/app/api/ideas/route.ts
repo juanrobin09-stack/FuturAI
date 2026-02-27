@@ -109,6 +109,20 @@ export async function POST(req: NextRequest) {
       })
       .catch(() => {});
 
+    // First-action celebration: check if this is user's first idea
+    const ideaCount = await prisma.idea.count({ where: { authorId: user.id } });
+    if (ideaCount === 1) {
+      await prisma.notification.create({
+        data: {
+          type: "first_action",
+          title: "Premier pas !",
+          message: "Vous avez soumis votre premiere idee ! L'aventure commence.",
+          link: `/ideas/${idea.id}`,
+          userId: user.id,
+        },
+      }).catch(() => {});
+    }
+
     // Check for badge awards
     await checkAndAwardBadges(user.id);
 

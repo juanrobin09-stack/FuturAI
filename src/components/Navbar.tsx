@@ -28,6 +28,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "./NotificationBell";
+import StreakDisplay from "./StreakDisplay";
 import { isClerkConfigured } from "./AuthProvider";
 
 // Sign in / Sign up links — always works, no Clerk dependency
@@ -77,6 +78,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userStreak, setUserStreak] = useState(0);
   const { t, locale } = useLanguage();
   const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -92,12 +94,13 @@ export default function Navbar() {
     return secondaryLinks.some((link) => isActive(link.href));
   };
 
-  // Fetch current user role for admin link visibility
+  // Fetch current user role + streak for admin link visibility & streak display
   useEffect(() => {
     fetch("/api/users/me")
       .then((r) => r.json())
       .then((data) => {
         if (data?.user?.role) setUserRole(data.user.role);
+        if (data?.user?.currentStreak) setUserStreak(data.user.currentStreak);
       })
       .catch(() => {});
   }, []);
@@ -231,6 +234,7 @@ export default function Navbar() {
 
           {/* Auth + Notifications + Language */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <StreakDisplay streak={userStreak} />
             <NotificationBell />
             <div className="hidden sm:block">
               <LanguageSwitcher />

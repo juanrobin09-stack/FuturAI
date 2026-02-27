@@ -12,6 +12,8 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
+import ProfileCompletionBar from "@/components/ProfileCompletionBar";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
 
 interface ImpactBreakdown {
   expertScore: number;
@@ -38,6 +40,7 @@ interface UserProfile {
   countryRank: number | null;
   sandboxSessionCount: number;
   impactBreakdown?: ImpactBreakdown;
+  profileCompletion?: { percent: number; missing: string[]; complete: boolean } | null;
   ideas: Array<{
     id: string;
     title: string;
@@ -247,6 +250,7 @@ export default function ProfilePage() {
             githubUrl: meData?.user?.githubUrl || profileData.githubUrl || null,
             linkedinUrl: meData?.user?.linkedinUrl || profileData.linkedinUrl || null,
             websiteUrl: meData?.user?.websiteUrl || profileData.websiteUrl || null,
+            profileCompletion: meData?.user?.profileCompletion || null,
           });
         }
       } catch {
@@ -630,6 +634,16 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Profile Completion Bar */}
+        {profile.profileCompletion && !profile.profileCompletion.complete && (
+          <ProfileCompletionBar completion={profile.profileCompletion} />
+        )}
+
+        {/* Activity Heatmap */}
+        <div className="mb-8">
+          <ActivityHeatmap userId={profile.id} />
         </div>
 
         {/* Performance Dashboard */}

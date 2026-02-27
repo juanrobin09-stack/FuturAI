@@ -22,6 +22,7 @@ import { useLanguage } from "@/i18n";
 import PageTransition from "@/components/animations/PageTransition";
 import FadeIn from "@/components/animations/FadeIn";
 import EndorseButton from "@/components/EndorseButton";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
@@ -329,6 +330,11 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
               </div>
             </div>
           )}
+
+          {/* Activity Heatmap */}
+          <div className="mt-4">
+            <ActivityHeatmap userId={user.id} />
+          </div>
 
           {/* Badges */}
           {user.badges.length > 0 && (

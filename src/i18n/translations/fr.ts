@@ -947,6 +947,54 @@ export const fr = {
     pathArenaDesc: "Testez 9 providers IA en temps reel : code, image, video.",
     skip: "Explorer librement",
   },
+
+  // ─── Engagement & Gamification ────────────────────
+  engagement: {
+    // Streaks
+    streakTitle: "Serie de connexion",
+    currentStreak: "Serie actuelle",
+    longestStreak: "Record personnel",
+    days: "jours",
+    day: "jour",
+    streakBonus: "Bonus de serie !",
+    dailyLogin: "Connexion du jour",
+    streakFire: "En feu !",
+    streakLost: "Serie perdue... Recommencez !",
+
+    // Profile completion
+    profileCompletion: "Completez votre profil",
+    profileCompleteReward: "+50 pts quand votre profil est complet !",
+    profileComplete: "Profil complet !",
+    addBio: "Ajoutez votre bio",
+    addCountry: "Ajoutez votre pays",
+    addAvatar: "Ajoutez votre photo",
+    addSocialLink: "Ajoutez un lien GitHub ou LinkedIn",
+
+    // First actions
+    firstIdea: "Votre premiere idee !",
+    firstIdeaDesc: "L'aventure commence. Votre idee est maintenant visible par la communaute.",
+    firstContribution: "Votre premiere contribution !",
+    firstContributionDesc: "Vous faites desormais partie de l'equipe. Bravo !",
+    firstProject: "Votre premier projet !",
+    firstProjectDesc: "Vous avez rejoint un projet collaboratif. Ensemble, on va plus loin.",
+
+    // Milestones
+    milestone: "Milestone atteint !",
+    milestoneDesc: "Vous avez atteint {points} points. Continuez !",
+
+    // Activity heatmap
+    activityTitle: "Activite recente",
+    activityThisWeek: "cette semaine",
+    activityThisMonth: "ce mois",
+    actionsLabel: "actions",
+    lessActive: "Moins",
+    moreActive: "Plus",
+
+    // Share rewards
+    shareReward: "+{points} pts",
+    shareDailyLimit: "Limite quotidienne atteinte (5 partages/jour)",
+    shareCount: "{count} partages",
+  },
 };
 
 export type TranslationKeys = typeof fr;

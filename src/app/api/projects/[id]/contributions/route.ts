@@ -105,6 +105,20 @@ export async function POST(
       },
     }).catch(() => {});
 
+    // First-action celebration: check if this is user's first contribution
+    const contribCount = await prisma.contribution.count({ where: { userId: user.id } });
+    if (contribCount === 1) {
+      await prisma.notification.create({
+        data: {
+          type: "first_action",
+          title: "Premiere contribution !",
+          message: "Vous avez fait votre premiere contribution ! Bravo !",
+          link: `/projects/${params.id}`,
+          userId: user.id,
+        },
+      }).catch(() => {});
+    }
+
     // Check for badge awards
     await checkAndAwardBadges(user.id);
 

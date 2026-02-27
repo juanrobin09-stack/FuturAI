@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { applyRateLimit } from "@/lib/rate-limit";
+import { updateLoginStreak } from "@/lib/streaks";
+import { getProfileCompletion } from "@/lib/profile-completion";
+import { POINTS } from "@/lib/points";
+import { checkAndAwardBadges } from "@/lib/badges";
 
 // GET /api/users/me — Get current authenticated user's full info
 export async function GET(req: NextRequest) {
@@ -15,6 +19,18 @@ export async function GET(req: NextRequest) {
     if (!user || user.clerkId === "demo_clerk_id") {
       return NextResponse.json({ user: null }, { status: 200 });
     }
+
+    // Update login streak (awards daily points, non-blocking on error)
+    const streakInfo = await updateLoginStreak(user.id).catch(() => ({
+      currentStreak: user.currentStreak,
+      longestStreak: user.longestStreak,
+      pointsAwarded: 0,
+      isNewDay: false,
+    }));
+
+    // Compute profile completion
+    const profileCompletion = getProfileCompletion(user);
+
     return NextResponse.json({
       user: {
         id: user.id,
@@ -29,9 +45,15 @@ export async function GET(req: NextRequest) {
         websiteUrl: user.websiteUrl,
         role: user.role,
         verified: user.verified,
-        points: user.points,
+        points: user.points + streakInfo.pointsAwarded,
         consentGiven: user.consentGiven,
         createdAt: user.createdAt,
+        // Engagement data
+        currentStreak: streakInfo.currentStreak,
+        longestStreak: streakInfo.longestStreak,
+        streakPointsAwarded: streakInfo.pointsAwarded,
+        isNewDay: streakInfo.isNewDay,
+        profileCompletion,
       },
     });
   } catch (error) {
@@ -183,6 +205,31 @@ export async function PATCH(req: NextRequest) {
       data: updateData,
     });
 
+    // Check if profile just became 100% complete → award bonus
+    const completion = getProfileCompletion(updated);
+    let profileBonusAwarded = false;
+    if (completion.complete) {
+      // Check if bonus already awarded
+      const alreadyAwarded = await prisma.activity.findFirst({
+        where: { userId: user.id, type: "profile_complete" },
+      });
+      if (!alreadyAwarded) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { points: { increment: POINTS.PROFILE_COMPLETE } },
+        });
+        await prisma.activity.create({
+          data: {
+            type: "profile_complete",
+            message: "completed their profile",
+            userId: user.id,
+          },
+        });
+        profileBonusAwarded = true;
+        checkAndAwardBadges(user.id).catch(() => {});
+      }
+    }
+
     return NextResponse.json({
       user: {
         id: updated.id,
@@ -193,6 +240,8 @@ export async function PATCH(req: NextRequest) {
         githubUrl: updated.githubUrl,
         linkedinUrl: updated.linkedinUrl,
         websiteUrl: updated.websiteUrl,
+        profileCompletion: completion,
+        profileBonusAwarded,
       },
     });
   } catch (error) {

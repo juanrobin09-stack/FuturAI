@@ -124,6 +124,55 @@ const BADGE_DEFINITIONS: {
     category: "engagement",
     check: (s) => s.endorsementsReceived >= 10,
   },
+  // V10: Engagement badges
+  {
+    name: "En Flammes",
+    description: "7 jours consecutifs de connexion",
+    descriptionEn: "7-day login streak",
+    icon: "flame",
+    category: "engagement",
+    check: (s) => s.longestStreak >= 7,
+  },
+  {
+    name: "Inarretable",
+    description: "30 jours consecutifs de connexion",
+    descriptionEn: "30-day login streak",
+    icon: "flame",
+    category: "engagement",
+    check: (s) => s.longestStreak >= 30,
+  },
+  {
+    name: "Profil Complet",
+    description: "A complete son profil a 100%",
+    descriptionEn: "Completed their profile 100%",
+    icon: "user-check",
+    category: "engagement",
+    check: (s) => s.profileComplete,
+  },
+  {
+    name: "Centurion",
+    description: "A atteint 100 points",
+    descriptionEn: "Reached 100 points",
+    icon: "target",
+    category: "general",
+    check: (s) => s.totalPoints >= 100,
+  },
+  {
+    name: "Rising Star",
+    description: "A atteint 250 points",
+    descriptionEn: "Reached 250 points",
+    icon: "trending-up",
+    category: "general",
+    check: (s) => s.totalPoints >= 250,
+  },
+  {
+    name: "Ambassadeur",
+    description: "A partage du contenu 10 fois",
+    descriptionEn: "Shared content 10 times",
+    icon: "share-2",
+    category: "engagement",
+    check: (s) => s.sharesCount >= 10,
+  },
 ];
 
 interface UserStats {
@@ -136,6 +185,11 @@ interface UserStats {
   connectionsCount: number;
   endorsementsGiven: number;
   endorsementsReceived: number;
+  // Engagement
+  currentStreak: number;
+  longestStreak: number;
+  sharesCount: number;
+  profileComplete: boolean;
 }
 
 /**
@@ -156,20 +210,45 @@ export async function checkAndAwardBadges(userId: string): Promise<string[]> {
       connectionsReceived,
       endorsementsGiven,
       endorsementsReceived,
+      sharesCount,
     ] = await Promise.all([
       prisma.idea.count({ where: { authorId: userId } }),
       prisma.projectMember.count({ where: { userId } }),
       prisma.contribution.count({ where: { userId } }),
       prisma.vote.count({ where: { userId } }),
       prisma.challengeEntry.count({ where: { userId } }),
-      prisma.user.findUnique({ where: { id: userId }, select: { points: true } }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          points: true,
+          currentStreak: true,
+          longestStreak: true,
+          bio: true,
+          country: true,
+          avatarUrl: true,
+          githubUrl: true,
+          linkedinUrl: true,
+          username: true,
+        },
+      }),
       prisma.connection.count({ where: { requesterId: userId, status: "accepted" } }),
       prisma.connection.count({ where: { receiverId: userId, status: "accepted" } }),
       prisma.profileEndorsement.count({ where: { endorserId: userId } }),
       prisma.profileEndorsement.count({ where: { endorseeId: userId } }),
+      prisma.activity.count({ where: { userId, type: "share" } }),
     ]);
 
     if (!user) return [];
+
+    // Check profile completion
+    const profileFields = [
+      !!user.username && user.username !== "DemoUser",
+      !!user.bio,
+      !!user.country,
+      !!user.avatarUrl,
+      !!user.githubUrl || !!user.linkedinUrl,
+    ];
+    const profileComplete = profileFields.every(Boolean);
 
     const stats: UserStats = {
       ideasCount,
@@ -181,6 +260,10 @@ export async function checkAndAwardBadges(userId: string): Promise<string[]> {
       connectionsCount: connectionsSent + connectionsReceived,
       endorsementsGiven,
       endorsementsReceived,
+      currentStreak: user.currentStreak,
+      longestStreak: user.longestStreak,
+      sharesCount,
+      profileComplete,
     };
 
     // Get user's existing badges

@@ -6,6 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/i18n";
 import { timeAgo } from "@/lib/utils";
 import BadgeUnlockToast from "./BadgeUnlockToast";
+import FirstActionCelebration from "./FirstActionCelebration";
+import dynamic from "next/dynamic";
+
+// LevelUpCelebration loaded dynamically (already exists, was unused)
+const LevelUpCelebration = dynamic(() => import("./LevelUpCelebration"), { ssr: false });
 
 interface NotificationData {
   id: string;
@@ -32,6 +37,18 @@ export default function NotificationBell() {
     icon: string;
     description: string;
   }>({ show: false, name: "", icon: "", description: "" });
+
+  // First action celebration state
+  const [firstAction, setFirstAction] = useState<{
+    show: boolean;
+    type: "idea" | "contribution" | "project";
+  }>({ show: false, type: "idea" });
+
+  // Milestone celebration state
+  const [milestoneCelebration, setMilestoneCelebration] = useState<{
+    show: boolean;
+    points: number;
+  }>({ show: false, points: 0 });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -67,7 +84,7 @@ export default function NotificationBell() {
                   setWiggle(true);
                   setTimeout(() => setWiggle(false), 1000);
 
-                  // Check for badge notifications — trigger celebration
+                  // Check for special notifications — trigger celebrations
                   for (const n of newOnes) {
                     if (n.type === "badge") {
                       const badgeMatch = n.message.match(/"([^"]+)"/);
@@ -77,6 +94,23 @@ export default function NotificationBell() {
                           name: badgeMatch[1],
                           icon: "trophy",
                           description: n.message,
+                        });
+                      }
+                    } else if (n.type === "first_action") {
+                      // Detect action type from message
+                      let actionType: "idea" | "contribution" | "project" = "idea";
+                      if (n.message.includes("contribution") || n.message.includes("contribu")) {
+                        actionType = "contribution";
+                      } else if (n.message.includes("projet") || n.message.includes("project")) {
+                        actionType = "project";
+                      }
+                      setFirstAction({ show: true, type: actionType });
+                    } else if (n.type === "milestone") {
+                      const milestoneMatch = n.title.match(/(\d+)/);
+                      if (milestoneMatch) {
+                        setMilestoneCelebration({
+                          show: true,
+                          points: parseInt(milestoneMatch[1]),
                         });
                       }
                     }
@@ -137,6 +171,14 @@ export default function NotificationBell() {
     setBadgeToast((prev) => ({ ...prev, show: false }));
   }, []);
 
+  const closeFirstAction = useCallback(() => {
+    setFirstAction((prev) => ({ ...prev, show: false }));
+  }, []);
+
+  const closeMilestone = useCallback(() => {
+    setMilestoneCelebration((prev) => ({ ...prev, show: false }));
+  }, []);
+
   const typeIcons: Record<string, string> = {
     vote: "\u{1F44D}",
     comment: "\u{1F4AC}",
@@ -147,6 +189,8 @@ export default function NotificationBell() {
     connection_request: "\u{1F91D}",
     connection_accepted: "\u2705",
     endorsement: "\u2B50",
+    first_action: "\u{1F389}",
+    milestone: "\u{1F3AF}",
   };
 
   return (
@@ -159,6 +203,23 @@ export default function NotificationBell() {
         badgeDescription={badgeToast.description}
         onClose={closeBadgeToast}
       />
+
+      {/* First action celebration */}
+      <FirstActionCelebration
+        show={firstAction.show}
+        actionType={firstAction.type}
+        onClose={closeFirstAction}
+      />
+
+      {/* Milestone celebration */}
+      {milestoneCelebration.show && (
+        <LevelUpCelebration
+          show={milestoneCelebration.show}
+          level={milestoneCelebration.points}
+          levelName="Milestone !"
+          onClose={closeMilestone}
+        />
+      )}
 
       <div ref={ref} className="relative">
         <motion.button

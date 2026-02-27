@@ -9,12 +9,32 @@ interface ShareButtonsProps {
   title: string;
   url: string;
   hashtags?: string[];
+  contentType?: string;
+  contentId?: string;
+}
+
+async function trackShare(contentType: string, contentId: string, platform: string) {
+  try {
+    const res = await fetch("/api/share", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contentType, contentId, platform }),
+    });
+    const data = await res.json();
+    if (data.pointsAwarded > 0) {
+      toast.success(`+${data.pointsAwarded} pts`, { icon: "\u{1F31F}", duration: 2000 });
+    }
+  } catch {
+    // Silently ignore tracking errors
+  }
 }
 
 export default function ShareButtons({
   title,
   url,
   hashtags = ["FutureAI", "AI", "Innovation"],
+  contentType,
+  contentId,
 }: ShareButtonsProps) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -26,6 +46,12 @@ export default function ShareButtons({
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
     url
   )}`;
+
+  const handleShareClick = (platform: string) => {
+    if (contentType && contentId) {
+      trackShare(contentType, contentId, platform);
+    }
+  };
 
   const handleCopyLink = async () => {
     try {
@@ -45,6 +71,9 @@ export default function ShareButtons({
       toast.success(t.share.linkCopied);
       setTimeout(() => setCopied(false), 2000);
     }
+    if (contentType && contentId) {
+      trackShare(contentType, contentId, "copy");
+    }
   };
 
   return (
@@ -53,6 +82,7 @@ export default function ShareButtons({
         href={twitterUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => handleShareClick("twitter")}
         className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
       >
         {t.share.twitter}
@@ -61,6 +91,7 @@ export default function ShareButtons({
         href={linkedinUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => handleShareClick("linkedin")}
         className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600/10 text-blue-300 hover:bg-blue-600/20 transition-colors"
       >
         {t.share.linkedin}

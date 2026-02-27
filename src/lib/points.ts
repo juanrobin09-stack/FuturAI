@@ -21,6 +21,12 @@ export const POINTS = {
   RECEIVE_ENDORSEMENT: 2,
   CREATE_FORUM_THREAD: 8,
   FORUM_POST: 3,
+  // Engagement
+  DAILY_LOGIN: 5,
+  STREAK_BONUS_7: 50,
+  STREAK_BONUS_30: 200,
+  PROFILE_COMPLETE: 50,
+  SHARE_CONTENT: 3,
 } as const;
 
 export function getContributionPoints(type: string): number {

@@ -949,4 +949,52 @@ export const en: TranslationKeys = {
     pathArenaDesc: "Test 9 AI providers in real-time: code, image, video.",
     skip: "Explore freely",
   },
+
+  // ─── Engagement & Gamification ────────────────────
+  engagement: {
+    // Streaks
+    streakTitle: "Login Streak",
+    currentStreak: "Current streak",
+    longestStreak: "Personal best",
+    days: "days",
+    day: "day",
+    streakBonus: "Streak bonus!",
+    dailyLogin: "Daily login",
+    streakFire: "On fire!",
+    streakLost: "Streak lost... Start again!",
+
+    // Profile completion
+    profileCompletion: "Complete your profile",
+    profileCompleteReward: "+50 pts when your profile is complete!",
+    profileComplete: "Profile complete!",
+    addBio: "Add your bio",
+    addCountry: "Add your country",
+    addAvatar: "Add your photo",
+    addSocialLink: "Add a GitHub or LinkedIn link",
+
+    // First actions
+    firstIdea: "Your first idea!",
+    firstIdeaDesc: "The journey begins. Your idea is now visible to the community.",
+    firstContribution: "Your first contribution!",
+    firstContributionDesc: "You're now part of the team. Congratulations!",
+    firstProject: "Your first project!",
+    firstProjectDesc: "You joined a collaborative project. Together, we go further.",
+
+    // Milestones
+    milestone: "Milestone reached!",
+    milestoneDesc: "You reached {points} points. Keep going!",
+
+    // Activity heatmap
+    activityTitle: "Recent Activity",
+    activityThisWeek: "this week",
+    activityThisMonth: "this month",
+    actionsLabel: "actions",
+    lessActive: "Less",
+    moreActive: "More",
+
+    // Share rewards
+    shareReward: "+{points} pts",
+    shareDailyLimit: "Daily limit reached (5 shares/day)",
+    shareCount: "{count} shares",
+  },
 };

@@ -90,6 +90,20 @@ export async function POST(
       },
     }).catch(() => {});
 
+    // First-action celebration: check if this is user's first project
+    const memberCount = await prisma.projectMember.count({ where: { userId: user.id } });
+    if (memberCount === 1) {
+      await prisma.notification.create({
+        data: {
+          type: "first_action",
+          title: "Premier projet !",
+          message: "Vous avez rejoint votre premier projet collaboratif !",
+          link: `/projects/${params.id}`,
+          userId: user.id,
+        },
+      }).catch(() => {});
+    }
+
     // Check for badge awards
     await checkAndAwardBadges(user.id);
 
