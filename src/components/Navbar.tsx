@@ -35,19 +35,27 @@ function SignInLinks() {
   const { t } = useLanguage();
   return (
     <>
+      {/* Desktop: full buttons with text */}
       <Link
         href="/sign-in"
-        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+        className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
       >
         <LogIn className="w-3.5 h-3.5" />
         {t.nav.signIn}
       </Link>
       <Link
         href="/sign-up"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-400 hover:to-primary-500 transition-all shadow-sm"
+        className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-400 hover:to-primary-500 transition-all shadow-sm"
       >
         <UserPlus className="w-3.5 h-3.5" />
         {t.nav.signUp}
+      </Link>
+      {/* Mobile: icon-only button */}
+      <Link
+        href="/sign-in"
+        className="sm:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+      >
+        <LogIn className="w-4 h-4" />
       </Link>
     </>
   );
@@ -222,9 +230,11 @@ export default function Navbar() {
           </div>
 
           {/* Auth + Notifications + Language */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <NotificationBell />
-            <LanguageSwitcher />
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
             <AuthSection />
 
             {/* Mobile toggle */}
@@ -266,6 +276,26 @@ export default function Navbar() {
                     </Link>
                   );
                 })}
+              </div>
+              {/* Mobile auth + language */}
+              <div className="border-t border-white/5 py-3 px-2 flex items-center gap-2">
+                <LanguageSwitcher />
+                <Link
+                  href="/sign-in"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all min-h-[44px]"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  {t.nav.signIn}
+                </Link>
+                <Link
+                  href="/sign-up"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2.5 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-400 hover:to-primary-500 transition-all shadow-sm min-h-[44px]"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  {t.nav.signUp}
+                </Link>
               </div>
             </motion.div>
           )}
