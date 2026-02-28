@@ -35,23 +35,23 @@ export default function ClerkAuthSection() {
 
     try {
       // Quick check: if Clerk is fully loaded and says no user, trust it
+      // BUT use a very long grace period — Clerk token refresh can briefly show null
       const inst = (window as any).Clerk;
       if (inst?.loaded && inst?.user === null) {
-        // Clerk is definitively loaded and user is null → truly signed out
-        // But only clear if we haven't had a success in the last 10s
-        // (prevents false clear during token refresh)
         const timeSinceSuccess = Date.now() - lastSuccessRef.current;
-        if (timeSinceSuccess > 10000 || !apiUser) {
+        // Only clear if no success in the last 5 minutes (token refresh can be slow)
+        if (timeSinceSuccess > 300000 || !apiUser) {
           setApiUser(null);
           setApiChecked(true);
           failCountRef.current = 0;
           checkInProgressRef.current = false;
           return;
         }
+        // Otherwise, don't trust the null — try the API instead
       }
 
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
+      const timeout = setTimeout(() => controller.abort(), 15000);
 
       const res = await fetch("/api/users/me", {
         signal: controller.signal,
@@ -71,14 +71,14 @@ export default function ClerkAuthSection() {
         } else {
           // API returned OK but no user → definitively not signed in
           failCountRef.current++;
-          if (failCountRef.current >= 2) {
+          if (failCountRef.current >= 3) {
             setApiUser(null);
           }
         }
       } else if (res.status === 401 || res.status === 403) {
-        // Definitive auth failure → clear after 2 consecutive failures
+        // Definitive auth failure → clear after 3 consecutive failures
         failCountRef.current++;
-        if (failCountRef.current >= 2) {
+        if (failCountRef.current >= 3) {
           setApiUser(null);
         }
       } else {
@@ -105,8 +105,8 @@ export default function ClerkAuthSection() {
   // 2) Re-check on route change (debounced — skip if checked recently)
   useEffect(() => {
     const timeSinceSuccess = Date.now() - lastSuccessRef.current;
-    // Only re-check on navigation if it's been a while since last success
-    if (timeSinceSuccess > 5000) {
+    // Only re-check on navigation if it's been a long while since last success
+    if (timeSinceSuccess > 60000) {
       checkAuth();
     }
   }, [pathname, checkAuth]);
@@ -156,33 +156,37 @@ export default function ClerkAuthSection() {
     return () => { cancelled = true; };
   }, []);
 
-  // 4) Watch for Clerk sign-out (poll every 8s — relaxed, not aggressive)
+  // 4) Watch for Clerk sign-out (poll every 60s — very relaxed)
   useEffect(() => {
     const interval = setInterval(() => {
       const inst = (window as any).Clerk;
       if (inst?.loaded && inst?.user === null && apiUser) {
-        // Clerk definitively says no user — but require 2+ consecutive checks
-        failCountRef.current++;
-        if (failCountRef.current >= 2) {
-          setApiUser(null);
-          setClerkReady(false);
-          setClerkUserButton(null);
-          failCountRef.current = 0;
+        // Clerk says no user — but only act if no recent success (protects token refresh)
+        const timeSinceSuccess = Date.now() - lastSuccessRef.current;
+        if (timeSinceSuccess > 300000) {
+          // No success in 5 min + Clerk null → truly signed out
+          failCountRef.current++;
+          if (failCountRef.current >= 3) {
+            setApiUser(null);
+            setClerkReady(false);
+            setClerkUserButton(null);
+            failCountRef.current = 0;
+          }
         }
       } else if (inst?.loaded && inst?.user && !apiUser && apiChecked) {
         // Clerk says user IS signed in but we don't show it → re-check API
         checkAuth();
       }
-    }, 8000);
+    }, 60000);
     return () => clearInterval(interval);
   }, [apiUser, apiChecked, checkAuth]);
 
   // 5) Re-check on window focus (user may have signed out in another tab)
   useEffect(() => {
     const handleFocus = () => {
-      // Only re-check if it's been a while since last success
+      // Only re-check if it's been a long while since last success
       const timeSinceSuccess = Date.now() - lastSuccessRef.current;
-      if (timeSinceSuccess > 10000) {
+      if (timeSinceSuccess > 120000) {
         checkAuth();
       }
     };
@@ -191,23 +195,38 @@ export default function ClerkAuthSection() {
   }, [checkAuth]);
 
   // 6) Listen for Clerk session changes via event
+  // IMPORTANT: Clerk fires user=null during token refresh — do NOT immediately clear
   useEffect(() => {
     const inst = (window as any).Clerk;
     if (inst?.addListener) {
+      let signOutTimer: ReturnType<typeof setTimeout> | null = null;
       const unsubscribe = inst.addListener(({ user }: any) => {
         if (user) {
-          // User just signed in → refresh
+          // User signed in or token refreshed → refresh state, cancel any pending sign-out
+          if (signOutTimer) { clearTimeout(signOutTimer); signOutTimer = null; }
           checkAuth();
           failCountRef.current = 0;
         } else if (user === null) {
-          // User explicitly signed out via Clerk UI
-          setApiUser(null);
-          setClerkReady(false);
-          setClerkUserButton(null);
-          failCountRef.current = 0;
+          // Clerk says null — could be token refresh or real sign-out
+          // Wait 30s to confirm it's a real sign-out (token refresh resolves in <10s)
+          if (signOutTimer) clearTimeout(signOutTimer);
+          signOutTimer = setTimeout(() => {
+            const currentInst = (window as any).Clerk;
+            if (currentInst?.loaded && currentInst?.user === null) {
+              // Still null after 30s → real sign-out
+              setApiUser(null);
+              setClerkReady(false);
+              setClerkUserButton(null);
+              failCountRef.current = 0;
+            }
+            signOutTimer = null;
+          }, 30000);
         }
       });
-      return () => { if (typeof unsubscribe === "function") unsubscribe(); };
+      return () => {
+        if (signOutTimer) clearTimeout(signOutTimer);
+        if (typeof unsubscribe === "function") unsubscribe();
+      };
     }
   }, [checkAuth]);
 
