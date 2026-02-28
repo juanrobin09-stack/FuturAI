@@ -27,10 +27,10 @@ interface Idea {
 }
 
 const REGIONS: Record<string, string[]> = {
-  Afrique: ["afrique", "nigeria", "rwanda", "kenya", "senegal", "ghana", "congo", "cameroun", "mali", "niger", "cote d'ivoire", "ethiopie", "tanzanie", "mozambique"],
-  Europe: ["europe", "france", "allemagne", "royaume-uni", "espagne", "italie", "portugal", "belgique", "suisse", "pays-bas", "autriche", "pologne", "suede"],
-  Asie: ["asie", "inde", "bangladesh", "japon", "chine", "indonesie", "vietnam", "thailande", "pakistan", "philippines", "coree", "nepal", "sri lanka", "myanmar"],
-  Ameriques: ["amerique", "bresil", "colombie", "amazonie", "mexique", "canada", "argentine", "perou", "chili", "bolivie", "equateur", "venezuela", "usa", "etats-unis"],
+  Afrique: ["afrique", "nigeria", "nigéria", "rwanda", "kenya", "senegal", "sénégal", "ghana", "congo", "cameroun", "mali", "niger", "cote d'ivoire", "côte d'ivoire", "ethiopie", "éthiopie", "tanzanie", "mozambique", "guinee", "guinée", "egypte", "égypte"],
+  Europe: ["europe", "france", "allemagne", "royaume-uni", "espagne", "italie", "portugal", "belgique", "suisse", "pays-bas", "autriche", "pologne", "suede", "suède", "geneve", "genève", "grece", "grèce"],
+  Asie: ["asie", "inde", "bangladesh", "japon", "chine", "indonesie", "indonésie", "vietnam", "thailande", "thaïlande", "pakistan", "philippines", "coree", "corée", "nepal", "népal", "sri lanka", "myanmar", "malaisie"],
+  "Amériques": ["amerique", "amérique", "bresil", "brésil", "colombie", "amazonie", "mexique", "canada", "argentine", "perou", "pérou", "chili", "bolivie", "equateur", "équateur", "venezuela", "usa", "etats-unis", "états-unis"],
   "Moyen-Orient": ["moyen-orient", "liban", "jordanie", "syrie", "irak", "iran", "turquie", "palestine", "israel", "arabie", "emirats", "yemen"],
 };
 

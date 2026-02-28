@@ -393,11 +393,11 @@ export const en: TranslationKeys = {
   },
   categories: {
     Automatisation: "Automation",
-    "Analyse de donnees": "Data Analysis",
-    "Creation IA": "AI Creation",
-    Sante: "Health",
-    Mobilite: "Mobility",
-    Education: "Education",
+    "Analyse de données": "Data Analysis",
+    "Création IA": "AI Creation",
+    "Santé": "Health",
+    "Mobilité": "Mobility",
+    "Éducation": "Education",
     Environnement: "Environment",
   } as Record<string, string>,
   statuses: {

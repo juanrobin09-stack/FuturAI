@@ -7,11 +7,11 @@ export function cn(...inputs: ClassValue[]) {
 
 export const CATEGORIES = [
   { value: "Automatisation", color: "#0d9488" },
-  { value: "Analyse de donnees", color: "#f97316" },
-  { value: "Creation IA", color: "#8b5cf6" },
-  { value: "Sante", color: "#ef4444" },
-  { value: "Mobilite", color: "#3b82f6" },
-  { value: "Education", color: "#eab308" },
+  { value: "Analyse de données", color: "#f97316" },
+  { value: "Création IA", color: "#8b5cf6" },
+  { value: "Santé", color: "#ef4444" },
+  { value: "Mobilité", color: "#3b82f6" },
+  { value: "Éducation", color: "#eab308" },
   { value: "Environnement", color: "#22c55e" },
 ] as const;
 

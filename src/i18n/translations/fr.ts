@@ -391,11 +391,11 @@ export const fr = {
   },
   categories: {
     Automatisation: "Automatisation",
-    "Analyse de donnees": "Analyse de données",
-    "Creation IA": "Création IA",
-    Sante: "Santé",
-    Mobilite: "Mobilité",
-    Education: "Éducation",
+    "Analyse de données": "Analyse de données",
+    "Création IA": "Création IA",
+    "Santé": "Santé",
+    "Mobilité": "Mobilité",
+    "Éducation": "Éducation",
     Environnement: "Environnement",
   } as Record<string, string>,
   statuses: {
