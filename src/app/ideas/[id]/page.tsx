@@ -105,9 +105,9 @@ export default async function IdeaDetailPage({ params }: Props) {
       </div>
 
       {/* Two-column layout */}
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
         {/* Main content */}
-        <div className="flex-1 min-w-0 space-y-6">
+        <div className="flex-1 min-w-0 space-y-4 sm:space-y-6">
           {/* Image */}
           {idea.imageUrl && (
             <div className="w-full rounded-2xl overflow-hidden bg-gray-800">
@@ -190,46 +190,44 @@ export default async function IdeaDetailPage({ params }: Props) {
           )}
 
           {/* Mobile only: Vote progress + Author + Share */}
-          <div className="lg:hidden space-y-4">
+          <div className="lg:hidden space-y-3">
             {/* Vote progress compact */}
-            <div className="card">
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
-                <TrendingUp className="w-4 h-4 text-primary-400" />
+            <div className="card !p-4">
+              <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                <TrendingUp className="w-4 h-4 text-primary-400 shrink-0" />
                 Impact du vote
               </h3>
-              <div>
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Prochain palier : {nextMilestone} votes</span>
-                  <span>{Math.round(progress)}%</span>
-                </div>
-                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
+              <div className="flex justify-between text-xs text-gray-500 mb-1">
+                <span>Palier : {nextMilestone} votes</span>
+                <span>{Math.round(progress)}%</span>
               </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-3 text-xs">
-                <div className={`flex items-center gap-1.5 ${score >= 5 ? "text-primary-400" : "text-gray-600"}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold ${score >= 5 ? "bg-primary-500/20" : "bg-white/5"}`}>
+              <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2 text-[11px]">
+                <div className={`flex items-center gap-1 ${score >= 5 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${score >= 5 ? "bg-primary-500/20" : "bg-white/5"}`}>
                     {score >= 5 ? "V" : "5"}
                   </span>
                   Tendance
                 </div>
-                <div className={`flex items-center gap-1.5 ${score >= 10 ? "text-primary-400" : "text-gray-600"}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold ${score >= 10 ? "bg-primary-500/20" : "bg-white/5"}`}>
+                <div className={`flex items-center gap-1 ${score >= 10 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${score >= 10 ? "bg-primary-500/20" : "bg-white/5"}`}>
                     {score >= 10 ? "V" : "10"}
                   </span>
                   Validation
                 </div>
-                <div className={`flex items-center gap-1.5 ${score >= 25 ? "text-primary-400" : "text-gray-600"}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold ${score >= 25 ? "bg-primary-500/20" : "bg-white/5"}`}>
+                <div className={`flex items-center gap-1 ${score >= 25 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${score >= 25 ? "bg-primary-500/20" : "bg-white/5"}`}>
                     {score >= 25 ? "V" : "25"}
                   </span>
                   Challenge
                 </div>
-                <div className={`flex items-center gap-1.5 ${score >= 50 ? "text-primary-400" : "text-gray-600"}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold ${score >= 50 ? "bg-primary-500/20" : "bg-white/5"}`}>
+                <div className={`flex items-center gap-1 ${score >= 50 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${score >= 50 ? "bg-primary-500/20" : "bg-white/5"}`}>
                     {score >= 50 ? "V" : "50"}
                   </span>
                   Prioritaire
@@ -237,31 +235,30 @@ export default async function IdeaDetailPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Author */}
-            <div className="card">
-              <h3 className="font-semibold mb-3 text-sm">{t.ideas.author}</h3>
-              <div className="flex items-center gap-3">
-                {idea.author.avatarUrl ? (
-                  <img src={idea.author.avatarUrl} alt={idea.author.username} className="w-10 h-10 rounded-lg object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold">
-                    {idea.author.username.charAt(0).toUpperCase()}
+            {/* Author + Share inline */}
+            <div className="flex gap-3">
+              <div className="card !p-3 flex-1">
+                <div className="flex items-center gap-2">
+                  {idea.author.avatarUrl ? (
+                    <img src={idea.author.avatarUrl} alt={idea.author.username} className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                      {idea.author.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-medium text-xs truncate">{idea.author.username}</p>
+                    {idea.author.country && <p className="text-[10px] text-gray-400 truncate">{idea.author.country}</p>}
                   </div>
-                )}
-                <div>
-                  <p className="font-medium text-sm">{idea.author.username}</p>
-                  {idea.author.country && <p className="text-xs text-gray-400">{idea.author.country}</p>}
                 </div>
               </div>
-            </div>
-
-            {/* Share */}
-            <div className="card">
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
-                <Share2 className="w-4 h-4 text-primary-400" />
-                {t.share.shareOn}
-              </h3>
-              <ShareButtons title={idea.title} url={`https://futurai.space/ideas/${idea.id}`} />
+              <div className="card !p-3 flex-1">
+                <p className="text-xs text-gray-400 mb-1.5 flex items-center gap-1">
+                  <Share2 className="w-3 h-3" />
+                  {t.share.shareOn}
+                </p>
+                <ShareButtons title={idea.title} url={`https://futurai.space/ideas/${idea.id}`} />
+              </div>
             </div>
           </div>
         </div>

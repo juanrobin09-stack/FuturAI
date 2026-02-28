@@ -102,19 +102,19 @@ export default function IdeaCollaborators({ ideaId, ideaAuthorId }: Props) {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Users className="w-5 h-5 text-primary-400" />
-          Équipe
-          <span className="text-sm font-normal text-gray-500">
-            ({collaborators.length} collaborateur{collaborators.length !== 1 ? "s" : ""})
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary-400 shrink-0" />
+          <span>Équipe</span>
+          <span className="text-xs sm:text-sm font-normal text-gray-500">
+            ({collaborators.length})
           </span>
         </h3>
 
         {!isCollaborator && !loading && (
           <button
             onClick={() => setShowJoinForm(!showJoinForm)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-sm font-medium hover:from-primary-400 hover:to-accent-400 transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-xs sm:text-sm font-medium hover:from-primary-400 hover:to-accent-400 transition-all shadow-sm"
           >
             <UserPlus className="w-3.5 h-3.5" />
             Rejoindre
@@ -125,7 +125,7 @@ export default function IdeaCollaborators({ ideaId, ideaAuthorId }: Props) {
           <button
             onClick={handleLeave}
             disabled={leaving}
-            className="flex items-center gap-1 px-3 py-1.5 text-gray-400 hover:text-red-400 border border-white/10 hover:border-red-400/30 rounded-lg text-xs transition-colors"
+            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-gray-400 hover:text-red-400 border border-white/10 hover:border-red-400/30 rounded-lg text-xs transition-colors"
           >
             <X className="w-3 h-3" />
             Quitter
