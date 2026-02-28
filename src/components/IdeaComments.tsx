@@ -96,7 +96,7 @@ function CommentItem({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`${isReply ? "ml-8 pl-4 border-l border-white/5" : ""}`}
+      className={`${isReply ? "ml-4 sm:ml-8 pl-3 sm:pl-4 border-l border-white/5" : ""}`}
     >
       <div className="flex gap-3 py-3">
         {/* Avatar */}

@@ -39,7 +39,7 @@ export default function IdeaCard({ idea, userVote = 0, rank }: IdeaCardProps) {
   const collaboratorCount = idea.collaboratorCount ?? 0;
 
   return (
-    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="card group hover:border-primary-500/20 flex gap-4">
+    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="card group hover:border-primary-500/20 flex gap-3 sm:gap-4">
       {/* Vote */}
       <VoteButton ideaId={idea.id} initialScore={score} initialUserVote={userVote} />
 
@@ -55,7 +55,7 @@ export default function IdeaCard({ idea, userVote = 0, rank }: IdeaCardProps) {
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <Link
                 href={`/ideas/${idea.id}`}
-                className="text-lg font-semibold text-white hover:text-primary-300 transition-colors line-clamp-1"
+                className="text-base sm:text-lg font-semibold text-white hover:text-primary-300 transition-colors line-clamp-1"
               >
                 {idea.title}
               </Link>
