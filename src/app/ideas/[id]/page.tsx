@@ -77,7 +77,7 @@ export default async function IdeaDetailPage({ params }: Props) {
   const progress = Math.min((score / nextMilestone) * 100, 100);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       {/* Back */}
       <Link
         href="/ideas"
@@ -105,9 +105,9 @@ export default async function IdeaDetailPage({ params }: Props) {
       </div>
 
       {/* Two-column layout */}
-      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-6">
         {/* Main content */}
-        <div className="flex-1 min-w-0 space-y-4 sm:space-y-6">
+        <div className="flex-1 min-w-0 space-y-4 sm:space-y-5">
           {/* Image */}
           {idea.imageUrl && (
             <div className="w-full rounded-2xl overflow-hidden bg-gray-800">
@@ -122,7 +122,7 @@ export default async function IdeaDetailPage({ params }: Props) {
           {/* Description */}
           <div className="card">
             <h2 className="text-lg font-semibold mb-3">{t.ideas.description}</h2>
-            <div className="text-gray-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+            <div className="text-gray-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap max-w-prose">
               {idea.description}
             </div>
           </div>
@@ -264,7 +264,7 @@ export default async function IdeaDetailPage({ params }: Props) {
         </div>
 
         {/* Desktop sidebar */}
-        <div className="hidden lg:block w-[320px] shrink-0">
+        <div className="hidden lg:block w-[340px] shrink-0">
           <div className="sticky top-6 space-y-4">
             {/* Collaborators */}
             <IdeaCollaborators ideaId={idea.id} ideaAuthorId={idea.author.id} />
