@@ -11,9 +11,10 @@ export async function GET(
     const idea = await prisma.idea.findUnique({
       where: { id: params.id },
       include: {
-        author: { select: { username: true, avatarUrl: true, country: true } },
+        author: { select: { id: true, username: true, avatarUrl: true, country: true } },
         votes: { select: { value: true, userId: true } },
         sandbox: { orderBy: { createdAt: "desc" }, take: 10 },
+        _count: { select: { ideaComments: true, collaborators: true } },
       },
     });
 
@@ -26,6 +27,8 @@ export async function GET(
     return NextResponse.json({
       ...idea,
       score,
+      commentCount: idea._count.ideaComments,
+      collaboratorCount: idea._count.collaborators,
       createdAt: idea.createdAt.toISOString(),
       updatedAt: idea.updatedAt.toISOString(),
     });

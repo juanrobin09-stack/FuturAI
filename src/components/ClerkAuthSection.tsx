@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { LogIn, UserPlus } from "lucide-react";
 import { useLanguage } from "@/i18n";
@@ -9,7 +9,7 @@ import { clerkDarkTheme } from "@/lib/clerk-theme";
 
 /**
  * Client-only auth section (loaded via dynamic import with ssr:false).
- * Detects auth state via Clerk + /api/users/me and re-checks on navigation.
+ * Robust auth detection: never drops session on transient errors.
  */
 export default function ClerkAuthSection() {
   const { t } = useLanguage();
@@ -22,40 +22,96 @@ export default function ClerkAuthSection() {
   const [apiUser, setApiUser] = useState<{ username: string; avatarUrl: string | null } | null>(null);
   const [apiChecked, setApiChecked] = useState(false);
 
-  // Check auth via API
+  // Track consecutive failures to prevent false logouts
+  const failCountRef = useRef(0);
+  const lastSuccessRef = useRef<number>(Date.now());
+  const checkInProgressRef = useRef(false);
+
+  // Check auth via API — NEVER clears state on network errors
   const checkAuth = useCallback(async () => {
+    // Prevent concurrent checks
+    if (checkInProgressRef.current) return;
+    checkInProgressRef.current = true;
+
     try {
-      // First quick check: if Clerk says user is signed out, trust it immediately
+      // Quick check: if Clerk is fully loaded and says no user, trust it
       const inst = (window as any).Clerk;
-      if (inst?.loaded && !inst?.user) {
-        setApiUser(null);
-        setApiChecked(true);
-        return;
+      if (inst?.loaded && inst?.user === null) {
+        // Clerk is definitively loaded and user is null → truly signed out
+        // But only clear if we haven't had a success in the last 10s
+        // (prevents false clear during token refresh)
+        const timeSinceSuccess = Date.now() - lastSuccessRef.current;
+        if (timeSinceSuccess > 10000 || !apiUser) {
+          setApiUser(null);
+          setApiChecked(true);
+          failCountRef.current = 0;
+          checkInProgressRef.current = false;
+          return;
+        }
       }
 
-      const res = await fetch("/api/users/me");
-      const data = await res.json();
-      if (data?.user?.username) {
-        setApiUser({
-          username: data.user.username,
-          avatarUrl: data.user.avatarUrl || null,
-        });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch("/api/users/me", {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      clearTimeout(timeout);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.user?.username) {
+          setApiUser({
+            username: data.user.username,
+            avatarUrl: data.user.avatarUrl || null,
+          });
+          lastSuccessRef.current = Date.now();
+          failCountRef.current = 0;
+        } else {
+          // API returned OK but no user → definitively not signed in
+          failCountRef.current++;
+          if (failCountRef.current >= 2) {
+            setApiUser(null);
+          }
+        }
+      } else if (res.status === 401 || res.status === 403) {
+        // Definitive auth failure → clear after 2 consecutive failures
+        failCountRef.current++;
+        if (failCountRef.current >= 2) {
+          setApiUser(null);
+        }
       } else {
-        setApiUser(null);
+        // Server error (500, 503, etc.) — DON'T clear auth state
+        // This is likely transient (deploy, cold start, etc.)
+        failCountRef.current++;
       }
     } catch {
-      setApiUser(null);
+      // Network error, timeout, abort — DON'T clear auth state
+      // User is probably still signed in, just a transient issue
+      failCountRef.current++;
     } finally {
       setApiChecked(true);
+      checkInProgressRef.current = false;
     }
-  }, []);
+  }, [apiUser]);
 
-  // 1) Check auth on mount and on every route change
+  // 1) Check auth on mount
   useEffect(() => {
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 2) Re-check on route change (debounced — skip if checked recently)
+  useEffect(() => {
+    const timeSinceSuccess = Date.now() - lastSuccessRef.current;
+    // Only re-check on navigation if it's been a while since last success
+    if (timeSinceSuccess > 5000) {
+      checkAuth();
+    }
   }, [pathname, checkAuth]);
 
-  // 2) Try to load Clerk UserButton (for the dropdown menu)
+  // 3) Try to load Clerk UserButton (for the dropdown menu)
   useEffect(() => {
     let cancelled = false;
 
@@ -72,13 +128,10 @@ export default function ClerkAuthSection() {
             }
             return true;
           }
-          // If Clerk is loaded but user is null → signed out
-          if (inst?.loaded && !inst?.user) {
+          if (inst?.loaded && inst?.user === null) {
             if (!cancelled) {
               setClerkReady(false);
               setClerkUserButton(null);
-              setApiUser(null);
-              setApiChecked(true);
             }
             return true;
           }
@@ -87,7 +140,6 @@ export default function ClerkAuthSection() {
 
         if (check()) return;
 
-        // Poll for up to 15 seconds
         let tries = 0;
         const interval = setInterval(() => {
           tries++;
@@ -104,29 +156,33 @@ export default function ClerkAuthSection() {
     return () => { cancelled = true; };
   }, []);
 
-  // 3) Watch for Clerk sign-out (poll every 2s — lightweight check)
+  // 4) Watch for Clerk sign-out (poll every 8s — relaxed, not aggressive)
   useEffect(() => {
     const interval = setInterval(() => {
       const inst = (window as any).Clerk;
-      if (inst?.loaded && !inst?.user && apiUser) {
-        // Clerk says user is signed out but we still show profile → clear
-        setApiUser(null);
-        setClerkReady(false);
-        setClerkUserButton(null);
+      if (inst?.loaded && inst?.user === null && apiUser) {
+        // Clerk definitively says no user — but require 2+ consecutive checks
+        failCountRef.current++;
+        if (failCountRef.current >= 2) {
+          setApiUser(null);
+          setClerkReady(false);
+          setClerkUserButton(null);
+          failCountRef.current = 0;
+        }
+      } else if (inst?.loaded && inst?.user && !apiUser && apiChecked) {
+        // Clerk says user IS signed in but we don't show it → re-check API
+        checkAuth();
       }
-    }, 2000);
+    }, 8000);
     return () => clearInterval(interval);
-  }, [apiUser]);
+  }, [apiUser, apiChecked, checkAuth]);
 
-  // 4) Re-check on window focus (user may have signed out in another tab)
+  // 5) Re-check on window focus (user may have signed out in another tab)
   useEffect(() => {
     const handleFocus = () => {
-      const inst = (window as any).Clerk;
-      if (inst?.loaded && !inst?.user) {
-        setApiUser(null);
-        setClerkReady(false);
-        setClerkUserButton(null);
-      } else {
+      // Only re-check if it's been a while since last success
+      const timeSinceSuccess = Date.now() - lastSuccessRef.current;
+      if (timeSinceSuccess > 10000) {
         checkAuth();
       }
     };
@@ -134,20 +190,38 @@ export default function ClerkAuthSection() {
     return () => window.removeEventListener("focus", handleFocus);
   }, [checkAuth]);
 
-  // Determine auth state: API is the reliable source
+  // 6) Listen for Clerk session changes via event
+  useEffect(() => {
+    const inst = (window as any).Clerk;
+    if (inst?.addListener) {
+      const unsubscribe = inst.addListener(({ user }: any) => {
+        if (user) {
+          // User just signed in → refresh
+          checkAuth();
+          failCountRef.current = 0;
+        } else if (user === null) {
+          // User explicitly signed out via Clerk UI
+          setApiUser(null);
+          setClerkReady(false);
+          setClerkUserButton(null);
+          failCountRef.current = 0;
+        }
+      });
+      return () => { if (typeof unsubscribe === "function") unsubscribe(); };
+    }
+  }, [checkAuth]);
+
+  // Determine auth state
   const isSignedIn = !!apiUser;
   const isLoading = !apiChecked;
 
-  // Loading — show sign-in placeholders briefly
   if (isLoading) {
     return (
       <>
-        {/* Desktop */}
         <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-500 border border-white/5">
           <LogIn className="w-3.5 h-3.5" />
           ...
         </span>
-        {/* Mobile */}
         <span className="sm:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 border border-white/5">
           <LogIn className="w-4 h-4" />
         </span>
@@ -155,7 +229,6 @@ export default function ClerkAuthSection() {
     );
   }
 
-  // Signed in — show profile link (+ Clerk UserButton if available)
   if (isSignedIn) {
     const initial = apiUser.username.charAt(0).toUpperCase();
     return (
@@ -199,10 +272,8 @@ export default function ClerkAuthSection() {
     );
   }
 
-  // Not signed in
   return (
     <>
-      {/* Desktop: full buttons */}
       <Link
         href="/sign-in"
         className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
@@ -217,7 +288,6 @@ export default function ClerkAuthSection() {
         <UserPlus className="w-3.5 h-3.5" />
         {t.nav.signUp}
       </Link>
-      {/* Mobile: icon-only */}
       <Link
         href="/sign-in"
         className="sm:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all"

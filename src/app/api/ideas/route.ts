@@ -43,8 +43,9 @@ export async function GET(req: NextRequest) {
       include: {
         author: { select: { username: true, avatarUrl: true } },
         votes: { select: { value: true, userId: true } },
+        _count: { select: { ideaComments: true, collaborators: true } },
       },
-      orderBy: sort === "top" ? { createdAt: "desc" } : { createdAt: "desc" },
+      orderBy: { createdAt: "desc" },
       take: 50,
     });
 
@@ -56,6 +57,8 @@ export async function GET(req: NextRequest) {
         userVote: currentUserId
           ? (idea.votes.find((v) => v.userId === currentUserId)?.value ?? 0)
           : 0,
+        commentCount: idea._count.ideaComments,
+        collaboratorCount: idea._count.collaborators,
         createdAt: idea.createdAt.toISOString(),
         updatedAt: idea.updatedAt.toISOString(),
       }))

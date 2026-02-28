@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Clock, User } from "lucide-react";
+import { MapPin, Clock, User, MessageCircle, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import VoteButton from "./VoteButton";
 import CategoryBadge from "./CategoryBadge";
+import IdeaStatusBadge from "./IdeaStatusBadge";
 import { timeAgo } from "@/lib/utils";
 import { useLanguage } from "@/i18n";
 
@@ -16,6 +17,7 @@ interface IdeaCardProps {
     category: string;
     imageUrl?: string | null;
     country?: string | null;
+    status?: string;
     createdAt: string | Date;
     author: {
       username: string;
@@ -23,6 +25,8 @@ interface IdeaCardProps {
     };
     _count?: { votes: number };
     score?: number;
+    commentCount?: number;
+    collaboratorCount?: number;
   };
   userVote?: number;
   rank?: number;
@@ -31,6 +35,8 @@ interface IdeaCardProps {
 export default function IdeaCard({ idea, userVote = 0, rank }: IdeaCardProps) {
   const { t } = useLanguage();
   const score = idea.score ?? 0;
+  const commentCount = idea.commentCount ?? 0;
+  const collaboratorCount = idea.collaboratorCount ?? 0;
 
   return (
     <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="card group hover:border-primary-500/20 flex gap-4">
@@ -46,12 +52,20 @@ export default function IdeaCard({ idea, userVote = 0, rank }: IdeaCardProps) {
             </span>
           )}
           <div className="flex-1 min-w-0">
-            <Link
-              href={`/ideas/${idea.id}`}
-              className="text-lg font-semibold text-white hover:text-primary-300 transition-colors line-clamp-1"
-            >
-              {idea.title}
-            </Link>
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <Link
+                href={`/ideas/${idea.id}`}
+                className="text-lg font-semibold text-white hover:text-primary-300 transition-colors line-clamp-1"
+              >
+                {idea.title}
+              </Link>
+              <IdeaStatusBadge
+                status={idea.status || "proposed"}
+                score={score}
+                collaboratorCount={collaboratorCount}
+                size="sm"
+              />
+            </div>
             <p className="text-gray-400 text-sm mt-1 line-clamp-2">
               {idea.description}
             </p>
@@ -75,6 +89,18 @@ export default function IdeaCard({ idea, userVote = 0, rank }: IdeaCardProps) {
             <Clock className="w-3 h-3" />
             {timeAgo(idea.createdAt, t.time)}
           </span>
+          {commentCount > 0 && (
+            <span className="flex items-center gap-1 text-primary-400/70">
+              <MessageCircle className="w-3 h-3" />
+              {commentCount}
+            </span>
+          )}
+          {collaboratorCount > 0 && (
+            <span className="flex items-center gap-1 text-accent-400/70">
+              <Users className="w-3 h-3" />
+              {collaboratorCount}
+            </span>
+          )}
         </div>
       </div>
 

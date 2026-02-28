@@ -3,10 +3,13 @@ import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import VoteButton from "@/components/VoteButton";
 import CategoryBadge from "@/components/CategoryBadge";
+import IdeaStatusBadge from "@/components/IdeaStatusBadge";
 import SandboxAI from "@/components/SandboxAI";
 import ShareButtons from "@/components/ShareButtons";
-import { MapPin, Clock, User, ArrowLeft, Share2 } from "lucide-react";
-import { timeAgo, formatDate, getCategoryLabel } from "@/lib/utils";
+import IdeaComments from "@/components/IdeaComments";
+import IdeaCollaborators from "@/components/IdeaCollaborators";
+import { MapPin, Clock, User, ArrowLeft, Share2, TrendingUp, MessageCircle, Users } from "lucide-react";
+import { timeAgo } from "@/lib/utils";
 import Link from "next/link";
 import { getServerTranslations } from "@/i18n/server";
 import { getAuthUserId, getCurrentUser } from "@/lib/auth";
@@ -39,10 +42,11 @@ async function getIdea(id: string) {
       where: { id },
       include: {
         author: {
-          select: { username: true, avatarUrl: true, country: true },
+          select: { id: true, username: true, avatarUrl: true, country: true },
         },
         votes: { select: { value: true, userId: true } },
         sandbox: { orderBy: { createdAt: "desc" }, take: 5 },
+        _count: { select: { ideaComments: true, collaborators: true } },
       },
     });
     return idea;
@@ -56,8 +60,10 @@ export default async function IdeaDetailPage({ params }: Props) {
 
   if (!idea) return notFound();
 
-  const { t, locale } = getServerTranslations();
+  const { t } = getServerTranslations();
   const score = idea.votes.reduce((sum, v) => sum + v.value, 0);
+  const commentCount = idea._count.ideaComments;
+  const collaboratorCount = idea._count.collaborators;
 
   // Get current user's vote
   let userVote = 0;
@@ -69,8 +75,12 @@ export default async function IdeaDetailPage({ params }: Props) {
     }
   } catch {}
 
+  // Compute vote milestones
+  const nextMilestone = score < 5 ? 5 : score < 10 ? 10 : score < 25 ? 25 : score < 50 ? 50 : 100;
+  const progress = Math.min((score / nextMilestone) * 100, 100);
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       {/* Back */}
       <Link
         href="/ideas"
@@ -80,14 +90,21 @@ export default async function IdeaDetailPage({ params }: Props) {
         {t.ideas.backToIdeas}
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
         {/* Main content */}
         <div>
           {/* Header */}
           <div className="flex items-start gap-4 mb-6">
             <VoteButton ideaId={idea.id} initialScore={score} initialUserVote={userVote} size="lg" />
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold mb-2">{idea.title}</h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 flex-wrap mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold">{idea.title}</h1>
+                <IdeaStatusBadge
+                  status={idea.status}
+                  score={score}
+                  collaboratorCount={collaboratorCount}
+                />
+              </div>
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400">
                 <CategoryBadge category={idea.category} size="md" />
                 <span className="flex items-center gap-1">
@@ -127,6 +144,11 @@ export default async function IdeaDetailPage({ params }: Props) {
             </div>
           </div>
 
+          {/* Comments / Discussion */}
+          <div className="mb-6">
+            <IdeaComments ideaId={idea.id} />
+          </div>
+
           {/* Sandbox */}
           <SandboxAI ideaId={idea.id} ideaTitle={idea.title} />
 
@@ -157,22 +179,65 @@ export default async function IdeaDetailPage({ params }: Props) {
         </div>
 
         {/* Sidebar */}
-        <div className="lg:w-72 space-y-4">
+        <div className="space-y-4">
+          {/* Collaborators — big feature */}
+          <IdeaCollaborators ideaId={idea.id} ideaAuthorId={idea.author.id} />
+
+          {/* Vote progress / milestones */}
           <div className="card">
-            <h3 className="font-semibold mb-3">{t.ideas.author}</h3>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold">
-                {idea.author.username.charAt(0).toUpperCase()}
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-primary-400" />
+              Impact du vote
+            </h3>
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Score actuel</span>
+                <span className="font-bold text-primary-400">{score}</span>
               </div>
+              {/* Progress bar to next milestone */}
               <div>
-                <p className="font-medium">{idea.author.username}</p>
-                {idea.author.country && (
-                  <p className="text-sm text-gray-400">{idea.author.country}</p>
-                )}
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Prochain palier : {nextMilestone} votes</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+              {/* Milestones */}
+              <div className="space-y-1.5 text-xs">
+                <div className={`flex items-center gap-2 ${score >= 5 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${score >= 5 ? "bg-primary-500/20" : "bg-white/5"}`}>
+                    {score >= 5 ? "V" : "5"}
+                  </span>
+                  Tendance — visible en page d'accueil
+                </div>
+                <div className={`flex items-center gap-2 ${score >= 10 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${score >= 10 ? "bg-primary-500/20" : "bg-white/5"}`}>
+                    {score >= 10 ? "V" : "10"}
+                  </span>
+                  Validation communautaire
+                </div>
+                <div className={`flex items-center gap-2 ${score >= 25 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${score >= 25 ? "bg-primary-500/20" : "bg-white/5"}`}>
+                    {score >= 25 ? "V" : "25"}
+                  </span>
+                  Eligible pour un challenge
+                </div>
+                <div className={`flex items-center gap-2 ${score >= 50 ? "text-primary-400" : "text-gray-600"}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${score >= 50 ? "bg-primary-500/20" : "bg-white/5"}`}>
+                    {score >= 50 ? "V" : "50"}
+                  </span>
+                  Projet prioritaire
+                </div>
               </div>
             </div>
           </div>
 
+          {/* Stats */}
           <div className="card">
             <h3 className="font-semibold mb-3">{t.ideas.statistics}</h3>
             <div className="space-y-2 text-sm">
@@ -185,8 +250,46 @@ export default async function IdeaDetailPage({ params }: Props) {
                 <span>{idea.votes.length}</span>
               </div>
               <div className="flex justify-between">
+                <span className="text-gray-400 flex items-center gap-1">
+                  <MessageCircle className="w-3 h-3" />
+                  Commentaires
+                </span>
+                <span>{commentCount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 flex items-center gap-1">
+                  <Users className="w-3 h-3" />
+                  Collaborateurs
+                </span>
+                <span>{collaboratorCount}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-gray-400">{t.ideas.prototypes}</span>
                 <span>{idea.sandbox.length}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Author */}
+          <div className="card">
+            <h3 className="font-semibold mb-3">{t.ideas.author}</h3>
+            <div className="flex items-center gap-3">
+              {idea.author.avatarUrl ? (
+                <img
+                  src={idea.author.avatarUrl}
+                  alt={idea.author.username}
+                  className="w-10 h-10 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold">
+                  {idea.author.username.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <p className="font-medium">{idea.author.username}</p>
+                {idea.author.country && (
+                  <p className="text-sm text-gray-400">{idea.author.country}</p>
+                )}
               </div>
             </div>
           </div>

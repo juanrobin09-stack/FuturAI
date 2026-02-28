@@ -42,6 +42,10 @@ model User {
   comments       Comment[]
   notifications  Notification[]
   contributions  Contribution[]
+
+  // V10: Idea collaboration
+  ideaComments      IdeaComment[]
+  ideaCollaborations IdeaCollaborator[]
   challengeEntries ChallengeEntry[]
   apiKeys        UserApiKey[]
   challengePanels ChallengePanel[]
@@ -81,18 +85,61 @@ model Idea {
   country     String?
   latitude    Float?
   longitude   Float?
+  status      String   @default("proposed") // proposed, trending, in_progress, completed
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  votes    Vote[]
-  sandbox  SandboxResult[]
-  project  Project?
+  votes          Vote[]
+  sandbox        SandboxResult[]
+  project        Project?
+  ideaComments   IdeaComment[]
+  collaborators  IdeaCollaborator[]
 
   @@index([category])
   @@index([authorId])
+  @@index([status])
+}
+
+// ─── IDEA COMMENTS (open to all, no API key needed) ─────
+model IdeaComment {
+  id        String   @id @default(cuid())
+  content   String
+  type      String   @default("comment") // comment, resource, question, suggestion
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  ideaId   String
+  idea     Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent   IdeaComment?  @relation("IdeaCommentReplies", fields: [parentId], references: [id])
+  replies  IdeaComment[] @relation("IdeaCommentReplies")
+
+  @@index([ideaId])
+  @@index([authorId])
+  @@index([parentId])
+}
+
+// ─── IDEA COLLABORATORS (join an idea team) ─────────────
+model IdeaCollaborator {
+  id        String   @id @default(cuid())
+  role      String   @default("contributor") // contributor, researcher, developer, designer, mentor
+  message   String?  // "I want to contribute because..."
+  status    String   @default("active")      // active, left
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ideaId String
+  idea   Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ideaId])
+  @@index([ideaId])
 }
 
 // ─── PROJECTS (collaborative) ───────────────────────────
