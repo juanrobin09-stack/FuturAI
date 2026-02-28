@@ -26,7 +26,7 @@ interface Props {
 const roleConfig: Record<string, { icon: React.ComponentType<any>; label: string; color: string }> = {
   contributor: { icon: UserPlus, label: "Contributeur", color: "text-primary-400 bg-primary-400/10" },
   researcher: { icon: Search, label: "Chercheur", color: "text-blue-400 bg-blue-400/10" },
-  developer: { icon: Code, label: "Developpeur", color: "text-green-400 bg-green-400/10" },
+  developer: { icon: Code, label: "Développeur", color: "text-green-400 bg-green-400/10" },
   designer: { icon: Palette, label: "Designer", color: "text-purple-400 bg-purple-400/10" },
   mentor: { icon: GraduationCap, label: "Mentor", color: "text-amber-400 bg-amber-400/10" },
 };
@@ -72,12 +72,12 @@ export default function IdeaCollaborators({ ideaId, ideaAuthorId }: Props) {
         toast.error(data.error || "Erreur");
         return;
       }
-      toast.success("Vous avez rejoint l'equipe ! +5 pts");
+      toast.success("Vous avez rejoint l'équipe ! +5 pts");
       setShowJoinForm(false);
       setMessage("");
       fetchCollaborators();
     } catch {
-      toast.error("Erreur reseau");
+      toast.error("Erreur réseau");
     } finally {
       setJoining(false);
     }
@@ -90,7 +90,7 @@ export default function IdeaCollaborators({ ideaId, ideaAuthorId }: Props) {
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success("Vous avez quitte l'equipe");
+        toast.success("Vous avez quitté l'équipe");
         fetchCollaborators();
       }
     } catch {
@@ -105,7 +105,7 @@ export default function IdeaCollaborators({ ideaId, ideaAuthorId }: Props) {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Users className="w-5 h-5 text-primary-400" />
-          Equipe
+          Équipe
           <span className="text-sm font-normal text-gray-500">
             ({collaborators.length} collaborateur{collaborators.length !== 1 ? "s" : ""})
           </span>
@@ -144,7 +144,7 @@ export default function IdeaCollaborators({ ideaId, ideaAuthorId }: Props) {
           >
             <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
               <p className="text-sm text-gray-300">
-                Choisissez votre role et presentez-vous :
+                Choisissez votre rôle et présentez-vous :
               </p>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(roleConfig).map(([key, cfg]) => {

@@ -65,7 +65,7 @@ export async function POST(
     const authId = await getAuthUserId();
     if (!authId) {
       return NextResponse.json(
-        { error: "Connectez-vous pour rejoindre cette idee" },
+        { error: "Connectez-vous pour rejoindre cette idée" },
         { status: 401 }
       );
     }
@@ -77,7 +77,7 @@ export async function POST(
     // Verify idea exists
     const idea = await prisma.idea.findUnique({ where: { id: params.id } });
     if (!idea) {
-      return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
+      return NextResponse.json({ error: "Idée non trouvée" }, { status: 404 });
     }
 
     const validRoles = ["contributor", "researcher", "developer", "designer", "mentor"];
@@ -125,7 +125,7 @@ export async function POST(
         data: {
           type: "project_invite",
           title: "Nouveau collaborateur !",
-          message: `${user.username} veut contribuer a "${idea.title.substring(0, 50)}" en tant que ${collabRole}`,
+          message: `${user.username} veut contribuer à "${idea.title.substring(0, 50)}" en tant que ${collabRole}`,
           link: `/ideas/${idea.id}`,
           userId: idea.authorId,
         },
@@ -136,7 +136,7 @@ export async function POST(
     await prisma.activity.create({
       data: {
         type: "project_join",
-        message: `${user.username} a rejoint une idee`,
+        message: `${user.username} a rejoint une idée`,
         metadata: JSON.stringify({ ideaId: params.id, role: collabRole }),
         userId: user.id,
       },
@@ -161,7 +161,7 @@ export async function DELETE(
 
     const authId = await getAuthUserId();
     if (!authId) {
-      return NextResponse.json({ error: "Non autorise" }, { status: 401 });
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
     const user = await getCurrentUser();

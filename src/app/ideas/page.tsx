@@ -156,7 +156,7 @@ export default function IdeasPage() {
             <h3 className="text-lg font-medium text-gray-400">{t.ideas.noIdeasFound}</h3>
             <p className="text-sm text-gray-500 mt-2">
               {region
-                ? `Aucune idee trouvee pour la region "${region}". Essayez un autre filtre.`
+                ? `Aucune idée trouvée pour la région "${region}". Essayez un autre filtre.`
                 : t.ideas.noIdeasHint}
             </p>
           </div>

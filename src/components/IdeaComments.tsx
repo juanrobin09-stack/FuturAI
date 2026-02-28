@@ -84,9 +84,9 @@ function CommentItem({
       setReplyContent("");
       setShowReply(false);
       onReplyAdded();
-      toast.success("Reponse publiee !");
+      toast.success("Réponse publiée !");
     } catch {
-      toast.error("Erreur reseau");
+      toast.error("Erreur réseau");
     } finally {
       setSending(false);
     }
@@ -135,7 +135,7 @@ function CommentItem({
               className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary-400 mt-1.5 transition-colors"
             >
               <Reply className="w-3 h-3" />
-              Repondre
+              Répondre
             </button>
           )}
 
@@ -152,7 +152,7 @@ function CommentItem({
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleReply()}
-                  placeholder="Votre reponse..."
+                  placeholder="Votre réponse..."
                   className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50"
                   maxLength={2000}
                 />
@@ -229,9 +229,9 @@ export default function IdeaComments({ ideaId }: Props) {
       setContent("");
       setType("comment");
       fetchComments();
-      toast.success("Commentaire publie !");
+      toast.success("Commentaire publié !");
     } catch {
-      toast.error("Erreur reseau");
+      toast.error("Erreur réseau");
     } finally {
       setSending(false);
     }
@@ -250,7 +250,7 @@ export default function IdeaComments({ ideaId }: Props) {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Partagez une idee, une ressource, posez une question..."
+          placeholder="Partagez une idée, une ressource, posez une question..."
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50 resize-none"
           rows={3}
           maxLength={2000}
@@ -294,7 +294,7 @@ export default function IdeaComments({ ideaId }: Props) {
         <div className="text-center py-8">
           <MessageCircle className="w-8 h-8 text-gray-600 mx-auto mb-2" />
           <p className="text-sm text-gray-500">
-            Aucun commentaire pour le moment. Soyez le premier a contribuer !
+            Aucun commentaire pour le moment. Soyez le premier à contribuer !
           </p>
         </div>
       ) : (

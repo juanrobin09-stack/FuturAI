@@ -312,7 +312,7 @@ export default async function IdeaDetailPage({ params }: Props) {
                     <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${score >= 25 ? "bg-primary-500/20" : "bg-white/5"}`}>
                       {score >= 25 ? "V" : "25"}
                     </span>
-                    Eligible pour un challenge
+                    Éligible pour un challenge
                   </div>
                   <div className={`flex items-center gap-2 ${score >= 50 ? "text-primary-400" : "text-gray-600"}`}>
                     <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${score >= 50 ? "bg-primary-500/20" : "bg-white/5"}`}>

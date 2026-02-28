@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     if (!title?.trim() || !description?.trim() || !category) {
       return NextResponse.json(
-        { error: "Titre, description et categorie requis" },
+        { error: "Titre, description et catégorie requis" },
         { status: 400 }
       );
     }
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
         data: {
           type: "first_action",
           title: "Premier pas !",
-          message: "Vous avez soumis votre premiere idee ! L'aventure commence.",
+          message: "Vous avez soumis votre première idée ! L'aventure commence.",
           link: `/ideas/${idea.id}`,
           userId: user.id,
         },

@@ -69,7 +69,7 @@ export async function POST(
 
     if (content.length > 2000) {
       return NextResponse.json(
-        { error: "Le commentaire est trop long (max 2000 caracteres)" },
+        { error: "Le commentaire est trop long (max 2000 caractères)" },
         { status: 400 }
       );
     }
@@ -77,7 +77,7 @@ export async function POST(
     // Verify idea exists
     const idea = await prisma.idea.findUnique({ where: { id: params.id } });
     if (!idea) {
-      return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
+      return NextResponse.json({ error: "Idée non trouvée" }, { status: 404 });
     }
 
     // If replying, verify parent comment exists
@@ -116,7 +116,7 @@ export async function POST(
         data: {
           type: "comment",
           title: "Nouveau commentaire",
-          message: `${user.username} a commente votre idee "${idea.title.substring(0, 50)}"`,
+          message: `${user.username} a commenté votre idée "${idea.title.substring(0, 50)}"`,
           link: `/ideas/${idea.id}`,
           userId: idea.authorId,
         },
@@ -127,7 +127,7 @@ export async function POST(
     await prisma.activity.create({
       data: {
         type: "comment",
-        message: `${user.username} a commente une idee`,
+        message: `${user.username} a commenté une idée`,
         metadata: JSON.stringify({ ideaId: params.id, commentId: comment.id }),
         userId: user.id,
       },

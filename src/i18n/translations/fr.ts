@@ -914,25 +914,25 @@ export const fr = {
 
   // ─── SEO Metadata ───────────────────────────────────
   seo: {
-    ideasTitle: "Idees IA - FutureAI",
-    ideasDesc: "Explorez les idees d'innovation IA soumises par la communaute mondiale FutureAI.",
+    ideasTitle: "Idées IA - FutureAI",
+    ideasDesc: "Explorez les idées d'innovation IA soumises par la communauté mondiale FutureAI.",
     projectsTitle: "Projets IA collaboratifs - FutureAI",
-    projectsDesc: "Decouvrez et rejoignez des projets IA collaboratifs sur FutureAI.",
+    projectsDesc: "Découvrez et rejoignez des projets IA collaboratifs sur FutureAI.",
     challengesTitle: "Challenges IA - FutureAI",
     challengesDesc: "Participez aux challenges IA et gagnez en reconnaissance sur FutureAI.",
     arenaTitle: "Arena IA - FutureAI",
-    arenaDesc: "9 providers IA, 3 modes de generation. Collaborez en temps reel sur FutureAI.",
+    arenaDesc: "9 providers IA, 3 modes de génération. Collaborez en temps réel sur FutureAI.",
     forumTitle: "Forum IA - FutureAI",
     forumDesc: "Discutez, posez vos questions et partagez vos connaissances sur l'IA.",
     leaderboardTitle: "Classement - FutureAI",
-    leaderboardDesc: "Decouvrez les meilleurs contributeurs de la communaute FutureAI.",
+    leaderboardDesc: "Découvrez les meilleurs contributeurs de la communauté FutureAI.",
   },
 
   // ─── Social Sharing ─────────────────────────────────
   share: {
     shareOn: "Partager sur",
     copyLink: "Copier le lien",
-    linkCopied: "Lien copie !",
+    linkCopied: "Lien copié !",
     twitter: "Twitter/X",
     linkedin: "LinkedIn",
   },
@@ -940,31 +940,31 @@ export const fr = {
   // ─── Welcome Onboarding ─────────────────────────────
   welcome: {
     title: "Bienvenue sur FutureAI !",
-    subtitle: "La plateforme mondiale de collaboration IA. Par ou voulez-vous commencer ?",
-    pathIdea: "Soumettre une idee",
-    pathIdeaDesc: "Partagez une idee d'innovation IA avec la communaute.",
+    subtitle: "La plateforme mondiale de collaboration IA. Par où voulez-vous commencer ?",
+    pathIdea: "Soumettre une idée",
+    pathIdeaDesc: "Partagez une idée d'innovation IA avec la communauté.",
     pathProject: "Rejoindre un projet",
     pathProjectDesc: "Collaborez avec d'autres innovateurs sur un projet existant.",
     pathArena: "Essayer l'Arena",
-    pathArenaDesc: "Testez 9 providers IA en temps reel : code, image, video.",
+    pathArenaDesc: "Testez 9 providers IA en temps réel : code, image, vidéo.",
     skip: "Explorer librement",
   },
 
   // ─── Engagement & Gamification ────────────────────
   engagement: {
     // Streaks
-    streakTitle: "Serie de connexion",
-    currentStreak: "Serie actuelle",
+    streakTitle: "Série de connexion",
+    currentStreak: "Série actuelle",
     longestStreak: "Record personnel",
     days: "jours",
     day: "jour",
-    streakBonus: "Bonus de serie !",
+    streakBonus: "Bonus de série !",
     dailyLogin: "Connexion du jour",
     streakFire: "En feu !",
-    streakLost: "Serie perdue... Recommencez !",
+    streakLost: "Série perdue... Recommencez !",
 
     // Profile completion
-    profileCompletion: "Completez votre profil",
+    profileCompletion: "Complétez votre profil",
     profileCompleteReward: "+50 pts quand votre profil est complet !",
     profileComplete: "Profil complet !",
     addBio: "Ajoutez votre bio",
@@ -973,10 +973,10 @@ export const fr = {
     addSocialLink: "Ajoutez un lien GitHub ou LinkedIn",
 
     // First actions
-    firstIdea: "Votre premiere idee !",
-    firstIdeaDesc: "L'aventure commence. Votre idee est maintenant visible par la communaute.",
-    firstContribution: "Votre premiere contribution !",
-    firstContributionDesc: "Vous faites desormais partie de l'equipe. Bravo !",
+    firstIdea: "Votre première idée !",
+    firstIdeaDesc: "L'aventure commence. Votre idée est maintenant visible par la communauté.",
+    firstContribution: "Votre première contribution !",
+    firstContributionDesc: "Vous faites désormais partie de l'équipe. Bravo !",
     firstProject: "Votre premier projet !",
     firstProjectDesc: "Vous avez rejoint un projet collaboratif. Ensemble, on va plus loin.",
 
@@ -985,7 +985,7 @@ export const fr = {
     milestoneDesc: "Vous avez atteint {points} points. Continuez !",
 
     // Activity heatmap
-    activityTitle: "Activite recente",
+    activityTitle: "Activité récente",
     activityThisWeek: "cette semaine",
     activityThisMonth: "ce mois",
     actionsLabel: "actions",

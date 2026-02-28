@@ -26,7 +26,7 @@ export default function IdeaStatusBadge({ status, score, collaboratorCount, size
   const config: Record<string, { icon: React.ComponentType<any>; label: string; className: string }> = {
     proposed: {
       icon: Clock,
-      label: "Proposee",
+      label: "Proposée",
       className: "text-gray-400 bg-gray-500/10 border-gray-500/20",
     },
     trending: {
@@ -41,7 +41,7 @@ export default function IdeaStatusBadge({ status, score, collaboratorCount, size
     },
     completed: {
       icon: CheckCircle2,
-      label: "Realisee",
+      label: "Réalisée",
       className: "text-green-400 bg-green-400/10 border-green-400/20",
     },
   };

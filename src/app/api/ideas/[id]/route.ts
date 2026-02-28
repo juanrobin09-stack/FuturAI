@@ -19,7 +19,7 @@ export async function GET(
     });
 
     if (!idea) {
-      return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
+      return NextResponse.json({ error: "Idée non trouvée" }, { status: 404 });
     }
 
     const score = idea.votes.reduce((sum, v) => sum + v.value, 0);
@@ -52,7 +52,7 @@ export async function PATCH(
       where: { id: params.id },
     });
     if (!existing) {
-      return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
+      return NextResponse.json({ error: "Idée non trouvée" }, { status: 404 });
     }
     if (existing.authorId !== user.id && user.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -111,7 +111,7 @@ export async function DELETE(
       where: { id: params.id },
     });
     if (!existing) {
-      return NextResponse.json({ error: "Idee non trouvee" }, { status: 404 });
+      return NextResponse.json({ error: "Idée non trouvée" }, { status: 404 });
     }
     if (existing.authorId !== user.id && user.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
