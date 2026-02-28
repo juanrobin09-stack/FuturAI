@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/user/consent — Record user consent
 export async function POST() {
   try {

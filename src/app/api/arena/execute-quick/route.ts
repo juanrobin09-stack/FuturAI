@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { executeAI } from "@/lib/ai-execute";
 
+export const dynamic = 'force-dynamic';
+
 export const maxDuration = 300; // Fluid Compute — up to 300s on Hobby
 
 export async function POST(req: NextRequest) {

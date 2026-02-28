@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { POINTS } from "@/lib/points";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/forum/:id/posts - Add a reply to a forum thread
 export async function POST(
   req: NextRequest,

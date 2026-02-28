@@ -5,6 +5,8 @@ import { checkAndAwardBadges } from "@/lib/badges";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { isValidId } from "@/lib/validation";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/ideas/:id/vote
 export async function POST(
   req: NextRequest,

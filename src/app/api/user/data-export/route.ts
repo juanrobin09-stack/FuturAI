@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { createAuditLog } from "@/lib/audit";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/user/data-export — Export all user data as JSON (GDPR Article 20)
 export async function GET(req: NextRequest) {
   try {

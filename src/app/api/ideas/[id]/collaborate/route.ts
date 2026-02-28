@@ -4,6 +4,8 @@ import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { isValidId } from "@/lib/validation";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/ideas/:id/collaborate — list collaborators
 export async function GET(
   _req: NextRequest,

@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { POINTS } from "@/lib/points";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/sandbox/sessions/:id/versions - Add new version
 export async function POST(
   req: NextRequest,

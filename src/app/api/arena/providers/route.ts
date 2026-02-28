@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 const SUPPORTED_PROVIDERS = ["openai", "anthropic", "mistral", "google", "stability", "leonardo", "replicate", "kling", "custom"];
 
 export async function GET() {

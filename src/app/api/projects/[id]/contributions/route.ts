@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { getContributionPoints } from "@/lib/points";
 import { checkAndAwardBadges } from "@/lib/badges";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/projects/:id/contributions - Add a contribution
 export async function POST(
   req: NextRequest,

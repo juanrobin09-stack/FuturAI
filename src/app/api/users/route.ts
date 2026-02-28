@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { calculateImpactScore } from "@/lib/impact-score";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/users?clerkId=xxx OR ?leaderboard=true
 export async function GET(req: NextRequest) {
   try {

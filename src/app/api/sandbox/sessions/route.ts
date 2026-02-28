@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { POINTS } from "@/lib/points";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/sandbox/sessions - List user's sandbox sessions
 export async function GET() {
   try {

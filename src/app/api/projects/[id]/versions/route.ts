@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/projects/:id/versions - Create a new project version
 export async function POST(
   req: NextRequest,

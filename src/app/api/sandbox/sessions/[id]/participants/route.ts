@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/sandbox/sessions/:id/participants - Add participant
 export async function POST(
   req: NextRequest,

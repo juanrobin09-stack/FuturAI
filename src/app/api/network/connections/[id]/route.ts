@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { POINTS } from "@/lib/points";
 import { checkAndAwardBadges } from "@/lib/badges";
 
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getCurrentUser();

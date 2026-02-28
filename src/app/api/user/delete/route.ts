@@ -4,6 +4,8 @@ import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { createAuditLog } from "@/lib/audit";
 
+export const dynamic = 'force-dynamic';
+
 // DELETE /api/user/delete — GDPR: Hard delete user and all associated data
 export async function DELETE(req: NextRequest) {
   try {

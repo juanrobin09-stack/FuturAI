@@ -5,6 +5,8 @@ import { encrypt } from "@/lib/crypto";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { createAuditLog } from "@/lib/audit";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/user/api-keys — List user's API keys (never return full key)
 export async function GET(req: NextRequest) {
   try {

@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { executeAI } from "@/lib/ai-execute";
 import prisma from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 export const maxDuration = 300; // Fluid Compute — up to 300s on Hobby
 
 export async function POST(req: NextRequest) {

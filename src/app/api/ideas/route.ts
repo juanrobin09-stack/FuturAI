@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { checkAndAwardBadges } from "@/lib/badges";
 import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/ideas - List ideas with filters
 export async function GET(req: NextRequest) {
   try {

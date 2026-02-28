@@ -5,6 +5,8 @@ import { POINTS } from "@/lib/points";
 import { checkAndAwardBadges } from "@/lib/badges";
 import { applyRateLimit } from "@/lib/rate-limit";
 
+export const dynamic = 'force-dynamic';
+
 const DAILY_SHARE_CAP = 5;
 
 // POST /api/share — Track a content share and award points

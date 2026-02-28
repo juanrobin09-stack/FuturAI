@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser, getAuthUserId } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/sandbox/sessions/:id - Get session with all data
 export async function GET(
   req: NextRequest,

@@ -7,6 +7,8 @@ import { getProfileCompletion } from "@/lib/profile-completion";
 import { POINTS } from "@/lib/points";
 import { checkAndAwardBadges } from "@/lib/badges";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/users/me — Get current authenticated user's full info
 export async function GET(req: NextRequest) {
   try {

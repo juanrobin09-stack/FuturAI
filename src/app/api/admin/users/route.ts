@@ -6,6 +6,8 @@ import { applyRateLimit } from "@/lib/rate-limit";
 import { isValidId } from "@/lib/validation";
 import { createAuditLog } from "@/lib/audit";
 
+export const dynamic = 'force-dynamic';
+
 const VALID_ROLES: UserRole[] = [
   "USER",
   "EXPERT_VOLUNTEER",

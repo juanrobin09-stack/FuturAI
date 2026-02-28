@@ -5,6 +5,8 @@ import { POINTS } from "@/lib/points";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { isValidId } from "@/lib/validation";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/challenges/:id/entries/:entryId/vote - Vote for a challenge entry
 export async function POST(
   req: NextRequest,
