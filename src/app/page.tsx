@@ -206,7 +206,7 @@ export default async function HomePage() {
                   GitHub
                   <ArrowRight className="w-3 h-3" />
                 </a>
-                <a href="https://magistra-six.vercel.app" target="_blank" rel="noopener noreferrer" className="btn-accent text-sm py-2 px-4 flex items-center gap-2">
+                <a href="https://magistra.vercel.app" target="_blank" rel="noopener noreferrer" className="btn-accent text-sm py-2 px-4 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   {t.home.joinWaitlist}
                   <ArrowRight className="w-3 h-3" />
