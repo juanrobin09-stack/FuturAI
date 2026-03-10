@@ -84,6 +84,12 @@ export const en: TranslationKeys = {
     featChallengesDesc: "Expert panels, multi-criteria evaluation and transparent governance.",
     featMap: "World map",
     featMapDesc: "Visualize project impact across the globe.",
+    ourProjects: "Our projects",
+    ourProjectsHighlight: "in progress",
+    ourProjectsSubtitle: "Open-source AI tools built for the common good.",
+    magistraDesc: "AI that prepares your lessons for you. Course generation, differentiated exercises, assessments aligned with official curricula. Open-source and GDPR compliant.",
+    projectInProgress: "In progress",
+    joinWaitlist: "Join waitlist",
   },
   footer: {
     description: "Global AI collaboration platform. Submit your ideas, vote for the best ones and build the future of artificial intelligence together.",

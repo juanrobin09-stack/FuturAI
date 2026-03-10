@@ -170,6 +170,53 @@ export default async function HomePage() {
         </StaggerContainer>
       </section>
 
+      {/* ─── Our Projects ─── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+        <FadeIn>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">
+            {t.home.ourProjects} <span className="gradient-text">{t.home.ourProjectsHighlight}</span>
+          </h2>
+          <p className="text-gray-400 text-center mb-10 max-w-xl mx-auto text-sm sm:text-base">{t.home.ourProjectsSubtitle}</p>
+        </FadeIn>
+        <div className="max-w-2xl mx-auto">
+          <FadeIn delay={0.2}>
+            <div className="card group hover:border-primary-500/20 relative overflow-hidden">
+              <div className="absolute top-4 right-4 text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+                {t.home.projectInProgress}
+              </div>
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-6 h-6 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-1">Magistra</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">{t.home.magistraDesc}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {["IA g\u00e9n\u00e9rative", "\u00c9ducation", "RGPD", "Open-source"].map((tag) => (
+                  <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-400 border border-primary-500/20">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div className="flex items-center gap-4">
+                <a href="https://github.com/juanrobin09-stack/Magistra" target="_blank" rel="noopener noreferrer" className="btn-ghost text-sm py-2 px-4 flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  GitHub
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+                <a href="https://magistra-six.vercel.app" target="_blank" rel="noopener noreferrer" className="btn-accent text-sm py-2 px-4 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  {t.home.joinWaitlist}
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* ─── Community Stats — only when impressive ─── */}
       {showCommunityStats && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">

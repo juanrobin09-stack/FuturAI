@@ -82,6 +82,12 @@ export const fr = {
     featChallengesDesc: "Panels d'experts, \u00e9valuation multi-crit\u00e8res et gouvernance transparente.",
     featMap: "Carte mondiale",
     featMapDesc: "Visualisez l'impact des projets \u00e0 travers le monde.",
+    ourProjects: "Nos projets",
+    ourProjectsHighlight: "en cours",
+    ourProjectsSubtitle: "Des outils IA open-source construits pour le bien commun.",
+    magistraDesc: "L'IA qui pr\u00e9pare vos cours \u00e0 votre place. G\u00e9n\u00e9ration de cours, exercices diff\u00e9renci\u00e9s, \u00e9valuations align\u00e9es sur les programmes officiels. Open-source et RGPD.",
+    projectInProgress: "En cours",
+    joinWaitlist: "Liste d'attente",
   },
   footer: {
     description: "Plateforme mondiale de collaboration IA. Soumettez vos id\u00e9es, votez pour les meilleures et construisons ensemble le futur de l\u2019intelligence artificielle.",
